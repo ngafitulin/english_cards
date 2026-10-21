@@ -1,5 +1,6 @@
 <title>Карточки · English A1→A2+</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="build" content="2026-10-21.3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Карточки">
 
@@ -270,6 +271,107 @@
   .note code { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-muted); }
   .flash { font-family: var(--mono); font-size: 0.6875rem; color: var(--accent); min-height: 1.1em; margin: 0; }
 
+
+  /* ── режимы ───────────────────────────────────────── */
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--rule);
+    border-radius: 5px; overflow: hidden; background: var(--surface); }
+  .mode { font: inherit; font-size: 0.9375rem; font-weight: 600; padding: 0.625rem 0.25rem 0.5625rem;
+    border: 0; border-right: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer;
+    display: flex; flex-direction: column; gap: 0.1875rem; align-items: center; -webkit-tap-highlight-color: transparent; }
+  .mode:last-child { border-right: 0; }
+  .mode span { font-family: var(--mono); font-size: 0.5625rem; letter-spacing: 0.06em; color: var(--ink-faint); font-weight: 400; }
+  .mode[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .mode[aria-pressed="true"] span { color: color-mix(in oklab, var(--accent-ink) 75%, transparent); }
+  .mode:focus-visible, .chip:focus-visible, .opt:focus-visible, .ghost:focus-visible, .letters button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .tcfg { display: flex; flex-direction: column; gap: 1.25rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+  .chips.col { flex-direction: column; gap: 0.25rem; }
+  .chip { font: inherit; font-size: 0.8125rem; font-weight: 500; padding: 0.4375rem 0.75rem; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+  .chips.col .chip { border-radius: 4px; padding: 0.375rem 0.5rem; background: var(--paper); }
+  .chip[aria-pressed="true"], .chips.col .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  #terrbox { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--hair); }
+  #terr[aria-pressed="true"]::before { content: "✓ "; }
+
+  /* ── экран Learn / теста ──────────────────────────── */
+  #qstage { justify-content: flex-start; gap: 0.625rem; }
+  .card.qcard { cursor: default; min-height: 9.5rem; max-height: none; flex: 0 0 auto; user-select: text; }
+  .pair { border-top: 1px solid var(--hair); padding-top: 0.75rem; width: 70%; }
+  .pair .solution { margin: 0; }
+  .opts { display: flex; flex-direction: column; gap: 0.375rem; }
+  .opt { font: inherit; font-size: 1rem; text-align: left; padding: 0.8125rem 0.875rem; border: 1px solid var(--rule);
+    border-radius: 5px; background: var(--surface); color: var(--ink); cursor: pointer; display: flex; gap: 0.75rem;
+    align-items: baseline; -webkit-tap-highlight-color: transparent; line-height: 1.3; }
+  .opt kbd { font-family: var(--mono); font-size: 0.625rem; color: var(--ink-faint); flex: none; }
+  .opt.en span { font-family: var(--serif); font-size: 1.0625rem; }
+  .opt:disabled { cursor: default; opacity: 1; color: var(--ink); }
+  .opt.pick { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .opt.right { border-color: var(--ok); background: color-mix(in oklab, var(--ok) 15%, var(--surface)); }
+  .opt.wrong { border-color: var(--alarm); background: color-mix(in oklab, var(--alarm) 15%, var(--surface)); }
+  .opt.dim { opacity: 0.5; }
+  .tfopts { flex-direction: row; } .tfopts .opt { flex: 1; justify-content: center; }
+
+  .wr { font-family: var(--serif); font-size: 1.25rem; padding: 0.75rem 0.875rem; border: 1px solid var(--rule);
+    border-radius: 5px; background: var(--surface); color: var(--ink); width: 100%; }
+  .wr.okk { border-color: var(--ok); } .wr.bad { border-color: var(--alarm); }
+  .wr:disabled { opacity: 1; color: var(--ink); -webkit-text-fill-color: var(--ink); }
+
+  .fb { border-left: 2px solid var(--ok); padding: 0.375rem 0 0.375rem 0.75rem; font-size: 0.875rem; line-height: 1.5;
+    color: var(--ink-muted); display: flex; flex-direction: column; gap: 0.25rem; }
+  .fb.bad { border-color: var(--alarm); }
+  .fb .v { font-family: var(--mono); font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ok); }
+  .fb.bad .v { color: var(--alarm); }
+  .fb .big { font-family: var(--serif); font-size: 1.1875rem; color: var(--ink); }
+  .fb .ex { font-family: var(--serif); font-style: italic; }
+  .fb .sayb { align-self: flex-start; padding: 0.3125rem 0.75rem; }
+  .actions { display: flex; gap: 0.375rem; }
+  .actions .start { flex: 1; padding: 0.8125rem; }
+  .actions.col { flex-direction: column; width: 100%; }
+  .ghost { font: inherit; font-size: 0.9375rem; font-weight: 600; padding: 0.8125rem 1rem; border-radius: 5px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+
+  .mlist { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+  .mlist li { display: flex; gap: 0.625rem; font-size: 0.9375rem; padding: 0.5rem 0.625rem; background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 4px; }
+  .mlist li b { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+  .mrow { display: flex; flex-direction: column; gap: 0.375rem; padding: 0.625rem 0; border-bottom: 1px solid var(--hair); }
+  .mrow .w { font-family: var(--serif); font-size: 1.125rem; }
+  .letters { display: flex; gap: 0.25rem; }
+  .letters button { flex: 1; font-family: var(--mono); font-size: 0.875rem; padding: 0.5rem 0; border: 1px solid var(--rule);
+    border-radius: 4px; background: var(--surface); color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .letters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .done.res { min-height: 0; padding: 1.5rem 1.25rem; }
+  .done .eyebrow { font-size: 0.625rem; color: var(--ink-faint); margin: 0; }
+  .done .score { color: var(--ink); font-family: var(--serif); font-size: 3rem; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; }
+  .seg { display: flex; height: 6px; width: 100%; max-width: 20rem; border-radius: 3px; overflow: hidden; background: var(--surface-2); }
+  .seg i { display: block; height: 100%; } .seg .m { background: var(--ok); } .seg .l { background: var(--signal); }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; font-family: var(--mono); font-size: 0.5625rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
+  .legend i { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 2px; margin-right: 0.3rem; vertical-align: 0; }
+  .rev { display: flex; flex-direction: column; text-align: left; }
+  .rv { display: grid; grid-template-columns: 1.25rem 1fr; gap: 0.5rem; padding: 0.625rem 0; border-top: 1px solid var(--hair);
+    font-size: 0.875rem; line-height: 1.45; }
+  .rv > i { font-style: normal; font-weight: 700; } .rv.ok > i { color: var(--ok); } .rv.no > i { color: var(--alarm); }
+  .rv .t { font-family: var(--mono); font-size: 0.5625rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+  .rv .q { color: var(--ink); }
+  .rv .a { color: var(--ink-muted); font-size: 0.8125rem; }
+  .rv .mini { margin-top: 0.375rem; }
+
+  /* ── окно подтверждения ───────────────────────────── */
+  .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    padding: 1rem; background: color-mix(in oklab, #000 45%, transparent); }
+  .mbox { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; width: 100%; max-width: 21rem;
+    padding: 1.5rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; text-align: center;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); }
+  .mbox p { margin: 0; font-size: 1rem; line-height: 1.45; color: var(--ink); text-wrap: balance; }
+  .mbox .actions > * { flex: 1; }
+
   @media (max-width: 360px) { .types { grid-template-columns: 1fr; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -284,11 +386,20 @@
     </div>
 
     <div>
+      <span class="flabel">Режим</span>
+      <div class="modes" id="modes" role="group" aria-label="Режим">
+        <button type="button" class="mode" data-mode="cards">Карточки<span>знаю / не знаю</span></button>
+        <button type="button" class="mode" data-mode="learn">Learn<span>выбор → ввод</span></button>
+        <button type="button" class="mode" data-mode="test">Тест<span>с оценкой</span></button>
+      </div>
+    </div>
+
+    <div>
       <span class="flabel">Тип карточек — можно несколько</span>
       <div class="types" id="types"></div>
     </div>
 
-    <div class="steppers">
+    <div class="steppers" id="cardcfg">
       <div class="stepper">
         <span class="flabel">Повторить</span>
         <div class="ctrl">
@@ -309,7 +420,40 @@
       </div>
     </div>
 
-    <p class="rules"><b>«Не знаю»</b> — слово попадёт в повторение и будет приходить в следующих сессиях, пока не нажмёшь «Знаю» в двух разных сессиях. <b>«Знаю»</b> с первого раза — слово больше не показывается. Когда в теме пройдены все слова, она начинается заново в новом случайном порядке.</p>
+    <div class="tcfg" id="testcfg" hidden>
+      <div class="steppers">
+        <div class="stepper">
+          <span class="flabel">Вопросов</span>
+          <div class="ctrl">
+            <button type="button" data-step="test" data-d="-5" aria-label="Меньше вопросов">−</button>
+            <input type="number" id="ntest" inputmode="numeric" min="1" aria-label="Сколько вопросов">
+            <button type="button" data-step="test" data-d="5" aria-label="Больше вопросов">+</button>
+          </div>
+          <span class="avail" id="atest">—</span>
+        </div>
+        <div class="stepper">
+          <span class="flabel">Какие слова</span>
+          <div class="chips col" id="tsrc">
+            <button type="button" class="chip" data-src="known">Пройденные</button>
+            <button type="button" class="chip" data-src="all">Все в теме</button>
+          </div>
+          <div class="chips col" id="terrbox">
+            <button type="button" class="chip" id="terr">Только ошибки</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span class="flabel">Типы вопросов</span>
+        <div class="chips" id="ttypes">
+          <button type="button" class="chip" data-tt="tf">Верно / неверно</button>
+          <button type="button" class="chip" data-tt="mc">Выбор ответа</button>
+          <button type="button" class="chip" data-tt="match">Сопоставление</button>
+          <button type="button" class="chip" data-tt="wr">Написать слово</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="rules" id="rules"><b>«Не знаю»</b> — слово попадёт в повторение и будет приходить в следующих сессиях, пока не нажмёшь «Знаю» в двух разных сессиях. <b>«Знаю»</b> с первого раза — слово больше не показывается. Когда в теме пройдены все слова, она начинается заново в новом случайном порядке.</p>
 
     <button class="start" id="start" type="button">Старт</button>
     <p class="setupnote" id="setupnote"></p>
@@ -361,6 +505,23 @@
     </div>
   </section>
 
+  <!-- ── 3. Learn / тест ── -->
+  <section id="quiz" hidden style="display:flex;flex-direction:column;gap:0.75rem;flex:1">
+    <header>
+      <div class="deckline">
+        <span class="deckname" id="qname"></span>
+      </div>
+      <div class="counts">
+        <div class="c-left"><b id="qa">0</b><span id="qal">осталось</span></div>
+        <div class="c-ok"><b id="qb">0</b><span id="qbl">освоено</span></div>
+        <div class="c-miss" id="qcw"><b id="qc">0</b><span id="qcl">ошибок</span></div>
+        <button class="quit" id="qquit" type="button">Выйти</button>
+      </div>
+      <div class="bar"><i id="qbar"></i></div>
+    </header>
+    <main class="stage" id="qstage" aria-live="polite"></main>
+  </section>
+
   <details>
     <summary>Настройки и колоды</summary>
     <div class="panel">
@@ -385,14 +546,10 @@ engineer;инженер;My brother is an engineer."></textarea>
       </div>
 
       <div class="row">
-        <label for="backup">Резервная копия прогресса</label>
-        <textarea id="backup" placeholder="нажми «Выгрузить», скопируй текст и сохрани в Заметки"></textarea>
+        <label>Прогресс</label>
         <div class="btnrow">
-          <button class="mini" id="exportbtn" type="button">Выгрузить</button>
-          <button class="mini" id="importbtn" type="button">Загрузить обратно</button>
           <button class="mini danger" id="resetbtn" type="button">Сбросить прогресс</button>
         </div>
-        <p>Прогресс живёт в памяти этого браузера. Раз в пару недель выгружай копию в Заметки — если Safari почистит данные сайтов, всё вернётся.</p>
       </div>
 
       <p class="flash" id="flash"></p>
@@ -402,121 +559,23 @@ engineer;инженер;My brother is an engineer."></textarea>
   </details>
 </div>
 
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mtext">
+  <div class="mbox">
+    <p id="mtext"></p>
+    <div class="actions">
+      <button type="button" class="ghost" id="mleft"></button>
+      <button type="button" class="start" id="mright"></button>
+    </div>
+  </div>
+</div>
+
 <script>
 "use strict";
 
 /* ── колода: курс + словарь 5000 ────────────────────────────
    формат строки: english;русское;пример
    строка «@Название» начинает новый тип; всё до первой @ — колода курса */
-const SEED = `@Словарь · Общение: фразы
-not bad;неплохо;Not bad, thanks.;Неплохо, спасибо.;nɑt bæd
-what's up;как дела;Hey, what's up?;Привет, как дела?;wʌts ʌp
-nothing much;ничего особенного;Nothing much.;Ничего особенного.;ˈnʌθɪŋ mʌtʃ
-long time no see;давно не виделись;Long time no see!;Давно не виделись!;lɔŋ taɪm noʊ si
-nice to see you;рад тебя видеть;Nice to see you again.;Рад снова тебя видеть.;naɪs tu si ju
-see you later;до встречи;See you later!;До встречи!;si ju ˈleɪtər
-take care;береги себя;Bye, take care!;Пока, береги себя!;teɪk kɛr
-have a nice weekend;хороших выходных;Have a nice weekend!;Хороших выходных!;hæv ə naɪs ˈwikɛnd
-you too;тебе тоже;You too!;И тебе!;ju tu
-where are you from;откуда вы;Where are you from?;Откуда вы?;wɛr ɑr ju frʌm
-what do you do;чем вы занимаетесь;What do you do?;Чем вы занимаетесь?;wʌt du ju du
-do you like it here;вам здесь нравится;Do you like it here?;Вам здесь нравится?;du ju laɪk ɪt hir
-I'm new here;я тут новенький;I'm new here.;Я здесь новенький.;aɪm nu hir
-I've just moved;я только переехал;I've just moved to Dubai.;Я только что переехал в Дубай.;aɪv dʒʌst muvd
-nice to meet you too;мне тоже приятно;Nice to meet you too.;Мне тоже приятно познакомиться.;naɪs tu mit ju tu
-this is my colleague;это мой коллега;This is my colleague Anna.;Это моя коллега Анна.;ðɪs ɪz maɪ ˈkɑliɡ
-could you speak more slowly;говорите медленнее;Could you speak more slowly, please?;Говорите, пожалуйста, помедленнее.;kʊd ju spik mɔr sˈloʊli
-could you say that again;повторите, пожалуйста;Could you say that again?;Повторите, пожалуйста.;kʊd ju seɪ ðæt əˈɡɛn
-how do you spell that;как это пишется;How do you spell that?;Как это пишется?;haʊ du ju spɛl ðæt
-what does it mean;что это значит;What does it mean?;Что это значит?;wʌt dʌz ɪt min
-I'm not sure I understand;я не уверен, что понял;I'm not sure I understand.;Я не уверен, что понял.;aɪm nɑt ʃʊr aɪ ʌndərˈstænd
-do you know what I mean;понимаешь, о чём я;Do you know what I mean?;Понимаешь, о чём я?;du ju noʊ wʌt aɪ min
-that makes sense;понятно, логично;Ah, that makes sense.;А, теперь понятно.;ðæt meɪks sɛns
-let me think;дай подумать;Let me think.;Дай подумать.;lɛt mi θɪŋk
-how can I put it;как бы это сказать;How can I put it…;Как бы это сказать…;haʊ kæn aɪ pʊt ɪt
-in other words;другими словами;In other words, no.;Другими словами, нет.;ɪn ˈʌðər wɜrdz
-for example (e.g.);например;For example, Python.;Например, Python.;fɔr ɪɡˈzæmpəl i dʒi
-by the way;кстати;By the way, are you free tonight?;Кстати, ты свободен сегодня вечером?;baɪ ðə weɪ
-anyway (topic);так вот;Anyway, let's go.;Так вот, пойдём.;ˈɛniweɪ ˈtɑpɪk
-actually (correction);вообще-то;Actually, I'm from Moldova.;Вообще-то, я из Молдовы.;ˈæktʃuəli kərˈɛkʃən
-I think so;думаю, да;I think so.;Думаю, да.;aɪ θɪŋk soʊ
-I don't think so;думаю, нет;I don't think so.;Думаю, нет.;aɪ doʊnt θɪŋk soʊ
-I hope so;надеюсь, что да;I hope so.;Надеюсь, что да.;aɪ hoʊp soʊ
-I guess;наверное;I guess you're right.;Наверное, ты прав.;aɪ ɡɛs
-no way;не может быть;No way!;Не может быть!;noʊ weɪ
-of course;конечно;Of course!;Конечно!;ʌv kɔrs
-no problem;без проблем;No problem!;Без проблем!;noʊ ˈprɑbləm
-you're welcome;пожалуйста (в ответ на спасибо);You're welcome.;Пожалуйста.;jʊr ˈwɛlkəm
-thanks a lot;большое спасибо;Thanks a lot!;Большое спасибо!;θæŋks ə lɑt
-I really appreciate it;очень ценю;I really appreciate it.;Я очень это ценю.;aɪ ˈrɪli əˈpriʃieɪt ɪt
-sorry to hear that;жаль это слышать;Sorry to hear that.;Жаль это слышать.;ˈsɑri tu hir ðæt
-well done (praise);молодец;Well done!;Молодец!;wɛl dʌn preɪz
-that sounds great;звучит отлично;That sounds great!;Звучит отлично!;ðæt saʊndz ɡreɪt
-count me in;я с вами;Count me in.;Я с вами.;kaʊnt mi ɪn
-maybe next time;может, в следующий раз;Maybe next time.;Может, в следующий раз.;ˈmeɪbi nɛkst taɪm
-I'm afraid I can't;боюсь, не смогу;I'm afraid I can't.;Боюсь, не смогу.;aɪm əˈfreɪd aɪ kænt
-what about you;а ты;What about you?;А ты?;wʌt əˈbaʊt ju
-how about;как насчёт;How about Friday?;Как насчёт пятницы?;haʊ əˈbaʊt
-why not;почему бы и нет;Why not?;Почему бы и нет?;waɪ nɑt
-let's;давай;Let's go!;Пойдём!;lɛts
-shall we;пойдём?;Shall we start?;Начнём?;ʃæl wi
-it depends;зависит;It depends.;Зависит от обстоятельств.;ɪt dɪˈpɛndz
-it doesn't matter;неважно;It doesn't matter.;Неважно.;ɪt ˈdʌzənt ˈmætər
-I don't mind;я не против;I don't mind.;Я не против.;aɪ doʊnt maɪnd
-I don't care;мне всё равно;I don't care.;Мне всё равно.;aɪ doʊnt kɛr
-I'm not sure (yet);пока не знаю;I'm not sure yet.;Пока не уверен.;aɪm nɑt ʃʊr jɛt
-I have no idea;понятия не имею;I have no idea.;Понятия не имею.;aɪ hæv noʊ aɪˈdiə
-that's right;верно;That's right.;Верно.;ðæts raɪt
-fair enough;справедливо;Fair enough.;Справедливо.;fɛr ɪˈnʌf
-I totally agree;полностью согласен;I totally agree.;Полностью согласен.;aɪ ˈtoʊtəli əˈɡri
-I see your point, but;понимаю, но;I see your point, but…;Понимаю, но…;aɪ si jɔr pɔɪnt bʌt
-on the one hand;с одной стороны;On the one hand, it's cheap.;С одной стороны, это дёшево.;ɑn ðə wʌn hænd
-on the other hand;с другой стороны;On the other hand, it's slow.;С другой стороны, это медленно.;ɑn ðə ˈʌðər hænd
-what do you think;что думаешь;What do you think?;Что думаешь?;wʌt du ju θɪŋk
-as far as I know;насколько я знаю;As far as I know, yes.;Насколько я знаю, да.;æz fɑr æz aɪ noʊ
-it's up to you;решать тебе;It's up to you.;Решать тебе.;ɪts ʌp tu ju
-just a sec;секунду;Just a sec.;Секунду.;dʒʌst ə sɛk
-here you are;вот, пожалуйста;Here you are.;Вот, пожалуйста.;hir ju ɑr
-after you;после вас;After you.;После вас.;ˈæftər ju
-go ahead;давай;Go ahead.;Давай, вперёд.;ɡoʊ əˈhɛd
-be careful;будь осторожен;Be careful!;Осторожно!;bi ˈkɛrfəl
-calm down;успокойся;Calm down.;Успокойся.;kɑm daʊn
-cheer up;не грусти;Cheer up!;Не грусти!;tʃɪr ʌp
-good luck;удачи;Good luck!;Удачи!;ɡʊd lʌk
-I'm starving;умираю с голоду;I'm starving.;Умираю с голоду.;aɪm ˈstɑrvɪŋ
-I'm exhausted;я вымотан;I'm exhausted.;Я вымотан.;aɪm ɪɡˈzɔstɪd
-I'm running late;я опаздываю;Sorry, I'm running late.;Извини, я опаздываю.;aɪm ˈrʌnɪŋ leɪt
-I'm on my way;я в пути;I'm on my way.;Я в пути.;aɪm ɑn maɪ weɪ
-what time shall we meet;во сколько встретимся;What time shall we meet?;Во сколько встретимся?;wʌt taɪm ʃæl wi mit
-where shall we meet;где встретимся;Where shall we meet?;Где встретимся?;wɛr ʃæl wi mit
-are you free;ты свободен;Are you free on Saturday?;Ты свободен в субботу?;ɑr ju fri
-I'm busy that day;я занят в этот день;Sorry, I'm busy that day.;Извини, я занят в этот день.;aɪm ˈbɪzi ðæt deɪ
-it's a deal (agree);договорились;It's a deal.;Договорились.;ɪts ə dil əˈɡri
-how was your weekend;как прошли выходные;How was your weekend?;Как прошли выходные?;haʊ wɑz jɔr ˈwikɛnd
-it was great;было отлично;It was great, thanks.;Было отлично, спасибо.;ɪt wɑz ɡreɪt
-what are your plans;какие планы;What are your plans for the weekend?;Какие планы на выходные?;wʌt ɑr jɔr plænz
-do you have any kids;у тебя есть дети;Do you have any kids?;У тебя есть дети?;du ju hæv ˈɛni kɪdz
-what's your hobby;какое у тебя хобби;What's your hobby?;Какое у тебя хобби?;wʌts jɔr ˈhɑbi
-I'm a big fan of;я большой фанат;I'm a big fan of football.;Я большой фанат футбола.;aɪm ə bɪɡ fæn ʌv
-I'm not a fan of;я не фанат;I'm not a fan of spicy food.;Я не любитель острой еды.;aɪm nɑt ə fæn ʌv
-it's not my thing;это не моё;Dancing is not my thing.;Танцы — это не моё.;ɪts nɑt maɪ θɪŋ
-I can't stand;терпеть не могу;I can't stand traffic.;Терпеть не могу пробки.;aɪ kænt stænd
-I've never tried;я никогда не пробовал;I've never tried sushi.;Я никогда не пробовал суши.;aɪv ˈnɛvər traɪd
-have you ever been to;ты когда-нибудь был в;Have you ever been to Spain?;Ты когда-нибудь был в Испании?;hæv ju ˈɛvər bɪn tu
-what's the weather like;какая погода;What's the weather like today?;Какая сегодня погода?;wʌts ðə ˈwɛðər laɪk
-it's getting late;уже поздно;It's getting late.;Уже поздно.;ɪts ˈɡɛtɪŋ leɪt
-I have to go;мне пора;Sorry, I have to go.;Извини, мне пора.;aɪ hæv tu ɡoʊ
-it was nice talking to you;приятно было поговорить;It was nice talking to you.;Было приятно с тобой поговорить.;ɪt wɑz naɪs ˈtɔkɪŋ tu ju
-let's keep in touch;давай не теряться;Let's keep in touch.;Давай не будем терять связь.;lɛts kip ɪn tʌtʃ
-what's your number;какой у тебя номер;What's your number?;Какой у тебя номер?;wʌts jɔr ˈnʌmbər
-text me;напиши мне;Text me later.;Напиши мне позже.;tɛkst mi
-call me back;перезвони мне;Call me back, please.;Перезвони мне, пожалуйста.;kɔl mi bæk
-leave a message;оставить сообщение;Leave a message after the beep.;Оставьте сообщение после сигнала.;liv ə ˈmɛsədʒ
-wrong number;не туда попали;Sorry, wrong number.;Извините, не туда попали.;rɔŋ ˈnʌmbər
-who's speaking;кто говорит;Hello, who's speaking?;Алло, кто говорит?;huz ˈspikɪŋ
-speaking (phone);это я (у телефона);Yes, speaking.;Да, это я.;ˈspikɪŋ foʊn
-hold on (phone);подождите на линии;Hold on, please.;Подождите на линии, пожалуйста.;hoʊld ɑn foʊn
-@Словарь · Работа и бизнес
+const SEED = `@Словарь · Работа и бизнес
 business;дело;I travel on business.;Я езжу в командировки.;ˈbɪznəs
 case;случай;In this case, call me.;В этом случае позвони мне.;keɪs
 point;замечание;That's a good point, I agree with you.;Хорошее замечание, я с тобой согласен.;pɔɪnt
@@ -742,6 +801,128 @@ workplace;рабочее место;My workplace is close to the metro.;Моё �
 supplement;добавка;She takes a vitamin supplement every day.;Она каждый день принимает витаминную добавку.;ˈsʌpləmənt
 resignation;отставка;He handed in his resignation yesterday.;Он подал заявление об уходе вчера.;rɛzəɡˈneɪʃən
 clerk;клерк;The clerk at the bank was very polite.;Клерк в банке был очень вежлив.;klɜrk
+colleague from another team;коллега из другой команды;She's a colleague from another team.;Она коллега из другой команды.;ˈkɑliɡ frʌm əˈnʌðər tim
+open space;опенспейс;We work in an open space.;Мы работаем в open space.;ˈoʊpən speɪs
+meeting room;переговорная;Book a meeting room.;Забронируй переговорную.;ˈmitɪŋ rum
+book a room;забронировать комнату;I'll book a room for two.;Я забронирую номер на двоих.;bʊk ə rum
+line manager;непосредственный руководитель;Ask your line manager.;Спроси у своего непосредственного руководителя.;laɪn ˈmænədʒər
+HR;отдел кадров;Send your CV to the HR department.;Отправь резюме в отдел кадров.;ˈeɪtʃɑr
+HR manager;HR-менеджер;The HR manager called me.;Мне позвонил менеджер по персоналу.;ˈeɪtʃɑr ˈmænədʒər
+recruiter;рекрутер;A recruiter wrote to me.;Мне написал рекрутер.;rɪˈkrutər
+hiring manager;нанимающий менеджер;Meet the hiring manager.;Познакомься с нанимающим менеджером.;ˈhaɪrɪŋ ˈmænədʒər
+job interview;собеседование;I have a job interview.;У меня собеседование.;dʒɑb ˈɪntərvju
+CV;резюме;Send me your CV.;Пришли мне своё резюме.;siˈvi
+cover letter;сопроводительное письмо;Write a cover letter.;Напиши сопроводительное письмо.;ˈkʌvər ˈlɛtər
+job offer;предложение о работе;I got a job offer.;Мне сделали предложение о работе.;dʒɑb ˈɔfər
+probation period;испытательный срок;Three months' probation period.;Испытательный срок три месяца.;proʊˈbeɪʃən ˈpɪriəd
+notice period;срок уведомления;A one-month notice period.;Срок уведомления об уходе — один месяц.;ˈnoʊtəs ˈpɪriəd
+resign;увольняться (по собственному);I want to resign.;Я хочу уволиться.;rɪˈzaɪn
+resignation letter;заявление об уходе;Hand in your resignation letter.;Подай заявление об увольнении.;rɛzəɡˈneɪʃən ˈlɛtər
+get fired;быть уволенным;He got fired for being late.;Его уволили за опоздания.;ɡɛt ˈfaɪərd
+lay off;сокращать;They laid off 50 people.;Сократили 50 человек.;leɪ ɔf
+day off;выходной;Tomorrow is my day off.;Завтра у меня выходной.;deɪ ɔf
+sick leave;больничный;I'm on sick leave.;Я на больничном.;sɪk liv
+paid leave;оплачиваемый отпуск;Twenty days of paid leave.;Двадцать дней оплачиваемого отпуска.;peɪd liv
+take a day off;взять выходной;Can I take a day off on Friday?;Можно взять отгул в пятницу?;teɪk ə deɪ ɔf
+work from home (WFH);работа из дома;I WFH on Fridays.;По пятницам я работаю из дома.;wɜrk frʌm hoʊm
+full-time;полная занятость;A full-time job.;Работа на полную ставку.;fʊl taɪm
+part-time;частичная занятость;A part-time job.;Работа на неполную ставку.;pɑrt taɪm
+freelance;фриланс;She works as a freelance designer.;Она работает фрилансером-дизайнером.;ˈfrilæns
+contractor;подрядчик;He is a contractor, not an employee.;Он подрядчик, а не сотрудник.;ˈkɑntræktər
+self-employed;самозанятый;She is self-employed.;Она работает на себя.;sɛlf ɛmˈplɔɪd
+deal (business);сделка;We closed the deal.;Мы заключили сделку.;dil ˈbɪznəs
+negotiate;вести переговоры;We have to negotiate the price.;Нам нужно договориться о цене.;nəˈɡoʊʃieɪt
+contract terms;условия договора;Read the contract terms.;Прочитай условия договора.;ˈkɑntrækt tɜrmz
+sign a contract;подписать договор;We sign the contract tomorrow.;Завтра мы подписываем договор.;saɪn ə ˈkɑntrækt
+ASAP;как можно скорее;Please send it ASAP.;Пожалуйста, отправь как можно скорее.;ˈeɪɛseɪpi
+EOD;к концу дня;I'll send it by EOD.;Я отправлю до конца дня.;i oʊ di
+ETA;ожидаемое время;What is the ETA of the delivery?;Когда ожидается доставка?;i ti eɪ
+action items;задачи по итогам;Here are the action items.;Вот список задач к выполнению.;ˈækʃən ˈaɪtəmz
+next steps;следующие шаги;What are the next steps?;Каковы следующие шаги?;nɛkst stɛps
+minutes (meeting);протокол встречи;Who takes the minutes?;Кто ведёт протокол?;ˈmɪnəts ˈmitɪŋ
+take notes;вести записи;Please take notes at the meeting.;Пожалуйста, делай заметки на встрече.;teɪk noʊts
+agenda item;пункт повестки;The first agenda item.;Первый пункт повестки.;əˈdʒɛndə ˈaɪtəm
+any other business;разное (в конце встречи);Any other business?;Другие вопросы?;ˈɛni ˈʌðər ˈbɪznəs
+wrap up;завершать;Let's wrap up the meeting.;Давайте завершим встречу.;ræp ʌp
+run late;затягиваться;The meeting is running late.;Встреча затягивается.;rʌn leɪt
+join a call;присоединиться к звонку;I'll join the call in five minutes.;Я подключусь к звонку через пять минут.;dʒɔɪn ə kɔl
+video call;видеозвонок;Let's have a video call.;Давай созвонимся по видео.;ˈvɪdioʊ kɔl
+conference call;конференц-звонок;A conference call at three.;Конференц-звонок в три.;ˈkɑnfərəns kɔl
+you're breaking up;вы пропадаете (связь);Sorry, you're breaking up.;Извините, вас плохо слышно.;jʊr ˈbreɪkɪŋ ʌp
+can you hear me;вы меня слышите;Can you hear me?;Вы меня слышите?;kæn ju hir mi
+I'll share my screen;я покажу экран;I'll share my screen.;Я покажу свой экран.;aɪl ʃɛr maɪ skrin
+let me check;дайте проверю;Let me check and come back to you.;Дай мне проверить, и я вернусь к тебе.;lɛt mi tʃɛk
+get back to you;вернуться с ответом;I'll get back to you tomorrow.;Я отвечу тебе завтра.;ɡɛt bæk tu ju
+on my side;с моей стороны;Everything is fine on my side.;С моей стороны всё в порядке.;ɑn maɪ saɪd
+approve a request;одобрить запрос;Please approve my request.;Пожалуйста, одобри мою заявку.;əˈpruv ə rɪˈkwɛst
+headcount;численность штата;We have no headcount.;У нас нет свободных штатных мест.;ˈhɛdkaʊnt
+team building;тимбилдинг;A team building event.;Мероприятие по сплочению команды.;tim ˈbɪldɪŋ
+office party;корпоратив;The office party is on Friday.;Корпоратив в пятницу.;ˈɔfɪs ˈpɑrti
+dress code;дресс-код;There's no dress code.;Дресс-кода нет.;drɛs koʊd
+business casual;деловой повседневный стиль;Business casual is fine.;Деловой повседневный стиль подойдёт.;ˈbɪznəs ˈkæʒəwəl
+badge;бейдж;Don't forget your badge.;Не забудь бейдж.;bædʒ
+access card;карта доступа;My access card doesn't work.;Мой пропуск не работает.;ˈæksɛs kɑrd
+reception desk;ресепшн;Leave it at the reception desk.;Оставь на стойке ресепшена.;rɪˈsɛpʃən dɛsk
+visitor pass;гостевой пропуск;Get a visitor pass.;Получи пропуск для посетителя.;ˈvɪzɪtər pæs
+coffee break;кофе-брейк;Let's have a coffee break.;Давай сделаем перерыв на кофе.;ˈkɑfi breɪk
+lunch break;обеденный перерыв;I'm on my lunch break.;У меня обеденный перерыв.;lʌntʃ breɪk
+stapler;степлер;Can I borrow your stapler?;Можно одолжить твой степлер?;ˈsteɪpələr
+whiteboard;маркерная доска;Draw it on the whiteboard.;Нарисуй это на доске.;ˈwaɪtbɔrd
+marker;маркер;Use a red marker on the whiteboard.;Пиши красным маркером на доске.;ˈmɑrkər
+sticky note;стикер;Put a sticky note on it.;Приклей на это стикер.;ˈstɪki noʊt
+notebook;блокнот;I wrote it in my notebook.;Я записал это в блокноте.;ˈnoʊtbʊk
+office supplies;канцтовары;We order office supplies every month.;Мы заказываем канцелярию каждый месяц.;ˈɔfɪs səˈplaɪz
+company policy;политика компании;It is against company policy.;Это противоречит политике компании.;ˈkʌmpəni ˈpɑləsi
+code of conduct;кодекс поведения;Read the code of conduct.;Прочитай кодекс поведения.;koʊd ʌv ˈkɑndəkt
+NDA;соглашение о неразглашении;Everyone signed an NDA.;Все подписали соглашение о неразглашении.;ɛn di eɪ
+confidential;конфиденциальный;This information is confidential.;Эта информация конфиденциальна.;kɑnfəˈdɛnʃəl
+compliance officer;специалист по комплаенсу;Ask the compliance officer.;Спроси у специалиста по комплаенсу.;kəmˈplaɪəns ˈɔfəsər
+performance review;оценка работы;Prepare for your performance review.;Подготовься к оценке эффективности.;pərˈfɔrməns riˈvju
+get promoted;получить повышение;I want to get promoted.;Я хочу получить повышение.;ɡɛt prəˈmoʊtɪd
+career path;карьерный путь;Discuss your career path.;Обсуди свой карьерный путь.;kərˈɪr pæθ
+mentor;наставник;She is my mentor.;Она мой наставник.;ˈmɛntɔr
+one-on-one;встреча один на один;My one-on-one with my manager.;Моя личная встреча с руководителем.;wʌn ɑn wʌn
+feedback session;встреча по обратной связи;We have a feedback session on Friday.;В пятницу у нас сессия обратной связи.;ˈfidbæk ˈsɛʃən
+strengths;сильные стороны;What are your strengths?;Каковы твои сильные стороны?;strɛŋkθs
+weaknesses;слабые стороны;What are your weaknesses?;Каковы твои слабые стороны?;ˈwiknəsəz
+achievements;достижения;Talk about your achievements.;Расскажи о своих достижениях.;əˈtʃivmənts
+duties;обязанности;Your duties include answering the phone.;В ваши обязанности входит отвечать на звонки.;ˈdutiz
+report to;подчиняться;I report to the CTO.;Я подчиняюсь техническому директору.;riˈpɔrt tu
+in charge of;отвечает за;Who is in charge of security?;Кто отвечает за безопасность?;ɪn tʃɑrdʒ ʌv
+work closely with;тесно работать с;I work closely with designers.;Я тесно работаю с дизайнерами.;wɜrk ˈkloʊsli wɪð
+cross-functional team;кросс-функциональная команда;A cross-functional team.;Кросс-функциональная команда.;krɔs ˈfʌŋkʃənəl tim
+department head;руководитель отдела;The department head approved the plan.;Руководитель отдела одобрил план.;dɪˈpɑrtmənt hɛd
+CEO;генеральный директор;The CEO joined the meeting.;Генеральный директор присоединился к встрече.;ˈsiioʊ
+board of directors;совет директоров;The board of directors.;Совет директоров.;bɔrd ʌv dərˈɛktərz
+shareholder;акционер;Each shareholder gets a part of the profit.;Каждый акционер получает часть прибыли.;ˈʃɛrhoʊldər
+headquarters (HQ);головной офис;Our HQ is in London.;Наш головной офис в Лондоне.;ˈhɛdˌkwɔrtərz
+branch office;филиал;A branch office in Dubai.;Филиал в Дубае.;bræntʃ ˈɔfɪs
+subsidiary;дочерняя компания;It is a subsidiary of a big company.;Это дочерняя компания крупной компании.;səbˈsɪdiɛri
+client meeting;встреча с клиентом;I have a client meeting at three.;В три у меня встреча с клиентом.;ˈklaɪənt ˈmitɪŋ
+key account;ключевой клиент;She manages the key account.;Она ведёт ключевого клиента.;ki əˈkaʊnt
+sales pitch;продающая презентация;Prepare a sales pitch.;Подготовь презентацию для продаж.;seɪlz pɪtʃ
+market share;доля рынка;We want to increase our market share.;Мы хотим увеличить свою долю рынка.;ˈmɑrkət ʃɛr
+competitor analysis;анализ конкурентов;Do a competitor analysis.;Проведи анализ конкурентов.;kəmˈpɛtətər əˈnæləsəs
+target market;целевой рынок;Our target market is young people.;Наш целевой рынок — молодёжь.;ˈtɑrɡət ˈmɑrkət
+forecast;прогноз;The weather forecast is bad.;Прогноз погоды плохой.;ˈfɔrkæst
+growth rate;темп роста;The growth rate is 10%.;Темп роста — 10%.;ɡroʊθ reɪt
+outsourcing;аутсорсинг;The company uses outsourcing for support.;Компания передаёт поддержку на аутсорсинг.;aʊtˈsɔrsɪŋ
+supplier;поставщик;Our supplier delivers the goods on Monday.;Наш поставщик доставляет товар в понедельник.;səˈplaɪər
+employment contract;трудовой договор;Sign the employment contract.;Подпиши трудовой договор.;ɛmˈplɔɪmənt ˈkɑntrækt
+benefits package;социальный пакет;A good benefits package.;Хороший социальный пакет.;ˈbɛnəfɪts ˈpækədʒ
+pension plan;пенсионный план;My employer offers a pension plan.;Мой работодатель предлагает пенсионный план.;ˈpɛnʃən plæn
+workload;рабочая нагрузка;My workload is heavy.;У меня большая рабочая нагрузка.;ˈwɜrkloʊd
+deadline pressure;давление сроков;The deadline pressure makes me nervous.;Давление сроков меня нервирует.;ˈdɛdlaɪn ˈprɛʃər
+multitask;работать над многим сразу;I multitask a lot.;Я часто делаю несколько дел одновременно.;ˈmʌltitæsk
+prioritize;расставлять приоритеты;You need to prioritize your tasks.;Нужно расставлять приоритеты в задачах.;praɪˈɔrətaɪz
+delegate;делегировать;A good manager knows how to delegate.;Хороший руководитель умеет делегировать.;ˈdɛləɡeɪt
+take ownership;брать ответственность;Take ownership of the project.;Возьми проект под свою ответственность.;teɪk ˈoʊnərʃɪp
+raise an issue;поднять вопрос;I want to raise an issue.;Я хочу поднять вопрос.;reɪz æn ˈɪʃu
+escalate;эскалировать;Escalate it to the manager.;Передай это руководителю.;ˈɛskəleɪt
+loop in;подключить к обсуждению;Loop in the designer.;Подключи дизайнера.;lup ɪn
+networking;нетворкинг;Networking helps you find a job.;Нетворкинг помогает найти работу.;ˈnɛtwərkɪŋ
+business card;визитка;Here's my business card.;Вот моя визитка.;ˈbɪznəs kɑrd
+LinkedIn;LinkedIn;Connect with me on LinkedIn.;Добавь меня в LinkedIn.;ˈlɪŋktɪn
 @Словарь · Деньги и покупки
 money;деньги;I don't have money with me.;У меня нет с собой денег.;ˈmʌni
 change;менять;Can I change my seat?;Можно поменять место?;tʃeɪndʒ
@@ -854,6 +1035,80 @@ penny;пенни;I found a penny on the street.;Я нашёл пенни на у
 deficit;дефицит;The country has a budget deficit.;У страны дефицит бюджета.;ˈdɛfəsət
 donate;жертвовать;People donate money to help animals.;Люди жертвуют деньги на помощь животным.;ˈdoʊneɪt
 seller;продавец;The seller lowered the price.;Продавец снизил цену.;ˈsɛlər
+currency exchange;обмен валюты;Where is the currency exchange?;Где обмен валюты?;ˈkɜrənsi ɪksˈtʃeɪndʒ
+exchange rate;курс обмена;What's the exchange rate today?;Какой сегодня курс обмена?;ɪksˈtʃeɪndʒ reɪt
+keep the change;сдачи не надо;Keep the change.;Сдачи не надо.;kip ðə tʃeɪndʒ
+entrance fee;плата за вход;The entrance fee is ten euros.;Входной билет стоит десять евро.;ˈɛntrəns fi
+travel insurance;туристическая страховка;Do you have travel insurance?;У вас есть туристическая страховка?;ˈtrævəl ɪnˈʃʊrəns
+how much is a ticket;сколько стоит билет;How much is a ticket?;Сколько стоит билет?;haʊ mʌtʃ ɪz ə ˈtɪkət
+salary range;вилка зарплаты;What's the salary range?;Какая вилка зарплаты?;ˈsæləri reɪndʒ
+gross salary;зарплата до вычета налогов;My gross salary is higher than my net salary.;Моя зарплата до вычета налогов больше, чем после.;ɡroʊs ˈsæləri
+net salary;зарплата на руки;My net salary is two thousand dollars.;Моя зарплата на руки — две тысячи долларов.;nɛt ˈsæləri
+payslip;расчётный листок;I got my payslip by email.;Расчётный листок мне пришёл по почте.;ˈpeɪslɪp
+payroll;расчёт зарплаты;The payroll is paid on the fifth.;Зарплату выплачивают пятого числа.;ˈpeɪroʊl
+expense report;авансовый отчёт;Submit an expense report.;Отправь отчёт о расходах.;ɪkˈspɛns riˈpɔrt
+reimbursement;возмещение расходов;I asked for reimbursement of my travel costs.;Я попросил возмещения расходов на поездку.;riɪmˈbɜrsmənt
+invoice;счёт-фактура;Send me the invoice.;Пришли мне счёт.;ˈɪnvɔɪs
+purchase order;заказ на покупку;We need a purchase order.;Нам нужен заказ на покупку.;ˈpɜrtʃəs ˈɔrdər
+quote (price);коммерческое предложение;Ask for a quote.;Запроси расчёт стоимости.;kwoʊt praɪs
+budget approval;согласование бюджета;We're waiting for budget approval.;Мы ждём утверждения бюджета.;ˈbʌdʒɪt əˈpruvəl
+pay rise;повышение зарплаты;Ask for a pay rise.;Попроси о повышении зарплаты.;peɪ raɪz
+profit and loss;прибыли и убытки;Profit and loss statement.;Отчёт о прибылях и убытках.;ˈprɑfət ənd lɔs
+cost-effective;экономически выгодный;A cost-effective solution.;Экономически выгодное решение.;kɑst ɪˈfɛktɪv
+ROI;окупаемость инвестиций;The ROI of this project is high.;Окупаемость этого проекта высока.;rɔɪ
+per diem;суточные;What's the per diem?;Сколько командировочные?;pɜr dim
+travel expenses;командировочные расходы;Travel expenses are covered.;Расходы на поездку покрываются.;ˈtrævəl ɪkˈspɛnsəz
+bank account (salary);банковский счёт;Open a bank account.;Открой банковский счёт.;bæŋk əˈkaʊnt ˈsæləri
+how much does it cost;сколько стоит;How much does it cost?;Сколько это стоит?;haʊ mʌtʃ dʌz ɪt kɑst
+can I try it on;можно примерить;Can I try it on?;Можно примерить?;kæn aɪ traɪ ɪt ɑn
+fitting room;примерочная;Where is the fitting room?;Где примерочная?;ˈfɪtɪŋ rum
+a smaller size;размер поменьше;Do you have a smaller size?;Есть размер поменьше?;ə sˈmɔlər saɪz
+a bigger size;размер побольше;A bigger size, please.;Побольше размер, пожалуйста.;ə ˈbɪɡər saɪz
+it's too big;слишком большой;It's too big.;Он слишком большой.;ɪts tu bɪɡ
+it's too small;слишком маленький;It's too small.;Он слишком маленький.;ɪts tu smɔl
+on sale (discount);со скидкой;Is it on sale?;Это по скидке?;ɑn seɪl dɪˈskaʊnt
+receipt;чек;Can I have the receipt?;Можно чек?;rɪˈsit
+refund;возврат денег;I'd like a refund.;Я бы хотел вернуть деньги.;rɪˈfʌnd
+return (item);вернуть товар;I want to return this.;Я хочу это вернуть.;rɪˈtɜrn ˈaɪtəm
+cash only;только наличные;Sorry, cash only.;Извините, только наличные.;kæʃ ˈoʊnli
+contactless;бесконтактный;You can pay with a contactless card.;Можно оплатить бесконтактной картой.;ˈkɑntæktlɛs
+PIN code;пин-код;Enter your PIN code.;Введите свой ПИН-код.;pɪn koʊd
+card declined;карта отклонена;Sorry, your card is declined.;Извините, вашу карту отклонили.;kɑrd dɪˈklaɪnd
+change (money);сдача;Keep the change.;Сдачи не надо.;tʃeɪndʒ ˈmʌni
+coins;монеты;I have no coins.;У меня нет мелочи.;kɔɪnz
+banknote;купюра;A 100-euro banknote.;Банкнота в 100 евро.;ˈbæŋknoʊt
+ATM;банкомат;Where is the nearest ATM?;Где ближайший банкомат?;ˈeɪtiɛm
+withdraw money;снять деньги;Withdraw money from the ATM.;Сними деньги в банкомате.;wɪðˈdrɔ ˈmʌni
+open an account;открыть счёт;I want to open an account.;Я хочу открыть счёт.;ˈoʊpən æn əˈkaʊnt
+current account;текущий счёт;I opened a current account.;Я открыл текущий счёт.;ˈkɜrənt əˈkaʊnt
+savings account;сберегательный счёт;I keep my money in a savings account.;Я храню деньги на сберегательном счёте.;ˈseɪvɪŋz əˈkaʊnt
+debit card;дебетовая карта;I pay with my debit card.;Я плачу дебетовой картой.;ˈdɛbɪt kɑrd
+credit card;кредитная карта;Pay by credit card.;Оплати кредитной картой.;ˈkrɛdət kɑrd
+bank transfer (pay);банковский перевод;Pay by bank transfer.;Оплати банковским переводом.;bæŋk trænsˈfɜr peɪ
+IBAN;номер счёта IBAN;Enter the IBAN of the receiver.;Введи IBAN получателя.;ˈaɪbæn
+utility bill;коммунальный счёт;A recent utility bill.;Недавний счёт за коммунальные услуги.;juˈtɪləti bɪl
+mobile banking;мобильный банк;I use mobile banking every day.;Я каждый день пользуюсь мобильным банком.;ˈmoʊbəl ˈbæŋkɪŋ
+online shopping;онлайн-покупки;I do online shopping.;Я делаю покупки онлайн.;ˈɔnlaɪn ˈʃɑpɪŋ
+delivery address;адрес доставки;Enter your delivery address.;Введи адрес доставки.;dɪˈlɪvəri ˈædrɛs
+tracking number;трек-номер;Here's the tracking number.;Вот номер для отслеживания.;ˈtrækɪŋ ˈnʌmbər
+parcel;посылка;I got a parcel from my friend.;Я получил посылку от друга.;ˈpɑrsəl
+pick up (parcel);забрать;Pick up your parcel.;Забери свою посылку.;pɪk ʌp ˈpɑrsəl
+courier;курьер;The courier is here.;Курьер здесь.;ˈkɜriər
+top up;пополнить;Top up my phone.;Пополни мой телефон.;tɑp ʌp
+monthly rent;ежемесячная аренда;The monthly rent is high.;Ежемесячная арендная плата высока.;ˈmʌnθli rɛnt
+deposit (rent);залог;A one-month deposit.;Залог в размере месячной аренды.;dəˈpɑzɪt rɛnt
+bills included;счета включены;The rent is 800 euros, bills included.;Аренда — 800 евро, коммунальные включены.;bɪlz ɪnˈkludəd
+pay the bills;оплачивать счета;Pay the bills online.;Оплати счета онлайн.;peɪ ðə bɪlz
+the bill, please;счёт, пожалуйста;The bill, please.;Счёт, пожалуйста.;ðə bɪl pliz
+is service included;обслуживание включено;Is service included?;Обслуживание включено?;ɪz ˈsɜrvəs ɪnˈkludəd
+grocery store;продуктовый магазин;Is there a grocery store nearby?;Поблизости есть продуктовый магазин?;ˈɡroʊsəri stɔr
+supermarket;супермаркет;Go to the supermarket.;Иди в супермаркет.;ˈsupərmɑrkɪt
+checkout (shop);касса;Pay at the checkout.;Заплати на кассе.;ˈtʃɛkaʊt ʃɑp
+shopping cart;тележка;Take a shopping cart.;Возьми тележку.;ˈʃɑpɪŋ kɑrt
+basket;корзина;Put the apples in a basket.;Положи яблоки в корзину.;ˈbæskət
+plastic bag;пакет;Do you need a plastic bag?;Тебе нужен пластиковый пакет?;ˈplæstɪk bæɡ
+split the bill;поделить счёт;Let's split the bill.;Давай разделим счёт.;splɪt ðə bɪl
+tip (restaurant);чаевые;How much is the tip?;Сколько чаевые?;tɪp ˈrɛstərɑnt
 @Словарь · Технологии и наука
 system;система;The system is down.;Система не работает.;ˈsɪstəm
 video;видео;Send me the video.;Пришли мне видео.;ˈvɪdioʊ
@@ -1040,6 +1295,16 @@ width;ширина;What is the width of the table?;Какая ширина у с
 aluminum;алюминий;The window frame is made of aluminum.;Оконная рама сделана из алюминия.;əˈlumənəm
 disk;диск;My computer has a new hard disk.;В моём компьютере новый жёсткий диск.;dɪsk
 drone;дрон;The photographer used a drone.;Фотограф использовал дрон.;droʊn
+local SIM card;местная сим-карта;Where can I buy a local SIM card?;Где можно купить местную SIM-карту?;ˈloʊkəl sɪm kɑrd
+roaming;роуминг;Roaming is expensive abroad.;Роуминг за границей дорогой.;ˈroʊmɪŋ
+power adapter;переходник для розетки;I need a power adapter.;Мне нужен адаптер питания.;ˈpaʊər əˈdæptər
+socket;розетка;Where is the socket?;Где розетка?;ˈsɑkət
+printer;принтер;The printer is broken.;Принтер сломан.;ˈprɪntər
+photocopier;ксерокс;The photocopier is broken.;Ксерокс сломан.;ˈfoʊtoʊkɑpiər
+headset;гарнитура;I need a headset.;Мне нужна гарнитура.;ˈhɛdsɛt
+desk phone;рабочий телефон;Call my desk phone.;Позвони на мой рабочий телефон.;dɛsk foʊn
+extension number;добавочный номер;My extension number is 205.;Мой добавочный номер — 205.;ɪkˈstɛnʃən ˈnʌmbər
+mobile operator;мобильный оператор;My mobile operator offers cheap plans.;Мой мобильный оператор предлагает дешёвые тарифы.;ˈmoʊbəl ˈɑpəreɪtər
 @Словарь · Тело, здоровье и внешность
 back;назад;I'll be back at two.;Я вернусь в два.;bæk
 head;руководитель;She is the head of IT.;Она руководитель IT-отдела.;hɛd
@@ -1271,6 +1536,42 @@ thumb;большой палец;He hurt his thumb in the door.;Он прищем
 vitamin;витамин;I take vitamin C in winter.;Зимой я принимаю витамин C.;ˈvaɪtəmən
 wrist;запястье;She wears a watch on her wrist.;На запястье у неё часы.;rɪst
 chin;подбородок;He rested his chin on his hand.;Он положил подбородок на руку.;tʃɪn
+sunscreen;солнцезащитный крем;Use sunscreen on the beach.;На пляже пользуйся солнцезащитным кремом.;sənsˈkrin
+sunglasses;солнечные очки;He wore sunglasses.;Он был в солнечных очках.;ˈsʌnɡlæsɪz
+swimsuit;купальник;She packed a new swimsuit.;Она упаковала новый купальник.;ˈswɪmsut
+health insurance (work);медстраховка от работы;Health insurance is included.;Медицинская страховка включена.;hɛlθ ɪnˈʃʊrəns wɜrk
+burnout;выгорание;Long hours can lead to burnout.;Длинный рабочий день может привести к выгоранию.;ˈbɜrnaʊt
+pharmacy;аптека;Is there a pharmacy near here?;Здесь поблизости есть аптека?;ˈfɑrməsi
+hairdresser;парикмахер;I'm going to the hairdresser.;Я иду к парикмахеру.;ˈhɛrdrɛsər
+doctor's appointment;запись к врачу;I have a doctor's appointment.;У меня приём у врача.;ˈdɑktərz əˈpɔɪntmənt
+make an appointment;записаться;I'd like to make an appointment.;Я бы хотел записаться на приём.;meɪk æn əˈpɔɪntmənt
+GP;терапевт (семейный врач);I made an appointment with my GP.;Я записался на приём к терапевту.;dʒi pi
+dentist;стоматолог;I need a dentist.;Мне нужен стоматолог.;ˈdɛntəst
+headache;головная боль;I have a headache.;У меня болит голова.;ˈhɛdeɪk
+toothache;зубная боль;I have a toothache.;У меня болит зуб.;ˈtuθeɪk
+stomachache;боль в животе;I have a stomachache.;У меня болит живот.;ˈstʌməkeɪk
+sore throat;больное горло;I have a sore throat.;У меня болит горло.;sɔr θroʊt
+cough;кашель;I have a cough.;У меня кашель.;kɑf
+runny nose;насморк;I have a runny nose.;У меня насморк.;ˈrʌni noʊz
+cold (illness);простуда;I have a cold.;Я простудился.;koʊld ˈɪlnəs
+flu;грипп;I have the flu.;У меня грипп.;flu
+allergy;аллергия;Do you have any allergies?;У вас есть аллергия?;ˈælərdʒi
+dizzy;головокружение;I feel dizzy.;У меня кружится голова.;ˈdɪzi
+sick (nauseous);тошнит;I feel sick after the trip.;Меня тошнит после поездки.;sɪk ˈnɔʃəs
+it hurts here;болит здесь;It hurts here.;Болит вот здесь.;ɪt hɜrts hir
+prescription;рецепт (на лекарство);Do I need a prescription?;Нужен ли рецепт?;prəsˈkrɪpʃən
+painkiller;обезболивающее;I took a painkiller for my headache.;Я принял обезболивающее от головной боли.;ˈpeɪnkɪlər
+pill;таблетка;Take one pill a day.;Принимай по одной таблетке в день.;pɪl
+twice a day;два раза в день;Twice a day after meals.;Два раза в день после еды.;twaɪs ə deɪ
+side effects;побочные эффекты;The medicine can have side effects.;У лекарства могут быть побочные эффекты.;saɪd ɪˈfɛkts
+blood pressure;давление;My blood pressure is normal.;У меня нормальное давление.;blʌd ˈprɛʃər
+X-ray;рентген;You need an X-ray.;Вам нужен рентген.;ɛks reɪ
+blood test;анализ крови;I need to take a blood test.;Мне нужно сдать анализ крови.;blʌd tɛst
+ambulance;скорая помощь;Call an ambulance!;Вызовите скорую!;ˈæmbjələns
+help!;помогите!;Help! Someone call the police!;Помогите! Кто-нибудь, вызовите полицию!;hɛlp
+first aid;первая помощь;He gave first aid to the injured man.;Он оказал первую помощь раненому.;fɜrst eɪd
+health insurance card;полис медстрахования;Show your health insurance card.;Покажи карточку медицинской страховки.;hɛlθ ɪnˈʃʊrəns kɑrd
+get some rest;отдохнуть;Get some rest.;Отдохни немного.;ɡɛt sʌm rɛst
 @Словарь · Еда, дом и быт
 home;дом (родной);I work from home.;Я работаю из дома.;hoʊm
 house;дом (здание);They live in a big house.;Они живут в большом доме.;haʊs
@@ -1444,6 +1745,190 @@ ladder;лестница (приставная);He climbed the ladder to the roof
 mansion;особняк;They live in a huge mansion.;Они живут в огромном особняке.;ˈmænʃən
 liquor;крепкий алкоголь;The shop sells liquor.;В магазине продают крепкий алкоголь.;ˈlɪkər
 cottage;коттедж;We rented a cottage by the lake.;Мы сняли коттедж у озера.;ˈkɑtədʒ
+key card;ключ-карта;My key card doesn't work.;Моя ключ-карта не работает.;ki kɑrd
+towel;полотенце;Can I have another towel?;Можно ещё одно полотенце?;ˈtaʊəl
+pillow;подушка;An extra pillow, please.;Дополнительную подушку, пожалуйста.;ˈpɪloʊ
+blanket;одеяло;It is cold, I need another blanket.;Холодно, мне нужно ещё одно одеяло.;ˈblæŋkət
+air conditioning;кондиционер;The air conditioning doesn't work.;Кондиционер не работает.;ɛr kənˈdɪʃənɪŋ
+lobby;лобби;Meet me in the lobby.;Встреть меня в вестибюле.;ˈlɑbi
+elevator;лифт;Take the elevator to the third floor.;Поднимись на лифте на третий этаж.;ˈɛləveɪtər
+floor (hotel);этаж;Your room is on the fifth floor.;Ваш номер на пятом этаже.;flɔr hoʊˈtɛl
+landlord;арендодатель;The landlord lives next door.;Хозяин живёт по соседству.;ˈlændlɔrd
+canteen;столовая;Let's eat in the canteen.;Давай пообедаем в столовой.;kænˈtin
+dry cleaner;химчистка;Take it to the dry cleaner.;Отнеси это в химчистку.;draɪ ˈklinər
+laundry;прачечная;The laundry is in the basement.;Прачечная в подвале.;ˈlɔndri
+repair shop;мастерская;A phone repair shop.;Мастерская по ремонту телефонов.;rɪˈpɛr ʃɑp
+rent (flat);снимать (квартиру);I rent a flat.;Я снимаю квартиру.;rɛnt flæt
+furnished;меблированный;We rent a furnished flat.;Мы снимаем квартиру с мебелью.;ˈfɜrnɪʃt
+unfurnished;без мебели;The flat is unfurnished.;Квартира без мебели.;ʌnˈfɜrnɪʃt
+living room;гостиная;A big living room.;Большая гостиная.;ˈlɪvɪŋ rum
+balcony;балкон;A flat with a balcony.;Квартира с балконом.;ˈbælkəni
+stairs;лестница;The stairs are on the left.;Лестница слева.;stɛrz
+doorbell;дверной звонок;Ring the doorbell, please.;Позвони в дверной звонок, пожалуйста.;ˈdɔrbɛl
+key (home);ключ;I lost my key.;Я потерял ключ.;ki hoʊm
+lock (door);замок;The lock is broken.;Замок сломан.;lɑk dɔr
+light switch;выключатель;Where is the light switch?;Где выключатель света?;laɪt swɪtʃ
+washing machine;стиральная машина;Put the clothes in the washing machine.;Положи одежду в стиральную машину.;ˈwɑʃɪŋ məˈʃin
+dishwasher;посудомоечная машина;Put the plates in the dishwasher.;Поставь тарелки в посудомоечную машину.;ˈdɪʃwɑʃər
+vacuum cleaner;пылесос;I use a vacuum cleaner every week.;Я пылесошу каждую неделю.;ˈvækjum ˈklinər
+iron (clothes);утюг;I need an iron.;Мне нужен утюг.;ˈaɪərn kloʊðz
+hair dryer;фен;Is there a hair dryer?;Есть фен?;hɛr ˈdraɪər
+wardrobe;шкаф для одежды;My clothes are in the wardrobe.;Моя одежда в шкафу.;ˈwɔrdroʊb
+shelf;полка;Put it on the shelf.;Положи это на полку.;ʃɛlf
+drawer;ящик;In the top drawer.;В верхнем ящике.;drɔr
+curtain;штора;Close the curtain, please.;Закрой штору, пожалуйста.;ˈkɜrtən
+lamp;лампа;Turn on the lamp.;Включи лампу.;læmp
+mattress;матрас;I bought a new mattress.;Я купил новый матрас.;ˈmætrəs
+sheets (bed);постельное бельё;I changed the sheets on the bed.;Я сменил постельное бельё на кровати.;ʃits bɛd
+toothbrush;зубная щётка;I forgot my toothbrush.;Я забыл зубную щётку.;ˈtuθbrəʃ
+toothpaste;зубная паста;I forgot my toothpaste.;Я забыл зубную пасту.;ˈtuθpeɪst
+shampoo;шампунь;I wash my hair with shampoo.;Я мою голову шампунем.;ʃæmˈpu
+toilet paper;туалетная бумага;We need toilet paper.;Нам нужна туалетная бумага.;ˈtɔɪlət ˈpeɪpər
+recycling;переработка;Recycling helps nature.;Переработка помогает природе.;riˈsaɪkəlɪŋ
+leak;протечка;There's a leak in the bathroom.;В ванной протечка.;lik
+plumber;сантехник;Call a plumber, the sink is leaking.;Вызови сантехника, раковина течёт.;ˈplʌmər
+electrician;электрик;We need an electrician.;Нам нужен электрик.;ɪlɛkˈtrɪʃən
+broken (doesn't work);не работает;The shower doesn't work.;Душ не работает.;ˈbroʊkən ˈdʌzənt wɜrk
+get up (morning);вставать;I get up at seven.;Я встаю в семь.;ɡɛt ʌp ˈmɔrnɪŋ
+fall asleep;засыпать;I fall asleep at eleven.;Я засыпаю в одиннадцать.;fɔl əsˈlip
+do the dishes;мыть посуду;I do the dishes.;Я мою посуду.;du ðə ˈdɪʃəz
+do the shopping;ходить за покупками;I do the shopping on Saturday.;По субботам я делаю покупки.;du ðə ˈʃɑpɪŋ
+clean the flat;убирать квартиру;We clean the flat on Sunday.;По воскресеньям мы убираем квартиру.;klin ðə flæt
+walk the dog;выгуливать собаку;I walk the dog.;Я выгуливаю собаку.;wɔk ðə dɔɡ
+take out the trash;выносить мусор;Take out the trash.;Вынеси мусор.;teɪk aʊt ðə træʃ
+a table for two;столик на двоих;A table for two, please.;Столик на двоих, пожалуйста.;ə ˈteɪbəl fɔr tu
+do you have a reservation;у вас забронировано;Do you have a reservation?;У вас есть бронь?;du ju hæv ə rɛzərˈveɪʃən
+can I see the menu;можно меню;Can I see the menu, please?;Можно посмотреть меню, пожалуйста?;kæn aɪ si ðə ˈmɛnju
+are you ready to order;готовы заказать;Are you ready to order?;Вы готовы сделать заказ?;ɑr ju ˈrɛdi tu ˈɔrdər
+I'd like;я бы хотел;I'd like the fish, please.;Я бы хотел рыбу, пожалуйста.;aɪd laɪk
+what do you recommend;что посоветуете;What do you recommend?;Что вы порекомендуете?;wʌt du ju rɛkəˈmɛnd
+waiter;официант;The waiter brought us the menu.;Официант принёс нам меню.;ˈweɪtər
+starter;закуска;A starter for two.;Закуска на двоих.;ˈstɑrtər
+main course;основное блюдо;For the main course, steak.;На основное блюдо — стейк.;meɪn kɔrs
+dessert;десерт;For dessert, I'd like ice cream.;На десерт я бы хотел мороженое.;dɪˈzɜrt
+side dish;гарнир;The steak comes with a side dish of potatoes.;К стейку подаётся гарнир из картофеля.;saɪd dɪʃ
+today's special;блюдо дня;What is today's special?;Какое сегодня блюдо дня?;təˈdeɪz ˈspɛʃəl
+vegetarian;вегетарианский;Do you have vegetarian dishes?;У вас есть вегетарианские блюда?;vɛdʒəˈtɛriən
+vegan;веганский;I'm vegan, so I don't eat meat or cheese.;Я веган, поэтому не ем мясо и сыр.;ˈvɛɡən
+gluten-free;без глютена;Do you have gluten-free bread?;У вас есть хлеб без глютена?;ˈɡlutən fri
+allergic to;аллергия на;I'm allergic to nuts.;У меня аллергия на орехи.;əˈlɜrdʒɪk tu
+spicy;острый;I like spicy food.;Я люблю острую еду.;ˈspaɪsi
+not too spicy;не слишком острое;Not too spicy, please.;Не слишком остро, пожалуйста.;nɑt tu ˈspaɪsi
+salty;солёный;The soup is too salty.;Суп слишком солёный.;ˈsɔlti
+sour;кислый;This lemon is very sour.;Этот лимон очень кислый.;ˈsaʊər
+well done;хорошо прожаренный;I'd like my steak well done.;Я бы хотел хорошо прожаренный стейк.;wɛl dʌn
+medium rare;средней прожарки (с кровью);I'd like my steak medium rare.;Я бы хотел стейк с кровью.;ˈmidiəm rɛr
+grilled;на гриле;I ordered grilled fish with vegetables.;Я заказал рыбу-гриль с овощами.;ɡrɪld
+fried;жареный;I don't like fried food.;Я не люблю жареную еду.;fraɪd
+boiled;варёный;I eat a boiled egg for breakfast.;На завтрак я ем варёное яйцо.;bɔɪld
+baked;запечённый;We had baked potatoes with the meat.;Мы ели печёный картофель с мясом.;beɪkt
+steamed;на пару;The fish is steamed with vegetables.;Рыба приготовлена на пару с овощами.;stimd
+fresh juice;свежевыжатый сок;I'd like a glass of fresh juice.;Я бы хотел стакан свежего сока.;frɛʃ dʒus
+sparkling water;газированная вода;Do you have sparkling water?;У вас есть газированная вода?;ˈspɑrklɪŋ ˈwɔtər
+still water;вода без газа;I'll have still water, please.;Мне негазированную воду, пожалуйста.;stɪl ˈwɔtər
+tap water (drinking);водопроводная вода;Tap water is fine.;Водопроводная вода подойдёт.;tæp ˈwɔtər ˈdrɪŋkɪŋ
+a glass of wine;бокал вина;A glass of red wine.;Бокал красного вина.;ə ɡlæs ʌv waɪn
+draft beer;разливное пиво;Two draft beers, please.;Два разливных пива, пожалуйста.;dræft bɪr
+soft drink;безалкогольный напиток;I'll have a soft drink with the burger.;К бургеру я возьму безалкогольный напиток.;sɑft drɪŋk
+coke;кола;I'd like a coke with ice.;Я бы хотел колу со льдом.;koʊk
+lemonade;лимонад;The kids want some cold lemonade.;Дети хотят холодный лимонад.;ˈlɛməneɪd
+black tea;чёрный чай;Black tea with lemon.;Чёрный чай с лимоном.;blæk ti
+green tea;зелёный чай;I'd like a cup of green tea.;Я бы хотел чашку зелёного чая.;ɡrin ti
+herbal tea;травяной чай;At night I drink herbal tea.;Ночью я пью травяной чай.;ˈɜrbəl ti
+espresso;эспрессо;One espresso, please.;Один эспрессо, пожалуйста.;ɛsˈprɛsoʊ
+cappuccino;капучино;She ordered a cappuccino.;Она заказала капучино.;kæpuˈtʃinoʊ
+latte;латте;A latte with oat milk.;Латте на овсяном молоке.;ˈlɑteɪ
+decaf;без кофеина;I'll have a decaf coffee in the evening.;Вечером я возьму кофе без кофеина.;ˈdikæf
+to go;с собой;A coffee to go.;Кофе с собой.;tu ɡoʊ
+delivery (food);доставка еды;The restaurant offers food delivery.;Ресторан предлагает доставку еды.;dɪˈlɪvəri fud
+breakfast buffet;шведский стол;The hotel has a breakfast buffet.;В отеле есть шведский стол на завтрак.;ˈbrɛkfəst ˈbʌfət
+snack;перекус;I eat a healthy snack at four o'clock.;В четыре часа я ем полезный перекус.;snæk
+fork;вилка;Can I have a fork?;Можно мне вилку?;fɔrk
+spoon;ложка;Give me a spoon, please.;Дайте мне ложку, пожалуйста.;spun
+napkin;салфетка;Can I have a napkin?;Можно салфетку?;ˈnæpkɪn
+straw;трубочка;The kid drinks juice with a straw.;Ребёнок пьёт сок через трубочку.;strɔ
+tablecloth;скатерть;She put a white tablecloth on the table.;Она постелила на стол белую скатерть.;ˈteɪbəlklɔθ
+cutlery;столовые приборы;The cutlery is on the table.;Столовые приборы на столе.;ˈkʌtləri
+glass (for drinks);стакан;A glass for water.;Стакан для воды.;ɡlæs fɔr drɪŋks
+mug;кружка;He drinks coffee from a big mug.;Он пьёт кофе из большой кружки.;mʌɡ
+tray;поднос;The waiter carried a tray with drinks.;Официант нёс поднос с напитками.;treɪ
+chopsticks;палочки;Can I have chopsticks?;Можно мне палочки?;ˈtʃɑpstɪks
+salt and pepper;соль и перец;Pass the salt and pepper.;Передай соль и перец.;sɔlt ənd ˈpɛpər
+ketchup;кетчуп;Can I have some ketchup with the fries?;Можно мне кетчуп к картошке фри?;ˈkɛtʃəp
+mayonnaise;майонез;I don't like mayonnaise on my sandwich.;Я не люблю майонез в сэндвиче.;ˈmeɪəneɪz
+mustard;горчица;Add a little mustard to the sausage.;Добавь немного горчицы к сосиске.;ˈmʌstərd
+olive oil;оливковое масло;Dress the salad with olive oil.;Заправь салат оливковым маслом.;ˈɑləv ɔɪl
+vinegar;уксус;Add some vinegar to the salad.;Добавь в салат немного уксуса.;ˈvɪnəɡər
+garlic;чеснок;Add two cloves of garlic to the sauce.;Добавь в соус два зубчика чеснока.;ˈɡɑrlɪk
+onion;лук;Chop the onion and fry it.;Нарежь лук и обжарь его.;ˈʌnjən
+tomato;помидор;I put a tomato in the salad.;Я положил помидор в салат.;təˈmeɪtoʊ
+potato;картофель;Peel the potato and boil it.;Очисти картофель и отвари его.;pəˈteɪtoʊ
+cucumber;огурец;I bought a cucumber for the salad.;Я купил огурец для салата.;ˈkjukəmbər
+carrot;морковь;Grate the carrot for the soup.;Натри морковь для супа.;ˈkærət
+cabbage;капуста;We make soup with cabbage.;Мы варим суп с капустой.;ˈkæbədʒ
+mushroom;гриб;I picked a mushroom in the forest.;Я нашёл гриб в лесу.;ˈmʌʃrum
+lettuce;салат-латук;Put some lettuce on the sandwich.;Положи немного салата на сэндвич.;ˈlɛtəs
+beans;фасоль;I like soup with beans.;Я люблю суп с фасолью.;binz
+peas;горох;Peas are small and green.;Горох маленький и зелёный.;piz
+lemon;лимон;I like tea with lemon.;Я люблю чай с лимоном.;ˈlɛmən
+banana;банан;He eats a banana for breakfast.;Он ест банан на завтрак.;bəˈnænə
+grapes;виноград;We bought some grapes at the market.;Мы купили виноград на рынке.;ɡreɪps
+strawberry;клубника;She bought a basket of strawberries.;Она купила корзинку клубники.;sˈtrɔbɛri
+watermelon;арбуз;Watermelon is perfect for hot weather.;Арбуз идеален для жаркой погоды.;ˈwɔtərmɛlən
+pear;груша;This pear is sweet and juicy.;Эта груша сладкая и сочная.;pɛr
+peach;персик;I ate a juicy peach.;Я съел сочный персик.;pitʃ
+pineapple;ананас;We had pineapple for dessert.;На десерт у нас был ананас.;ˈpaɪnæpəl
+berries;ягоды;Wild berries grow in the forest.;В лесу растут дикие ягоды.;ˈbɛriz
+pork;свинина;I don't eat pork.;Я не ем свинину.;pɔrk
+lamb;баранина;Lamb is popular in the Middle East.;Баранина популярна на Ближнем Востоке.;læm
+steak;стейк;I'd like a steak with potatoes.;Я бы хотел стейк с картофелем.;steɪk
+sausage;сосиска;He ate a sausage with mustard.;Он съел сосиску с горчицей.;ˈsɔsədʒ
+minced meat;фарш;Mix the minced meat with an egg.;Смешай фарш с яйцом.;mɪnst mit
+salmon;лосось;We had salmon with rice for dinner.;На ужин у нас был лосось с рисом.;ˈsæmən
+tuna;тунец;I made a sandwich with tuna.;Я сделал сэндвич с тунцом.;ˈtunə
+shrimp;креветки;Fry the shrimp in butter.;Обжарь креветки на масле.;ʃrɪmp
+seafood;морепродукты;I love seafood.;Я люблю морепродукты.;ˈsifud
+pasta;паста;Pasta with tomato sauce.;Паста с томатным соусом.;ˈpɑstə
+noodles;лапша;We cooked noodles with chicken.;Мы приготовили лапшу с курицей.;ˈnudəlz
+pancake;блин;She made a pancake for breakfast.;Она испекла блин на завтрак.;ˈpænkeɪk
+porridge;каша;I eat porridge in the morning.;Утром я ем кашу.;ˈpɔrədʒ
+cereal;хлопья;He eats cereal with milk.;Он ест хлопья с молоком.;ˈsɪriəl
+yogurt;йогурт;I eat yogurt for breakfast.;На завтрак я ем йогурт.;ˈjoʊɡərt
+cottage cheese;творог;I like cottage cheese with berries.;Я люблю творог с ягодами.;ˈkɑtədʒ tʃiz
+sour cream;сметана;Soup with sour cream.;Суп со сметаной.;ˈsaʊər krim
+toast;тост;I'd like toast with butter.;Я бы хотел тост с маслом.;toʊst
+bun;булочка;I bought a fresh bun at the bakery.;Я купил свежую булочку в пекарне.;bʌn
+croissant;круассан;A croissant and coffee.;Круассан и кофе.;kwɑˈsɑnt
+ice cream;мороженое;The children want ice cream.;Дети хотят мороженое.;aɪs krim
+flour;мука;You need two cups of flour for the cake.;Для торта нужно две чашки муки.;ˈflaʊər
+oats;овсянка;She eats oats for breakfast.;На завтрак она ест овсянку.;oʊts
+best before;годен до;Check the best before date.;Проверь срок годности.;bɛst bɪˈfɔr
+frozen food;замороженные продукты;I keep frozen food in the freezer.;Замороженные продукты я храню в морозилке.;ˈfroʊzən fud
+dairy;молочные продукты;I don't eat dairy products.;Я не ем молочные продукты.;ˈdɛri
+bakery;пекарня;The bakery opens at seven.;Пекарня открывается в семь.;ˈbeɪkəri
+butcher;мясная лавка;Go to the butcher.;Сходи к мяснику.;ˈbʊtʃər
+café;кафе;Let's sit in a café.;Давай посидим в кафе.;kæˈfeɪ
+fast food;фастфуд;No fast food today.;Сегодня никакого фастфуда.;fæst fud
+food court;фудкорт;The food court in the mall.;Фудкорт в торговом центре.;fud kɔrt
+hungry for;хочу (поесть что-то);I'm hungry for pizza.;Я хочу пиццу.;ˈhʌŋɡri fɔr
+thirsty;хочется пить;I'm thirsty, can I have some water?;Хочу пить, можно воды?;ˈθɜrsti
+full (after eating);сыт;I'm full, thank you.;Я сыт, спасибо.;fʊl ˈæftər ˈitɪŋ
+delicious (taste);очень вкусно;This soup is delicious!;Этот суп очень вкусный!;dɪˈlɪʃəs teɪst
+it's cold (food);остыло;My soup is cold.;Мой суп холодный.;ɪts koʊld fud
+this isn't what I ordered;это не то, что я заказывал;Sorry, this isn't what I ordered.;Извините, я заказывал не это.;ðɪs ˈɪzənt wʌt aɪ ˈɔrdərd
+can I have the rest to go;можно остатки с собой;Can I have the rest to go?;Можно остаток с собой?;kæn aɪ hæv ðə rɛst tu ɡoʊ
+cook (verb);готовить;I cook at home.;Я готовлю дома.;kʊk vɜrb
+fridge;холодильник;Put it in the fridge.;Поставь это в холодильник.;frɪdʒ
+oven;духовка;Bake it in the oven.;Запеки это в духовке.;ˈʌvən
+microwave;микроволновка;Heat the soup in the microwave.;Разогрей суп в микроволновке.;ˈmaɪkrəweɪv
+kettle;чайник;I boiled water in the kettle.;Я вскипятил воду в чайнике.;ˈkɛtəl
+stove;плита;The soup is on the stove.;Суп на плите.;stoʊv
+frying pan;сковородка;Fry the eggs in a frying pan.;Пожарь яйца на сковороде.;ˈfraɪɪŋ pæn
+boil;кипятить;Boil the water and add the pasta.;Вскипяти воду и добавь пасту.;bɔɪl
+fry;жарить;I fry potatoes in oil.;Я жарю картофель на масле.;fraɪ
+chop;нарезать;Chop the onion into small pieces.;Мелко нарежь лук.;tʃɑp
+peel;чистить (кожуру);Peel the apples before you eat them.;Очисти яблоки, прежде чем есть.;pil
+taste (verb);пробовать;Taste the soup, please.;Попробуй суп, пожалуйста.;teɪst vɜrb
 @Словарь · Семья, люди и чувства
 people;люди;People here are friendly.;Люди здесь дружелюбны.;ˈpipəl
 love;любить;I love this city.;Я люблю этот город.;lʌv
@@ -1797,6 +2282,16 @@ goat;коза;The goat is eating grass.;Коза ест траву.;ɡoʊt
 insect;насекомое;An insect bit me on the arm.;Меня укусило насекомое в руку.;ˈɪnsɛkt
 platinum;платина;The ring is made of platinum.;Кольцо сделано из платины.;ˈplætnəm
 wheat;пшеница;Bread is made from wheat.;Хлеб делают из пшеницы.;wit
+weather forecast;прогноз погоды;Check the weather forecast.;Посмотри прогноз погоды.;ˈwɛðər ˈfɔrkæst
+sunny;солнечно;It's sunny and warm today.;Сегодня солнечно и тепло.;ˈsʌni
+cloudy;облачно;It's cloudy this morning.;Сегодня утром облачно.;ˈklaʊdi
+rainy;дождливо;It's rainy today, take an umbrella.;Сегодня дождливо, возьми зонт.;ˈreɪni
+windy;ветрено;It's windy on the coast.;На побережье ветрено.;ˈwɪndi
+foggy;туманно;It's foggy this morning.;Сегодня утром туман.;ˈfɑɡi
+umbrella;зонт;Take an umbrella, it might rain.;Возьми зонт, может пойти дождь.;əmˈbrɛlə
+degrees;градусы;It's thirty degrees today.;Сегодня тридцать градусов.;dɪˈɡriz
+humid;влажно;It is hot and humid in summer.;Летом жарко и влажно.;ˈhjuməd
+freezing;очень холодно;It's freezing outside.;На улице страшный холод.;ˈfrizɪŋ
 @Словарь · Время и числа
 more;больше;I need more time.;Мне нужно больше времени.;mɔr
 time;время;I don't have time.;У меня нет времени.;taɪm
@@ -1928,6 +2423,20 @@ noon;полдень;We have lunch at noon.;Мы обедаем в полдень
 nowadays;в наши дни;Nowadays everyone works online.;Сейчас все работают онлайн.;ˈnaʊədeɪz
 ninth;девятый;He finished in ninth place.;Он финишировал девятым.;naɪnθ
 quantity;количество;A small quantity of salt is enough.;Достаточно небольшого количества соли.;ˈkwɑntəti
+time difference;разница во времени;What's the time difference?;Какая разница во времени?;taɪm ˈdɪfərəns
+opening hours;часы работы;What are the opening hours?;Какие часы работы?;ˈoʊpənɪŋ ˈaʊərz
+what time does it open;во сколько открывается;What time does it open?;Во сколько открывается?;wʌt taɪm dʌz ɪt ˈoʊpən
+what time does it close;во сколько закрывается;What time does it close?;Во сколько закрывается?;wʌt taɪm dʌz ɪt kloʊs
+working hours;рабочие часы;My working hours are nine to six.;Мой рабочий день с девяти до шести.;ˈwɜrkɪŋ ˈaʊərz
+overtime;сверхурочные;I don't do overtime.;Я не работаю сверхурочно.;ˈoʊvərtaɪm
+deadline is tight;дедлайн жёсткий;The deadline is tight.;Срок очень сжатый.;ˈdɛdlaɪn ɪz taɪt
+behind schedule;отставать от графика;We are behind schedule.;Мы отстаём от графика.;bɪˈhaɪnd ˈskɛdʒʊl
+on schedule;в графике;Everything is on schedule.;Всё идёт по графику.;ɑn ˈskɛdʒʊl
+ahead of schedule;с опережением;We're ahead of schedule.;Мы опережаем график.;əˈhɛd ʌv ˈskɛdʒʊl
+on track;по плану;The project is on track.;Проект идёт по плану.;ɑn træk
+quarter (Q1);квартал;Sales grew in the first quarter.;Продажи выросли в первом квартале.;ˈkwɔrtər
+quarterly;ежеквартальный;The company publishes a quarterly report.;Компания публикует квартальный отчёт.;ˈkwɔrtərli
+fiscal year;финансовый год;The fiscal year ends in December.;Финансовый год заканчивается в декабре.;ˈfɪskəl jɪr
 @Словарь · Государство и закон
 state;состояние;The project is in a good state.;Проект в хорошем состоянии.;steɪt
 government;правительство;The government changes the law.;Правительство меняет закон.;ˈɡʌvərmənt
@@ -2081,6 +2590,24 @@ ballot;бюллетень;Each voter puts a ballot in the box.;Каждый из
 prosecution;обвинение;The prosecution presented new evidence.;Обвинение представило новые доказательства.;prɑsəˈkjuʃən
 verdict;вердикт;The jury announced its verdict.;Присяжные огласили вердикт.;ˈvɜrdɪkt
 admiral;адмирал;The admiral commanded the fleet.;Адмирал командовал флотом.;ˈædmərəl
+consulate;консульство;He went to the consulate to get a visa.;Он пошёл в консульство за визой.;ˈkɑnsələt
+visa application;заявление на визу;Submit a visa application.;Подай заявление на визу.;ˈvizə æpləˈkeɪʃən
+valid passport;действующий паспорт;You need a valid passport.;Нужен действующий паспорт.;ˈvælɪd ˈpæspɔrt
+expire;истекать;My visa expires in May.;Моя виза истекает в мае.;ɪkˈspaɪr
+work permit;разрешение на работу;Do you need a work permit?;Нужно ли разрешение на работу?;wɜrk pərˈmɪt
+visa sponsorship;спонсорство визы;Do you offer visa sponsorship?;Вы оформляете визу для сотрудников?;ˈvizə ˈspɑnsərʃɪp
+residence permit;вид на жительство;I have a residence permit.;У меня есть вид на жительство.;ˈrɛzɪdəns pərˈmɪt
+tax resident;налоговый резидент;I'm a tax resident.;Я налоговый резидент.;tæks ˈrɛzɪdənt
+tax return;налоговая декларация;File a tax return.;Подай налоговую декларацию.;tæks rɪˈtɜrn
+social security number;номер соцстрахования;Your social security number.;Ваш номер социального страхования.;ˈsoʊʃəl sɪˈkjʊrəti ˈnʌmbər
+proof of address;подтверждение адреса;Bring proof of address.;Принеси подтверждение адреса.;pruf ʌv ˈædrɛs
+lease agreement;договор аренды;Sign the lease agreement.;Подпиши договор аренды.;lis əˈɡrimənt
+emergency number;номер экстренных служб;What's the emergency number?;Какой номер экстренной службы?;ɪˈmɜrdʒənsi ˈnʌmbər
+fire brigade;пожарная служба;Call the fire brigade.;Вызови пожарных.;ˈfaɪər brəˈɡeɪd
+police station;полицейский участок;Where is the police station?;Где полицейский участок?;pəˈlis ˈsteɪʃən
+I lost my passport;я потерял паспорт;I lost my passport.;Я потерял паспорт.;aɪ lɔst maɪ ˈpæspɔrt
+my wallet was stolen;у меня украли кошелёк;My wallet was stolen.;У меня украли кошелёк.;maɪ ˈwɔlət wɑz ˈstoʊlən
+report a theft;заявить о краже;I want to report a theft.;Я хочу заявить о краже.;riˈpɔrt ə θɛft
 @Словарь · Транспорт и города
 city;город;Moscow is a big city.;Москва — большой город.;ˈsɪti
 area;район;I live in a quiet area.;Я живу в тихом районе.;ˈɛriə
@@ -2209,6 +2736,106 @@ inn;гостиница;We spent the night at a small inn.;Мы переноче�
 motorcycle;мотоцикл;He rides a motorcycle to work.;Он ездит на работу на мотоцикле.;ˈmoʊtərsaɪkəl
 northeast;северо-восток;The northeast is cold in winter.;На северо-востоке зимой холодно.;nɔrˈθist
 ferry;паром;We took the ferry to the island.;Мы добрались до острова на пароме.;ˈfɛri
+passport;паспорт;Don't forget your passport.;Не забудь паспорт.;ˈpæspɔrt
+boarding pass;посадочный талон;Show your boarding pass.;Покажи посадочный талон.;ˈbɔrdɪŋ pæs
+check in;регистрироваться;We need to check in two hours before the flight.;Нужно пройти регистрацию за два часа до рейса.;tʃɛk ɪn
+check-in desk;стойка регистрации;Where is the check-in desk?;Где стойка регистрации?;tʃɛk ɪn dɛsk
+check out;выселяться;Check out is at noon.;Выезд из номера в полдень.;tʃɛk aʊt
+departures;вылет (табло);Look at the departures board.;Посмотри на табло вылетов.;dɪˈpɑrtʃərz
+arrivals;прилёт;Meet me at arrivals.;Встреть меня в зале прилёта.;ərˈaɪvəlz
+gate number;номер выхода;What's the gate number?;Какой номер выхода?;ɡeɪt ˈnʌmbər
+boarding;посадка;Boarding starts at 10:30.;Посадка начинается в 10:30.;ˈbɔrdɪŋ
+final call;последний вызов на посадку;Final call for flight SU100.;Последнее приглашение на рейс SU100.;ˈfaɪnəl kɔl
+delayed;задержан;My flight is delayed.;Мой рейс задерживается.;dɪˈleɪd
+cancelled;отменён;The flight is cancelled.;Рейс отменён.;ˈkænsəld
+connecting flight;стыковочный рейс;I have a connecting flight.;У меня стыковочный рейс.;kəˈnɛktɪŋ flaɪt
+layover;пересадка;A three-hour layover.;Пересадка три часа.;ˈleɪoʊvər
+direct flight;прямой рейс;Is there a direct flight?;Есть прямой рейс?;dərˈɛkt flaɪt
+one-way ticket;билет в одну сторону;A one-way ticket, please.;Билет в один конец, пожалуйста.;wʌn weɪ ˈtɪkət
+return ticket;билет туда-обратно;A return ticket to Berlin.;Обратный билет до Берлина.;rɪˈtɜrn ˈtɪkət
+aisle seat;место у прохода;An aisle seat, please.;Место у прохода, пожалуйста.;aɪl sit
+window seat;место у окна;Can I have a window seat?;Можно место у окна?;ˈwɪndoʊ sit
+carry-on;ручная кладь;Is this a carry-on?;Это ручная кладь?;ˈkæri ɑn
+checked baggage;багаж (сдаваемый);My checked baggage weighs twenty kilos.;Мой сдаваемый багаж весит двадцать килограммов.;tʃɛkt ˈbæɡədʒ
+baggage claim;выдача багажа;Where is baggage claim?;Где выдача багажа?;ˈbæɡədʒ kleɪm
+lost luggage;потерянный багаж;Where can I report lost luggage?;Куда сообщить о потерянном багаже?;lɔst ˈlʌɡədʒ
+suitcase;чемодан;My suitcase is lost.;Мой чемодан потерялся.;ˈsutkeɪs
+backpack;рюкзак;He carries a backpack to school.;Он носит рюкзак в школу.;ˈbækpæk
+security check;досмотр;Go through the security check.;Пройди досмотр безопасности.;sɪˈkjʊrəti tʃɛk
+passport control;паспортный контроль;Passport control is there.;Паспортный контроль там.;ˈpæspɔrt kənˈtroʊl
+customs;таможня;We went through customs at the airport.;Мы прошли таможню в аэропорту.;ˈkʌstəmz
+nothing to declare;нечего декларировать;I have nothing to declare.;Мне нечего декларировать.;ˈnʌθɪŋ tu dɪˈklɛr
+purpose of visit;цель визита;What's the purpose of your visit?;Какова цель вашего визита?;ˈpɜrpəs ʌv ˈvɪzɪt
+I'm here on business;я здесь по работе;I'm here on business.;Я здесь по делам.;aɪm hir ɑn ˈbɪznəs
+I'm here on holiday;я в отпуске;I'm here on holiday.;Я здесь в отпуске.;aɪm hir ɑn ˈhɑlədeɪ
+how long are you staying;на сколько вы приехали;How long are you staying?;Как долго вы пробудете?;haʊ lɔŋ ɑr ju ˈsteɪɪŋ
+duty-free;дьюти-фри;Let's go to duty-free.;Пойдём в дьюти-фри.;ˈduti fri
+flight attendant;бортпроводник;Ask the flight attendant.;Спроси у бортпроводника.;flaɪt əˈtɛndənt
+seat belt;ремень безопасности;Fasten your seat belt.;Пристегните ремень безопасности.;sit bɛlt
+take off;взлетать;The plane takes off at six.;Самолёт взлетает в шесть.;teɪk ɔf
+turbulence;турбулентность;The plane hit some turbulence.;Самолёт попал в турбулентность.;ˈtɜrbjələns
+jet lag;смена часовых поясов;I have jet lag.;У меня джетлаг.;dʒɛt læɡ
+reservation;бронь;I have a reservation.;У меня есть бронь.;rɛzərˈveɪʃən
+under the name;на имя;A reservation under the name Gafitulin.;Бронь на имя Гафитулин.;ˈʌndər ðə neɪm
+single room;одноместный номер;A single room for two nights.;Одноместный номер на две ночи.;ˈsɪŋɡəl rum
+double room;двухместный номер (одна кровать);A double room, please.;Двухместный номер, пожалуйста.;ˈdʌbəl rum
+twin room;номер с двумя кроватями;We booked a twin room with two beds.;Мы забронировали номер с двумя кроватями.;twɪn rum
+room service;обслуживание в номере;We ordered breakfast with room service.;Мы заказали завтрак в номер.;rum ˈsɜrvəs
+wake-up call;звонок-будильник;A wake-up call at seven, please.;Разбудите меня в семь, пожалуйста.;weɪk ʌp kɔl
+luggage storage;камера хранения;Is there luggage storage?;Есть камера хранения?;ˈlʌɡədʒ ˈstɔrədʒ
+late check-out;поздний выезд;Can I have a late check-out?;Можно поздний выезд?;leɪt tʃɛk aʊt
+early check-in;ранний заезд;Is early check-in possible?;Возможен ранний заезд?;ˈɜrli tʃɛk ɪn
+hostel;хостел;We stayed in a cheap hostel.;Мы остановились в дешёвом хостеле.;ˈhɑstəl
+guest house;гостевой дом;A small guest house.;Небольшая гостевая комната.;ɡɛst haʊs
+Airbnb;Airbnb;We stay in an Airbnb.;Мы остановились в Airbnb.;ˈɛrbiɛnˈbi
+host (Airbnb);хозяин жилья;The host is very friendly.;Хозяин очень дружелюбный.;hoʊst
+how do I get to;как мне добраться до;How do I get to the airport?;Как добраться до аэропорта?;haʊ du aɪ ɡɛt tu
+is it far;это далеко;Is it far from here?;Это далеко отсюда?;ɪz ɪt fɑr
+it's within walking distance;можно дойти пешком;It's within walking distance.;Это в пределах пешей доступности.;ɪts wɪˈðɪn ˈwɔkɪŋ ˈdɪstəns
+turn right;поверните направо;Turn right at the bank.;Поверни направо у банка.;tɜrn raɪt
+turn left;поверните налево;Turn left after the bridge.;Поверни налево после моста.;tɜrn lɛft
+go straight on;идите прямо;Go straight on for 200 meters.;Иди прямо 200 метров.;ɡoʊ streɪt ɑn
+on the left;слева;It's on the left.;Это слева.;ɑn ðə lɛft
+on the right;справа;The hotel is on the right.;Отель справа.;ɑn ðə raɪt
+next to;рядом с;Next to the station.;Рядом с вокзалом.;nɛkst tu
+in front of;перед;In front of the museum.;Перед музеем.;ɪn frʌnt ʌv
+at the corner;на углу;At the corner of the street.;На углу улицы.;æt ðə ˈkɔrnər
+traffic lights;светофор;Turn left at the traffic lights.;Поверни налево на светофоре.;ˈtræfɪk laɪts
+crossroads;перекрёсток;Turn left at the crossroads.;Поверни налево на перекрёстке.;ˈkrɔsroʊdz
+roundabout;кольцевая развязка;Take the second exit at the roundabout.;На кольце съезжай на втором выезде.;ˈraʊndəbaʊt
+pedestrian;пешеход;A pedestrian crossed the street.;Пешеход перешёл улицу.;pəˈdɛstriən
+sidewalk;тротуар;Walk on the sidewalk.;Иди по тротуару.;ˈsaɪdwɔk
+bus stop;автобусная остановка;Where is the bus stop?;Где автобусная остановка?;bʌs stɑp
+train station;вокзал;The train station is near.;Вокзал рядом.;treɪn ˈsteɪʃən
+platform number;номер платформы;The train leaves from platform number five.;Поезд отправляется с пятой платформы.;ˈplætfɔrm ˈnʌmbər
+ticket machine;билетный автомат;Use the ticket machine.;Воспользуйся билетным автоматом.;ˈtɪkət məˈʃin
+ticket office;касса;You can buy tickets at the ticket office.;Билеты можно купить в кассе.;ˈtɪkət ˈɔfɪs
+single ticket;разовый билет;I bought a single ticket to the center.;Я купил билет в центр в один конец.;ˈsɪŋɡəl ˈtɪkət
+day pass;проездной на день;A day pass, please.;Дневной проездной, пожалуйста.;deɪ pæs
+change trains;сделать пересадку;Change trains at Central.;Пересядь на Центральной.;tʃeɪndʒ treɪnz
+next stop;следующая остановка;The next stop is the airport.;Следующая остановка — аэропорт.;nɛkst stɑp
+get on;садиться (в транспорт);Get on the bus.;Садись в автобус.;ɡɛt ɑn
+get off;выходить (из транспорта);Get off at the next stop.;Выходи на следующей остановке.;ɡɛt ɔf
+taxi rank;стоянка такси;There is a taxi rank outside the station.;У вокзала есть стоянка такси.;ˈtæksi ræŋk
+taxi app;приложение такси;Use a taxi app.;Пользуйся приложением такси.;ˈtæksi æp
+fare;стоимость проезда;What is the fare to the airport?;Сколько стоит проезд до аэропорта?;fɛr
+car rental;прокат машин;Car rental at the airport.;Прокат автомобилей в аэропорту.;kɑr ˈrɛntəl
+rent a car;взять машину напрокат;I want to rent a car.;Я хочу взять машину напрокат.;rɛnt ə kɑr
+driving licence;водительские права;Your driving licence, please.;Ваши водительские права, пожалуйста.;ˈdraɪvɪŋ ˈlaɪsəns
+fill up the tank;заправить полный бак;Fill up the tank, please.;Заправьте полный бак, пожалуйста.;fɪl ʌp ðə tæŋk
+petrol station;заправка;Is there a petrol station near here?;Есть ли здесь поблизости заправка?;ˈpɛtroʊl ˈsteɪʃən
+parking lot;парковка;The parking lot is full.;Парковка заполнена.;ˈpɑrkɪŋ lɑt
+toll road;платная дорога;This is a toll road.;Это платная дорога.;toʊl roʊd
+speed camera;камера скорости;Watch out for speed cameras.;Остерегайся камер скорости.;spid ˈkæmərə
+fine (penalty);штраф;I got a parking fine.;Я получил штраф за парковку.;faɪn ˈpɛnəlti
+lost and found;бюро находок;Go to lost and found.;Иди в бюро находок.;lɔst ənd faʊnd
+I'm lost;я заблудился;Excuse me, I'm lost.;Извините, я заблудился.;aɪm lɔst
+can you show me on the map;покажите на карте;Can you show me on the map?;Можете показать на карте?;kæn ju ʃoʊ mi ɑn ðə mæp
+could you take a photo of us;сфотографируйте нас;Could you take a photo of us?;Не могли бы вы нас сфотографировать?;kʊd ju teɪk ə ˈfoʊtoʊ ʌv ʌs
+two adults, please;два взрослых, пожалуйста;Two adults, please.;Два взрослых, пожалуйста.;tu əˈdʌlts pliz
+business trip;командировка;I'm on a business trip.;Я в командировке.;ˈbɪznəs trɪp
+relocate;переезжать (по работе);We relocate to Dubai.;Мы переезжаем в Дубай.;riˈloʊkeɪt
+post office;почта (отделение);Where is the post office?;Где почта?;poʊst ˈɔfɪs
 @Словарь · Язык, общение и учёба
 say;сказать;What did he say?;Что он сказал?;seɪ
 school;школа;My son goes to school.;Мой сын ходит в школу.;skul
@@ -2352,6 +2979,144 @@ semester;семестр;The second semester starts in February.;Второй с�
 dictionary;словарь;I looked up the word in the dictionary.;Я посмотрел слово в словаре.;ˈdɪkʃənɛri
 instructor;инструктор;The driving instructor was very patient.;Инструктор по вождению был очень терпеливым.;ɪnsˈtrʌktər
 rumor;слух;There is a rumor that the shop will close.;Ходят слухи, что магазин закроется.;ˈrumər
+not bad;неплохо;Not bad, thanks.;Неплохо, спасибо.;nɑt bæd
+what's up;как дела;Hey, what's up?;Привет, как дела?;wʌts ʌp
+nothing much;ничего особенного;Nothing much.;Ничего особенного.;ˈnʌθɪŋ mʌtʃ
+long time no see;давно не виделись;Long time no see!;Давно не виделись!;lɔŋ taɪm noʊ si
+nice to see you;рад тебя видеть;Nice to see you again.;Рад снова тебя видеть.;naɪs tu si ju
+see you later;до встречи;See you later!;До встречи!;si ju ˈleɪtər
+take care;береги себя;Bye, take care!;Пока, береги себя!;teɪk kɛr
+have a nice weekend;хороших выходных;Have a nice weekend!;Хороших выходных!;hæv ə naɪs ˈwikɛnd
+you too;тебе тоже;You too!;И тебе!;ju tu
+where are you from;откуда вы;Where are you from?;Откуда вы?;wɛr ɑr ju frʌm
+what do you do;чем вы занимаетесь;What do you do?;Чем вы занимаетесь?;wʌt du ju du
+do you like it here;вам здесь нравится;Do you like it here?;Вам здесь нравится?;du ju laɪk ɪt hir
+I'm new here;я тут новенький;I'm new here.;Я здесь новенький.;aɪm nu hir
+I've just moved;я только переехал;I've just moved to Dubai.;Я только что переехал в Дубай.;aɪv dʒʌst muvd
+nice to meet you too;мне тоже приятно;Nice to meet you too.;Мне тоже приятно познакомиться.;naɪs tu mit ju tu
+this is my colleague;это мой коллега;This is my colleague Anna.;Это моя коллега Анна.;ðɪs ɪz maɪ ˈkɑliɡ
+could you speak more slowly;говорите медленнее;Could you speak more slowly, please?;Говорите, пожалуйста, помедленнее.;kʊd ju spik mɔr sˈloʊli
+could you say that again;повторите, пожалуйста;Could you say that again?;Повторите, пожалуйста.;kʊd ju seɪ ðæt əˈɡɛn
+how do you spell that;как это пишется;How do you spell that?;Как это пишется?;haʊ du ju spɛl ðæt
+what does it mean;что это значит;What does it mean?;Что это значит?;wʌt dʌz ɪt min
+I'm not sure I understand;я не уверен, что понял;I'm not sure I understand.;Я не уверен, что понял.;aɪm nɑt ʃʊr aɪ ʌndərˈstænd
+do you know what I mean;понимаешь, о чём я;Do you know what I mean?;Понимаешь, о чём я?;du ju noʊ wʌt aɪ min
+that makes sense;понятно, логично;Ah, that makes sense.;А, теперь понятно.;ðæt meɪks sɛns
+let me think;дай подумать;Let me think.;Дай подумать.;lɛt mi θɪŋk
+how can I put it;как бы это сказать;How can I put it…;Как бы это сказать…;haʊ kæn aɪ pʊt ɪt
+in other words;другими словами;In other words, no.;Другими словами, нет.;ɪn ˈʌðər wɜrdz
+for example (e.g.);например;For example, Python.;Например, Python.;fɔr ɪɡˈzæmpəl i dʒi
+by the way;кстати;By the way, are you free tonight?;Кстати, ты свободен сегодня вечером?;baɪ ðə weɪ
+anyway (topic);так вот;Anyway, let's go.;Так вот, пойдём.;ˈɛniweɪ ˈtɑpɪk
+actually (correction);вообще-то;Actually, I'm from Moldova.;Вообще-то, я из Молдовы.;ˈæktʃuəli kərˈɛkʃən
+I think so;думаю, да;I think so.;Думаю, да.;aɪ θɪŋk soʊ
+I don't think so;думаю, нет;I don't think so.;Думаю, нет.;aɪ doʊnt θɪŋk soʊ
+I hope so;надеюсь, что да;I hope so.;Надеюсь, что да.;aɪ hoʊp soʊ
+I guess;наверное;I guess you're right.;Наверное, ты прав.;aɪ ɡɛs
+no way;не может быть;No way!;Не может быть!;noʊ weɪ
+of course;конечно;Of course!;Конечно!;ʌv kɔrs
+no problem;без проблем;No problem!;Без проблем!;noʊ ˈprɑbləm
+you're welcome;пожалуйста (в ответ на спасибо);You're welcome.;Пожалуйста.;jʊr ˈwɛlkəm
+thanks a lot;большое спасибо;Thanks a lot!;Большое спасибо!;θæŋks ə lɑt
+I really appreciate it;очень ценю;I really appreciate it.;Я очень это ценю.;aɪ ˈrɪli əˈpriʃieɪt ɪt
+sorry to hear that;жаль это слышать;Sorry to hear that.;Жаль это слышать.;ˈsɑri tu hir ðæt
+well done (praise);молодец;Well done!;Молодец!;wɛl dʌn preɪz
+that sounds great;звучит отлично;That sounds great!;Звучит отлично!;ðæt saʊndz ɡreɪt
+count me in;я с вами;Count me in.;Я с вами.;kaʊnt mi ɪn
+maybe next time;может, в следующий раз;Maybe next time.;Может, в следующий раз.;ˈmeɪbi nɛkst taɪm
+I'm afraid I can't;боюсь, не смогу;I'm afraid I can't.;Боюсь, не смогу.;aɪm əˈfreɪd aɪ kænt
+what about you;а ты;What about you?;А ты?;wʌt əˈbaʊt ju
+how about;как насчёт;How about Friday?;Как насчёт пятницы?;haʊ əˈbaʊt
+why not;почему бы и нет;Why not?;Почему бы и нет?;waɪ nɑt
+let's;давай;Let's go!;Пойдём!;lɛts
+shall we;пойдём?;Shall we start?;Начнём?;ʃæl wi
+it depends;зависит;It depends.;Зависит от обстоятельств.;ɪt dɪˈpɛndz
+it doesn't matter;неважно;It doesn't matter.;Неважно.;ɪt ˈdʌzənt ˈmætər
+I don't mind;я не против;I don't mind.;Я не против.;aɪ doʊnt maɪnd
+I don't care;мне всё равно;I don't care.;Мне всё равно.;aɪ doʊnt kɛr
+I'm not sure (yet);пока не знаю;I'm not sure yet.;Пока не уверен.;aɪm nɑt ʃʊr jɛt
+I have no idea;понятия не имею;I have no idea.;Понятия не имею.;aɪ hæv noʊ aɪˈdiə
+that's right;верно;That's right.;Верно.;ðæts raɪt
+fair enough;справедливо;Fair enough.;Справедливо.;fɛr ɪˈnʌf
+I totally agree;полностью согласен;I totally agree.;Полностью согласен.;aɪ ˈtoʊtəli əˈɡri
+I see your point, but;понимаю, но;I see your point, but…;Понимаю, но…;aɪ si jɔr pɔɪnt bʌt
+on the one hand;с одной стороны;On the one hand, it's cheap.;С одной стороны, это дёшево.;ɑn ðə wʌn hænd
+on the other hand;с другой стороны;On the other hand, it's slow.;С другой стороны, это медленно.;ɑn ðə ˈʌðər hænd
+what do you think;что думаешь;What do you think?;Что думаешь?;wʌt du ju θɪŋk
+as far as I know;насколько я знаю;As far as I know, yes.;Насколько я знаю, да.;æz fɑr æz aɪ noʊ
+it's up to you;решать тебе;It's up to you.;Решать тебе.;ɪts ʌp tu ju
+just a sec;секунду;Just a sec.;Секунду.;dʒʌst ə sɛk
+here you are;вот, пожалуйста;Here you are.;Вот, пожалуйста.;hir ju ɑr
+after you;после вас;After you.;После вас.;ˈæftər ju
+go ahead;давай;Go ahead.;Давай, вперёд.;ɡoʊ əˈhɛd
+be careful;будь осторожен;Be careful!;Осторожно!;bi ˈkɛrfəl
+calm down;успокойся;Calm down.;Успокойся.;kɑm daʊn
+cheer up;не грусти;Cheer up!;Не грусти!;tʃɪr ʌp
+good luck;удачи;Good luck!;Удачи!;ɡʊd lʌk
+I'm starving;умираю с голоду;I'm starving.;Умираю с голоду.;aɪm ˈstɑrvɪŋ
+I'm exhausted;я вымотан;I'm exhausted.;Я вымотан.;aɪm ɪɡˈzɔstɪd
+I'm running late;я опаздываю;Sorry, I'm running late.;Извини, я опаздываю.;aɪm ˈrʌnɪŋ leɪt
+I'm on my way;я в пути;I'm on my way.;Я в пути.;aɪm ɑn maɪ weɪ
+what time shall we meet;во сколько встретимся;What time shall we meet?;Во сколько встретимся?;wʌt taɪm ʃæl wi mit
+where shall we meet;где встретимся;Where shall we meet?;Где встретимся?;wɛr ʃæl wi mit
+are you free;ты свободен;Are you free on Saturday?;Ты свободен в субботу?;ɑr ju fri
+I'm busy that day;я занят в этот день;Sorry, I'm busy that day.;Извини, я занят в этот день.;aɪm ˈbɪzi ðæt deɪ
+it's a deal (agree);договорились;It's a deal.;Договорились.;ɪts ə dil əˈɡri
+how was your weekend;как прошли выходные;How was your weekend?;Как прошли выходные?;haʊ wɑz jɔr ˈwikɛnd
+it was great;было отлично;It was great, thanks.;Было отлично, спасибо.;ɪt wɑz ɡreɪt
+what are your plans;какие планы;What are your plans for the weekend?;Какие планы на выходные?;wʌt ɑr jɔr plænz
+do you have any kids;у тебя есть дети;Do you have any kids?;У тебя есть дети?;du ju hæv ˈɛni kɪdz
+what's your hobby;какое у тебя хобби;What's your hobby?;Какое у тебя хобби?;wʌts jɔr ˈhɑbi
+I'm a big fan of;я большой фанат;I'm a big fan of football.;Я большой фанат футбола.;aɪm ə bɪɡ fæn ʌv
+I'm not a fan of;я не фанат;I'm not a fan of spicy food.;Я не любитель острой еды.;aɪm nɑt ə fæn ʌv
+it's not my thing;это не моё;Dancing is not my thing.;Танцы — это не моё.;ɪts nɑt maɪ θɪŋ
+I can't stand;терпеть не могу;I can't stand traffic.;Терпеть не могу пробки.;aɪ kænt stænd
+I've never tried;я никогда не пробовал;I've never tried sushi.;Я никогда не пробовал суши.;aɪv ˈnɛvər traɪd
+have you ever been to;ты когда-нибудь был в;Have you ever been to Spain?;Ты когда-нибудь был в Испании?;hæv ju ˈɛvər bɪn tu
+what's the weather like;какая погода;What's the weather like today?;Какая сегодня погода?;wʌts ðə ˈwɛðər laɪk
+it's getting late;уже поздно;It's getting late.;Уже поздно.;ɪts ˈɡɛtɪŋ leɪt
+I have to go;мне пора;Sorry, I have to go.;Извини, мне пора.;aɪ hæv tu ɡoʊ
+it was nice talking to you;приятно было поговорить;It was nice talking to you.;Было приятно с тобой поговорить.;ɪt wɑz naɪs ˈtɔkɪŋ tu ju
+let's keep in touch;давай не теряться;Let's keep in touch.;Давай не будем терять связь.;lɛts kip ɪn tʌtʃ
+what's your number;какой у тебя номер;What's your number?;Какой у тебя номер?;wʌts jɔr ˈnʌmbər
+text me;напиши мне;Text me later.;Напиши мне позже.;tɛkst mi
+call me back;перезвони мне;Call me back, please.;Перезвони мне, пожалуйста.;kɔl mi bæk
+leave a message;оставить сообщение;Leave a message after the beep.;Оставьте сообщение после сигнала.;liv ə ˈmɛsədʒ
+wrong number;не туда попали;Sorry, wrong number.;Извините, не туда попали.;rɔŋ ˈnʌmbər
+who's speaking;кто говорит;Hello, who's speaking?;Алло, кто говорит?;huz ˈspikɪŋ
+speaking (phone);это я (у телефона);Yes, speaking.;Да, это я.;ˈspikɪŋ foʊn
+hold on (phone);подождите на линии;Hold on, please.;Подождите на линии, пожалуйста.;hoʊld ɑn foʊn
+follow up;вернуться к вопросу;I'll follow up tomorrow.;Я свяжусь с тобой завтра.;ˈfɑloʊ ʌp
+catch up;пообщаться;Let's catch up after lunch.;Давай обсудим после обеда.;kætʃ ʌp
+heads-up;предупреждение заранее;Just a heads-up: I'm out tomorrow.;Предупреждаю: завтра меня не будет.;hɛdz ʌp
+FYI;к вашему сведению;FYI, the meeting moved.;К сведению, встречу перенесли.;ˈfɔrjɔrɪnfərmeɪʃən
+to be honest;честно говоря;To be honest, I don't know.;Честно говоря, я не знаю.;tu bi ˈɑnəst
+in my opinion;по-моему;In my opinion, it's too risky.;По-моему, это слишком рискованно.;ɪn maɪ əˈpɪnjən
+I agree;согласен;I agree with you.;Я с тобой согласен.;aɪ əˈɡri
+I disagree;не согласен;I'm afraid I disagree.;Боюсь, я не согласен.;aɪ dɪsəˈɡri
+good point;хорошее замечание;That's a good point.;Хорошее замечание.;ɡʊd pɔɪnt
+let's move on;давайте дальше;OK, let's move on.;Хорошо, идём дальше.;lɛts muv ɑn
+any questions;есть вопросы;Any questions so far?;Пока есть вопросы?;ˈɛni ˈkwɛstʃənz
+could you clarify;не могли бы вы уточнить;Could you clarify that?;Не могли бы вы пояснить?;kʊd ju ˈklɛrəfaɪ
+what do you mean by;что вы имеете в виду под;What do you mean by "soon"?;Что вы подразумеваете под «скоро»?;wʌt du ju min baɪ
+just to confirm;просто чтобы подтвердить;Just to confirm: Friday at ten?;Просто чтобы подтвердить: в пятницу в десять?;dʒʌst tu kənˈfɜrm
+as discussed;как обсуждали;As discussed, here is the file.;Как и договорились, вот файл.;æz dɪˈskʌst
+please find attached;во вложении;Please find attached the report.;Отчёт во вложении.;pliz faɪnd əˈtætʃt
+looking forward to;с нетерпением жду;Looking forward to your reply.;Жду вашего ответа.;ˈlʊkɪŋ ˈfɔrwərd tu
+best regards;с уважением;Best regards, Anna.;С уважением, Анна.;bɛst rɪˈɡɑrdz
+dear team;уважаемая команда;Dear team, thanks for your hard work.;Дорогая команда, спасибо за усердную работу.;dɪr tim
+hope you're well;надеюсь, у вас всё хорошо;Hi Anna, hope you're well.;Привет, Анна, надеюсь, у тебя всё хорошо.;hoʊp jʊr wɛl
+thanks in advance;заранее спасибо;Thanks in advance!;Заранее спасибо!;θæŋks ɪn ədˈvæns
+sorry for the delay;извините за задержку;Sorry for the delay.;Извините за задержку.;ˈsɑri fɔr ðə dɪˈleɪ
+quick question;быстрый вопрос;Quick question: who owns this?;Быстрый вопрос: кто за это отвечает?;kwɪk ˈkwɛstʃən
+urgent request;срочный запрос;An urgent request from the client.;Срочный запрос от клиента.;ˈɜrdʒənt rɪˈkwɛst
+keep me posted;держи в курсе;Keep me posted.;Держи меня в курсе.;kip mi ˈpoʊstɪd
+small talk;светская беседа;Small talk before the meeting.;Светская беседа перед встречей.;smɔl tɔk
+introduce yourself;представиться;Please introduce yourself to the team.;Пожалуйста, представься команде.;ɪntrəˈdus jərˈsɛlf
+cheers;будем здоровы;Cheers! To your health!;За здоровье!;tʃɪrz
+bon appetit;приятного аппетита;Bon appetit! Enjoy your dinner.;Приятного аппетита! Наслаждайтесь ужином.;bɔn apeˈti
+help yourself;угощайтесь;Help yourself to some cake!;Угощайся тортом!;hɛlp jərˈsɛlf
+it's on me;я угощаю;Lunch is on me.;Обед за мой счёт.;ɪts ɑn mi
 @Словарь · Искусство, досуг и спорт
 game;игра;We play a game on Fridays.;По пятницам мы играем в игру.;ɡeɪm
 show;показывать;Show me your screen.;Покажи мне свой экран.;ʃoʊ
@@ -2480,6 +3245,16 @@ loser;неудачник;Nobody wants to be a loser.;Никто не хочет 
 orchestra;оркестр;The orchestra played a beautiful piece.;Оркестр сыграл красивое произведение.;ˈɔrkəstrə
 sail;плыть под парусом;We sail across the lake in summer.;Летом мы плаваем под парусом по озеру.;seɪl
 lottery;лотерея;He won the lottery.;Он выиграл в лотерею.;ˈlɑtəri
+sightseeing;осмотр достопримечательностей;We spent the day sightseeing.;Мы провели день, осматривая достопримечательности.;ˈsaɪtsiɪŋ
+guided tour;экскурсия с гидом;We went on a guided tour of the old town.;Мы пошли на экскурсию по старому городу.;ˈɡaɪdəd tʊr
+tour guide;экскурсовод;Our tour guide spoke English.;Наш экскурсовод говорил по-английски.;tʊr ɡaɪd
+tourist information;туристическая информация;Where is tourist information?;Где туристическая информация?;ˈtʊrəst ɪnfərˈmeɪʃən
+souvenir;сувенир;A souvenir for my wife.;Сувенир для жены.;suvəˈnɪr
+old town;старый город;The old town is beautiful.;Старый город прекрасен.;oʊld taʊn
+viewpoint;смотровая площадка;The viewpoint offers a great view of the city.;Со смотровой площадки открывается чудесный вид на город.;ˈvjupɔɪnt
+beach umbrella;пляжный зонт;Rent a beach umbrella.;Возьми в аренду пляжный зонт.;bitʃ əmˈbrɛlə
+gym membership (perk);абонемент в спортзал;A free gym membership.;Бесплатный абонемент в спортзал.;dʒɪm ˈmɛmbərʃɪp pɜrk
+go for a run;пойти на пробежку;I go for a run in the morning.;Утром я бегаю.;ɡoʊ fɔr ə rʌn
 @Словарь · Глаголы
 like;нравиться;I like my job.;Мне нравится моя работа.;laɪk
 get;получать;I get many emails.;Я получаю много писем.;ɡɛt
@@ -4212,495 +4987,6 @@ behave;вести себя;Please behave yourself.;Пожалуйста, вед�
 dash;мчаться;He dashed to the station to catch the train.;Он бросился на вокзал, чтобы успеть на поезд.;dæʃ
 disclosure;раскрытие;The disclosure of the information caused a scandal.;Разглашение информации вызвало скандал.;dɪsˈkloʊʒər
 disposal;утилизация;The disposal of old batteries is regulated.;Утилизация старых батареек регулируется.;dɪˈspoʊzəl
-@Словарь · Еда и ресторан
-a table for two;столик на двоих;A table for two, please.;Столик на двоих, пожалуйста.;ə ˈteɪbəl fɔr tu
-do you have a reservation;у вас забронировано;Do you have a reservation?;У вас есть бронь?;du ju hæv ə rɛzərˈveɪʃən
-can I see the menu;можно меню;Can I see the menu, please?;Можно посмотреть меню, пожалуйста?;kæn aɪ si ðə ˈmɛnju
-are you ready to order;готовы заказать;Are you ready to order?;Вы готовы сделать заказ?;ɑr ju ˈrɛdi tu ˈɔrdər
-I'd like;я бы хотел;I'd like the fish, please.;Я бы хотел рыбу, пожалуйста.;aɪd laɪk
-what do you recommend;что посоветуете;What do you recommend?;Что вы порекомендуете?;wʌt du ju rɛkəˈmɛnd
-the bill, please;счёт, пожалуйста;The bill, please.;Счёт, пожалуйста.;ðə bɪl pliz
-is service included;обслуживание включено;Is service included?;Обслуживание включено?;ɪz ˈsɜrvəs ɪnˈkludəd
-waiter;официант;The waiter brought us the menu.;Официант принёс нам меню.;ˈweɪtər
-starter;закуска;A starter for two.;Закуска на двоих.;ˈstɑrtər
-main course;основное блюдо;For the main course, steak.;На основное блюдо — стейк.;meɪn kɔrs
-dessert;десерт;For dessert, I'd like ice cream.;На десерт я бы хотел мороженое.;dɪˈzɜrt
-side dish;гарнир;The steak comes with a side dish of potatoes.;К стейку подаётся гарнир из картофеля.;saɪd dɪʃ
-today's special;блюдо дня;What is today's special?;Какое сегодня блюдо дня?;təˈdeɪz ˈspɛʃəl
-vegetarian;вегетарианский;Do you have vegetarian dishes?;У вас есть вегетарианские блюда?;vɛdʒəˈtɛriən
-vegan;веганский;I'm vegan, so I don't eat meat or cheese.;Я веган, поэтому не ем мясо и сыр.;ˈvɛɡən
-gluten-free;без глютена;Do you have gluten-free bread?;У вас есть хлеб без глютена?;ˈɡlutən fri
-allergic to;аллергия на;I'm allergic to nuts.;У меня аллергия на орехи.;əˈlɜrdʒɪk tu
-spicy;острый;I like spicy food.;Я люблю острую еду.;ˈspaɪsi
-not too spicy;не слишком острое;Not too spicy, please.;Не слишком остро, пожалуйста.;nɑt tu ˈspaɪsi
-salty;солёный;The soup is too salty.;Суп слишком солёный.;ˈsɔlti
-sour;кислый;This lemon is very sour.;Этот лимон очень кислый.;ˈsaʊər
-well done;хорошо прожаренный;I'd like my steak well done.;Я бы хотел хорошо прожаренный стейк.;wɛl dʌn
-medium rare;средней прожарки (с кровью);I'd like my steak medium rare.;Я бы хотел стейк с кровью.;ˈmidiəm rɛr
-grilled;на гриле;I ordered grilled fish with vegetables.;Я заказал рыбу-гриль с овощами.;ɡrɪld
-fried;жареный;I don't like fried food.;Я не люблю жареную еду.;fraɪd
-boiled;варёный;I eat a boiled egg for breakfast.;На завтрак я ем варёное яйцо.;bɔɪld
-baked;запечённый;We had baked potatoes with the meat.;Мы ели печёный картофель с мясом.;beɪkt
-steamed;на пару;The fish is steamed with vegetables.;Рыба приготовлена на пару с овощами.;stimd
-fresh juice;свежевыжатый сок;I'd like a glass of fresh juice.;Я бы хотел стакан свежего сока.;frɛʃ dʒus
-sparkling water;газированная вода;Do you have sparkling water?;У вас есть газированная вода?;ˈspɑrklɪŋ ˈwɔtər
-still water;вода без газа;I'll have still water, please.;Мне негазированную воду, пожалуйста.;stɪl ˈwɔtər
-tap water (drinking);водопроводная вода;Tap water is fine.;Водопроводная вода подойдёт.;tæp ˈwɔtər ˈdrɪŋkɪŋ
-a glass of wine;бокал вина;A glass of red wine.;Бокал красного вина.;ə ɡlæs ʌv waɪn
-draft beer;разливное пиво;Two draft beers, please.;Два разливных пива, пожалуйста.;dræft bɪr
-soft drink;безалкогольный напиток;I'll have a soft drink with the burger.;К бургеру я возьму безалкогольный напиток.;sɑft drɪŋk
-coke;кола;I'd like a coke with ice.;Я бы хотел колу со льдом.;koʊk
-lemonade;лимонад;The kids want some cold lemonade.;Дети хотят холодный лимонад.;ˈlɛməneɪd
-black tea;чёрный чай;Black tea with lemon.;Чёрный чай с лимоном.;blæk ti
-green tea;зелёный чай;I'd like a cup of green tea.;Я бы хотел чашку зелёного чая.;ɡrin ti
-herbal tea;травяной чай;At night I drink herbal tea.;Ночью я пью травяной чай.;ˈɜrbəl ti
-espresso;эспрессо;One espresso, please.;Один эспрессо, пожалуйста.;ɛsˈprɛsoʊ
-cappuccino;капучино;She ordered a cappuccino.;Она заказала капучино.;kæpuˈtʃinoʊ
-latte;латте;A latte with oat milk.;Латте на овсяном молоке.;ˈlɑteɪ
-decaf;без кофеина;I'll have a decaf coffee in the evening.;Вечером я возьму кофе без кофеина.;ˈdikæf
-to go;с собой;A coffee to go.;Кофе с собой.;tu ɡoʊ
-delivery (food);доставка еды;The restaurant offers food delivery.;Ресторан предлагает доставку еды.;dɪˈlɪvəri fud
-breakfast buffet;шведский стол;The hotel has a breakfast buffet.;В отеле есть шведский стол на завтрак.;ˈbrɛkfəst ˈbʌfət
-snack;перекус;I eat a healthy snack at four o'clock.;В четыре часа я ем полезный перекус.;snæk
-fork;вилка;Can I have a fork?;Можно мне вилку?;fɔrk
-spoon;ложка;Give me a spoon, please.;Дайте мне ложку, пожалуйста.;spun
-napkin;салфетка;Can I have a napkin?;Можно салфетку?;ˈnæpkɪn
-straw;трубочка;The kid drinks juice with a straw.;Ребёнок пьёт сок через трубочку.;strɔ
-tablecloth;скатерть;She put a white tablecloth on the table.;Она постелила на стол белую скатерть.;ˈteɪbəlklɔθ
-cutlery;столовые приборы;The cutlery is on the table.;Столовые приборы на столе.;ˈkʌtləri
-glass (for drinks);стакан;A glass for water.;Стакан для воды.;ɡlæs fɔr drɪŋks
-mug;кружка;He drinks coffee from a big mug.;Он пьёт кофе из большой кружки.;mʌɡ
-tray;поднос;The waiter carried a tray with drinks.;Официант нёс поднос с напитками.;treɪ
-chopsticks;палочки;Can I have chopsticks?;Можно мне палочки?;ˈtʃɑpstɪks
-salt and pepper;соль и перец;Pass the salt and pepper.;Передай соль и перец.;sɔlt ənd ˈpɛpər
-ketchup;кетчуп;Can I have some ketchup with the fries?;Можно мне кетчуп к картошке фри?;ˈkɛtʃəp
-mayonnaise;майонез;I don't like mayonnaise on my sandwich.;Я не люблю майонез в сэндвиче.;ˈmeɪəneɪz
-mustard;горчица;Add a little mustard to the sausage.;Добавь немного горчицы к сосиске.;ˈmʌstərd
-olive oil;оливковое масло;Dress the salad with olive oil.;Заправь салат оливковым маслом.;ˈɑləv ɔɪl
-vinegar;уксус;Add some vinegar to the salad.;Добавь в салат немного уксуса.;ˈvɪnəɡər
-garlic;чеснок;Add two cloves of garlic to the sauce.;Добавь в соус два зубчика чеснока.;ˈɡɑrlɪk
-onion;лук;Chop the onion and fry it.;Нарежь лук и обжарь его.;ˈʌnjən
-tomato;помидор;I put a tomato in the salad.;Я положил помидор в салат.;təˈmeɪtoʊ
-potato;картофель;Peel the potato and boil it.;Очисти картофель и отвари его.;pəˈteɪtoʊ
-cucumber;огурец;I bought a cucumber for the salad.;Я купил огурец для салата.;ˈkjukəmbər
-carrot;морковь;Grate the carrot for the soup.;Натри морковь для супа.;ˈkærət
-cabbage;капуста;We make soup with cabbage.;Мы варим суп с капустой.;ˈkæbədʒ
-mushroom;гриб;I picked a mushroom in the forest.;Я нашёл гриб в лесу.;ˈmʌʃrum
-lettuce;салат-латук;Put some lettuce on the sandwich.;Положи немного салата на сэндвич.;ˈlɛtəs
-beans;фасоль;I like soup with beans.;Я люблю суп с фасолью.;binz
-peas;горох;Peas are small and green.;Горох маленький и зелёный.;piz
-lemon;лимон;I like tea with lemon.;Я люблю чай с лимоном.;ˈlɛmən
-banana;банан;He eats a banana for breakfast.;Он ест банан на завтрак.;bəˈnænə
-grapes;виноград;We bought some grapes at the market.;Мы купили виноград на рынке.;ɡreɪps
-strawberry;клубника;She bought a basket of strawberries.;Она купила корзинку клубники.;sˈtrɔbɛri
-watermelon;арбуз;Watermelon is perfect for hot weather.;Арбуз идеален для жаркой погоды.;ˈwɔtərmɛlən
-pear;груша;This pear is sweet and juicy.;Эта груша сладкая и сочная.;pɛr
-peach;персик;I ate a juicy peach.;Я съел сочный персик.;pitʃ
-pineapple;ананас;We had pineapple for dessert.;На десерт у нас был ананас.;ˈpaɪnæpəl
-berries;ягоды;Wild berries grow in the forest.;В лесу растут дикие ягоды.;ˈbɛriz
-pork;свинина;I don't eat pork.;Я не ем свинину.;pɔrk
-lamb;баранина;Lamb is popular in the Middle East.;Баранина популярна на Ближнем Востоке.;læm
-steak;стейк;I'd like a steak with potatoes.;Я бы хотел стейк с картофелем.;steɪk
-sausage;сосиска;He ate a sausage with mustard.;Он съел сосиску с горчицей.;ˈsɔsədʒ
-minced meat;фарш;Mix the minced meat with an egg.;Смешай фарш с яйцом.;mɪnst mit
-salmon;лосось;We had salmon with rice for dinner.;На ужин у нас был лосось с рисом.;ˈsæmən
-tuna;тунец;I made a sandwich with tuna.;Я сделал сэндвич с тунцом.;ˈtunə
-shrimp;креветки;Fry the shrimp in butter.;Обжарь креветки на масле.;ʃrɪmp
-seafood;морепродукты;I love seafood.;Я люблю морепродукты.;ˈsifud
-pasta;паста;Pasta with tomato sauce.;Паста с томатным соусом.;ˈpɑstə
-noodles;лапша;We cooked noodles with chicken.;Мы приготовили лапшу с курицей.;ˈnudəlz
-pancake;блин;She made a pancake for breakfast.;Она испекла блин на завтрак.;ˈpænkeɪk
-porridge;каша;I eat porridge in the morning.;Утром я ем кашу.;ˈpɔrədʒ
-cereal;хлопья;He eats cereal with milk.;Он ест хлопья с молоком.;ˈsɪriəl
-yogurt;йогурт;I eat yogurt for breakfast.;На завтрак я ем йогурт.;ˈjoʊɡərt
-cottage cheese;творог;I like cottage cheese with berries.;Я люблю творог с ягодами.;ˈkɑtədʒ tʃiz
-sour cream;сметана;Soup with sour cream.;Суп со сметаной.;ˈsaʊər krim
-toast;тост;I'd like toast with butter.;Я бы хотел тост с маслом.;toʊst
-bun;булочка;I bought a fresh bun at the bakery.;Я купил свежую булочку в пекарне.;bʌn
-croissant;круассан;A croissant and coffee.;Круассан и кофе.;kwɑˈsɑnt
-ice cream;мороженое;The children want ice cream.;Дети хотят мороженое.;aɪs krim
-flour;мука;You need two cups of flour for the cake.;Для торта нужно две чашки муки.;ˈflaʊər
-oats;овсянка;She eats oats for breakfast.;На завтрак она ест овсянку.;oʊts
-grocery store;продуктовый магазин;Is there a grocery store nearby?;Поблизости есть продуктовый магазин?;ˈɡroʊsəri stɔr
-supermarket;супермаркет;Go to the supermarket.;Иди в супермаркет.;ˈsupərmɑrkɪt
-checkout (shop);касса;Pay at the checkout.;Заплати на кассе.;ˈtʃɛkaʊt ʃɑp
-shopping cart;тележка;Take a shopping cart.;Возьми тележку.;ˈʃɑpɪŋ kɑrt
-basket;корзина;Put the apples in a basket.;Положи яблоки в корзину.;ˈbæskət
-plastic bag;пакет;Do you need a plastic bag?;Тебе нужен пластиковый пакет?;ˈplæstɪk bæɡ
-best before;годен до;Check the best before date.;Проверь срок годности.;bɛst bɪˈfɔr
-frozen food;замороженные продукты;I keep frozen food in the freezer.;Замороженные продукты я храню в морозилке.;ˈfroʊzən fud
-dairy;молочные продукты;I don't eat dairy products.;Я не ем молочные продукты.;ˈdɛri
-bakery;пекарня;The bakery opens at seven.;Пекарня открывается в семь.;ˈbeɪkəri
-butcher;мясная лавка;Go to the butcher.;Сходи к мяснику.;ˈbʊtʃər
-café;кафе;Let's sit in a café.;Давай посидим в кафе.;kæˈfeɪ
-fast food;фастфуд;No fast food today.;Сегодня никакого фастфуда.;fæst fud
-food court;фудкорт;The food court in the mall.;Фудкорт в торговом центре.;fud kɔrt
-hungry for;хочу (поесть что-то);I'm hungry for pizza.;Я хочу пиццу.;ˈhʌŋɡri fɔr
-thirsty;хочется пить;I'm thirsty, can I have some water?;Хочу пить, можно воды?;ˈθɜrsti
-full (after eating);сыт;I'm full, thank you.;Я сыт, спасибо.;fʊl ˈæftər ˈitɪŋ
-delicious (taste);очень вкусно;This soup is delicious!;Этот суп очень вкусный!;dɪˈlɪʃəs teɪst
-it's cold (food);остыло;My soup is cold.;Мой суп холодный.;ɪts koʊld fud
-this isn't what I ordered;это не то, что я заказывал;Sorry, this isn't what I ordered.;Извините, я заказывал не это.;ðɪs ˈɪzənt wʌt aɪ ˈɔrdərd
-can I have the rest to go;можно остатки с собой;Can I have the rest to go?;Можно остаток с собой?;kæn aɪ hæv ðə rɛst tu ɡoʊ
-cheers;будем здоровы;Cheers! To your health!;За здоровье!;tʃɪrz
-bon appetit;приятного аппетита;Bon appetit! Enjoy your dinner.;Приятного аппетита! Наслаждайтесь ужином.;bɔn apeˈti
-help yourself;угощайтесь;Help yourself to some cake!;Угощайся тортом!;hɛlp jərˈsɛlf
-it's on me;я угощаю;Lunch is on me.;Обед за мой счёт.;ɪts ɑn mi
-split the bill;поделить счёт;Let's split the bill.;Давай разделим счёт.;splɪt ðə bɪl
-tip (restaurant);чаевые;How much is the tip?;Сколько чаевые?;tɪp ˈrɛstərɑnt
-cook (verb);готовить;I cook at home.;Я готовлю дома.;kʊk vɜrb
-fridge;холодильник;Put it in the fridge.;Поставь это в холодильник.;frɪdʒ
-oven;духовка;Bake it in the oven.;Запеки это в духовке.;ˈʌvən
-microwave;микроволновка;Heat the soup in the microwave.;Разогрей суп в микроволновке.;ˈmaɪkrəweɪv
-kettle;чайник;I boiled water in the kettle.;Я вскипятил воду в чайнике.;ˈkɛtəl
-stove;плита;The soup is on the stove.;Суп на плите.;stoʊv
-frying pan;сковородка;Fry the eggs in a frying pan.;Пожарь яйца на сковороде.;ˈfraɪɪŋ pæn
-boil;кипятить;Boil the water and add the pasta.;Вскипяти воду и добавь пасту.;bɔɪl
-fry;жарить;I fry potatoes in oil.;Я жарю картофель на масле.;fraɪ
-chop;нарезать;Chop the onion into small pieces.;Мелко нарежь лук.;tʃɑp
-peel;чистить (кожуру);Peel the apples before you eat them.;Очисти яблоки, прежде чем есть.;pil
-taste (verb);пробовать;Taste the soup, please.;Попробуй суп, пожалуйста.;teɪst vɜrb
-@Словарь · Путешествия
-passport;паспорт;Don't forget your passport.;Не забудь паспорт.;ˈpæspɔrt
-boarding pass;посадочный талон;Show your boarding pass.;Покажи посадочный талон.;ˈbɔrdɪŋ pæs
-check in;регистрироваться;We need to check in two hours before the flight.;Нужно пройти регистрацию за два часа до рейса.;tʃɛk ɪn
-check-in desk;стойка регистрации;Where is the check-in desk?;Где стойка регистрации?;tʃɛk ɪn dɛsk
-check out;выселяться;Check out is at noon.;Выезд из номера в полдень.;tʃɛk aʊt
-departures;вылет (табло);Look at the departures board.;Посмотри на табло вылетов.;dɪˈpɑrtʃərz
-arrivals;прилёт;Meet me at arrivals.;Встреть меня в зале прилёта.;ərˈaɪvəlz
-gate number;номер выхода;What's the gate number?;Какой номер выхода?;ɡeɪt ˈnʌmbər
-boarding;посадка;Boarding starts at 10:30.;Посадка начинается в 10:30.;ˈbɔrdɪŋ
-final call;последний вызов на посадку;Final call for flight SU100.;Последнее приглашение на рейс SU100.;ˈfaɪnəl kɔl
-delayed;задержан;My flight is delayed.;Мой рейс задерживается.;dɪˈleɪd
-cancelled;отменён;The flight is cancelled.;Рейс отменён.;ˈkænsəld
-connecting flight;стыковочный рейс;I have a connecting flight.;У меня стыковочный рейс.;kəˈnɛktɪŋ flaɪt
-layover;пересадка;A three-hour layover.;Пересадка три часа.;ˈleɪoʊvər
-direct flight;прямой рейс;Is there a direct flight?;Есть прямой рейс?;dərˈɛkt flaɪt
-one-way ticket;билет в одну сторону;A one-way ticket, please.;Билет в один конец, пожалуйста.;wʌn weɪ ˈtɪkət
-return ticket;билет туда-обратно;A return ticket to Berlin.;Обратный билет до Берлина.;rɪˈtɜrn ˈtɪkət
-aisle seat;место у прохода;An aisle seat, please.;Место у прохода, пожалуйста.;aɪl sit
-window seat;место у окна;Can I have a window seat?;Можно место у окна?;ˈwɪndoʊ sit
-carry-on;ручная кладь;Is this a carry-on?;Это ручная кладь?;ˈkæri ɑn
-checked baggage;багаж (сдаваемый);My checked baggage weighs twenty kilos.;Мой сдаваемый багаж весит двадцать килограммов.;tʃɛkt ˈbæɡədʒ
-baggage claim;выдача багажа;Where is baggage claim?;Где выдача багажа?;ˈbæɡədʒ kleɪm
-lost luggage;потерянный багаж;Where can I report lost luggage?;Куда сообщить о потерянном багаже?;lɔst ˈlʌɡədʒ
-suitcase;чемодан;My suitcase is lost.;Мой чемодан потерялся.;ˈsutkeɪs
-backpack;рюкзак;He carries a backpack to school.;Он носит рюкзак в школу.;ˈbækpæk
-security check;досмотр;Go through the security check.;Пройди досмотр безопасности.;sɪˈkjʊrəti tʃɛk
-passport control;паспортный контроль;Passport control is there.;Паспортный контроль там.;ˈpæspɔrt kənˈtroʊl
-customs;таможня;We went through customs at the airport.;Мы прошли таможню в аэропорту.;ˈkʌstəmz
-nothing to declare;нечего декларировать;I have nothing to declare.;Мне нечего декларировать.;ˈnʌθɪŋ tu dɪˈklɛr
-purpose of visit;цель визита;What's the purpose of your visit?;Какова цель вашего визита?;ˈpɜrpəs ʌv ˈvɪzɪt
-I'm here on business;я здесь по работе;I'm here on business.;Я здесь по делам.;aɪm hir ɑn ˈbɪznəs
-I'm here on holiday;я в отпуске;I'm here on holiday.;Я здесь в отпуске.;aɪm hir ɑn ˈhɑlədeɪ
-how long are you staying;на сколько вы приехали;How long are you staying?;Как долго вы пробудете?;haʊ lɔŋ ɑr ju ˈsteɪɪŋ
-duty-free;дьюти-фри;Let's go to duty-free.;Пойдём в дьюти-фри.;ˈduti fri
-flight attendant;бортпроводник;Ask the flight attendant.;Спроси у бортпроводника.;flaɪt əˈtɛndənt
-seat belt;ремень безопасности;Fasten your seat belt.;Пристегните ремень безопасности.;sit bɛlt
-take off;взлетать;The plane takes off at six.;Самолёт взлетает в шесть.;teɪk ɔf
-turbulence;турбулентность;The plane hit some turbulence.;Самолёт попал в турбулентность.;ˈtɜrbjələns
-jet lag;смена часовых поясов;I have jet lag.;У меня джетлаг.;dʒɛt læɡ
-time difference;разница во времени;What's the time difference?;Какая разница во времени?;taɪm ˈdɪfərəns
-currency exchange;обмен валюты;Where is the currency exchange?;Где обмен валюты?;ˈkɜrənsi ɪksˈtʃeɪndʒ
-exchange rate;курс обмена;What's the exchange rate today?;Какой сегодня курс обмена?;ɪksˈtʃeɪndʒ reɪt
-reservation;бронь;I have a reservation.;У меня есть бронь.;rɛzərˈveɪʃən
-under the name;на имя;A reservation under the name Gafitulin.;Бронь на имя Гафитулин.;ˈʌndər ðə neɪm
-single room;одноместный номер;A single room for two nights.;Одноместный номер на две ночи.;ˈsɪŋɡəl rum
-double room;двухместный номер (одна кровать);A double room, please.;Двухместный номер, пожалуйста.;ˈdʌbəl rum
-twin room;номер с двумя кроватями;We booked a twin room with two beds.;Мы забронировали номер с двумя кроватями.;twɪn rum
-room service;обслуживание в номере;We ordered breakfast with room service.;Мы заказали завтрак в номер.;rum ˈsɜrvəs
-key card;ключ-карта;My key card doesn't work.;Моя ключ-карта не работает.;ki kɑrd
-wake-up call;звонок-будильник;A wake-up call at seven, please.;Разбудите меня в семь, пожалуйста.;weɪk ʌp kɔl
-towel;полотенце;Can I have another towel?;Можно ещё одно полотенце?;ˈtaʊəl
-pillow;подушка;An extra pillow, please.;Дополнительную подушку, пожалуйста.;ˈpɪloʊ
-blanket;одеяло;It is cold, I need another blanket.;Холодно, мне нужно ещё одно одеяло.;ˈblæŋkət
-air conditioning;кондиционер;The air conditioning doesn't work.;Кондиционер не работает.;ɛr kənˈdɪʃənɪŋ
-lobby;лобби;Meet me in the lobby.;Встреть меня в вестибюле.;ˈlɑbi
-elevator;лифт;Take the elevator to the third floor.;Поднимись на лифте на третий этаж.;ˈɛləveɪtər
-floor (hotel);этаж;Your room is on the fifth floor.;Ваш номер на пятом этаже.;flɔr hoʊˈtɛl
-luggage storage;камера хранения;Is there luggage storage?;Есть камера хранения?;ˈlʌɡədʒ ˈstɔrədʒ
-late check-out;поздний выезд;Can I have a late check-out?;Можно поздний выезд?;leɪt tʃɛk aʊt
-early check-in;ранний заезд;Is early check-in possible?;Возможен ранний заезд?;ˈɜrli tʃɛk ɪn
-hostel;хостел;We stayed in a cheap hostel.;Мы остановились в дешёвом хостеле.;ˈhɑstəl
-guest house;гостевой дом;A small guest house.;Небольшая гостевая комната.;ɡɛst haʊs
-landlord;арендодатель;The landlord lives next door.;Хозяин живёт по соседству.;ˈlændlɔrd
-Airbnb;Airbnb;We stay in an Airbnb.;Мы остановились в Airbnb.;ˈɛrbiɛnˈbi
-host (Airbnb);хозяин жилья;The host is very friendly.;Хозяин очень дружелюбный.;hoʊst
-how do I get to;как мне добраться до;How do I get to the airport?;Как добраться до аэропорта?;haʊ du aɪ ɡɛt tu
-is it far;это далеко;Is it far from here?;Это далеко отсюда?;ɪz ɪt fɑr
-it's within walking distance;можно дойти пешком;It's within walking distance.;Это в пределах пешей доступности.;ɪts wɪˈðɪn ˈwɔkɪŋ ˈdɪstəns
-turn right;поверните направо;Turn right at the bank.;Поверни направо у банка.;tɜrn raɪt
-turn left;поверните налево;Turn left after the bridge.;Поверни налево после моста.;tɜrn lɛft
-go straight on;идите прямо;Go straight on for 200 meters.;Иди прямо 200 метров.;ɡoʊ streɪt ɑn
-on the left;слева;It's on the left.;Это слева.;ɑn ðə lɛft
-on the right;справа;The hotel is on the right.;Отель справа.;ɑn ðə raɪt
-next to;рядом с;Next to the station.;Рядом с вокзалом.;nɛkst tu
-in front of;перед;In front of the museum.;Перед музеем.;ɪn frʌnt ʌv
-at the corner;на углу;At the corner of the street.;На углу улицы.;æt ðə ˈkɔrnər
-traffic lights;светофор;Turn left at the traffic lights.;Поверни налево на светофоре.;ˈtræfɪk laɪts
-crossroads;перекрёсток;Turn left at the crossroads.;Поверни налево на перекрёстке.;ˈkrɔsroʊdz
-roundabout;кольцевая развязка;Take the second exit at the roundabout.;На кольце съезжай на втором выезде.;ˈraʊndəbaʊt
-pedestrian;пешеход;A pedestrian crossed the street.;Пешеход перешёл улицу.;pəˈdɛstriən
-sidewalk;тротуар;Walk on the sidewalk.;Иди по тротуару.;ˈsaɪdwɔk
-bus stop;автобусная остановка;Where is the bus stop?;Где автобусная остановка?;bʌs stɑp
-train station;вокзал;The train station is near.;Вокзал рядом.;treɪn ˈsteɪʃən
-platform number;номер платформы;The train leaves from platform number five.;Поезд отправляется с пятой платформы.;ˈplætfɔrm ˈnʌmbər
-ticket machine;билетный автомат;Use the ticket machine.;Воспользуйся билетным автоматом.;ˈtɪkət məˈʃin
-ticket office;касса;You can buy tickets at the ticket office.;Билеты можно купить в кассе.;ˈtɪkət ˈɔfɪs
-single ticket;разовый билет;I bought a single ticket to the center.;Я купил билет в центр в один конец.;ˈsɪŋɡəl ˈtɪkət
-day pass;проездной на день;A day pass, please.;Дневной проездной, пожалуйста.;deɪ pæs
-change trains;сделать пересадку;Change trains at Central.;Пересядь на Центральной.;tʃeɪndʒ treɪnz
-next stop;следующая остановка;The next stop is the airport.;Следующая остановка — аэропорт.;nɛkst stɑp
-get on;садиться (в транспорт);Get on the bus.;Садись в автобус.;ɡɛt ɑn
-get off;выходить (из транспорта);Get off at the next stop.;Выходи на следующей остановке.;ɡɛt ɔf
-taxi rank;стоянка такси;There is a taxi rank outside the station.;У вокзала есть стоянка такси.;ˈtæksi ræŋk
-taxi app;приложение такси;Use a taxi app.;Пользуйся приложением такси.;ˈtæksi æp
-fare;стоимость проезда;What is the fare to the airport?;Сколько стоит проезд до аэропорта?;fɛr
-keep the change;сдачи не надо;Keep the change.;Сдачи не надо.;kip ðə tʃeɪndʒ
-car rental;прокат машин;Car rental at the airport.;Прокат автомобилей в аэропорту.;kɑr ˈrɛntəl
-rent a car;взять машину напрокат;I want to rent a car.;Я хочу взять машину напрокат.;rɛnt ə kɑr
-driving licence;водительские права;Your driving licence, please.;Ваши водительские права, пожалуйста.;ˈdraɪvɪŋ ˈlaɪsəns
-fill up the tank;заправить полный бак;Fill up the tank, please.;Заправьте полный бак, пожалуйста.;fɪl ʌp ðə tæŋk
-petrol station;заправка;Is there a petrol station near here?;Есть ли здесь поблизости заправка?;ˈpɛtroʊl ˈsteɪʃən
-parking lot;парковка;The parking lot is full.;Парковка заполнена.;ˈpɑrkɪŋ lɑt
-toll road;платная дорога;This is a toll road.;Это платная дорога.;toʊl roʊd
-speed camera;камера скорости;Watch out for speed cameras.;Остерегайся камер скорости.;spid ˈkæmərə
-fine (penalty);штраф;I got a parking fine.;Я получил штраф за парковку.;faɪn ˈpɛnəlti
-sightseeing;осмотр достопримечательностей;We spent the day sightseeing.;Мы провели день, осматривая достопримечательности.;ˈsaɪtsiɪŋ
-guided tour;экскурсия с гидом;We went on a guided tour of the old town.;Мы пошли на экскурсию по старому городу.;ˈɡaɪdəd tʊr
-tour guide;экскурсовод;Our tour guide spoke English.;Наш экскурсовод говорил по-английски.;tʊr ɡaɪd
-tourist information;туристическая информация;Where is tourist information?;Где туристическая информация?;ˈtʊrəst ɪnfərˈmeɪʃən
-opening hours;часы работы;What are the opening hours?;Какие часы работы?;ˈoʊpənɪŋ ˈaʊərz
-entrance fee;плата за вход;The entrance fee is ten euros.;Входной билет стоит десять евро.;ˈɛntrəns fi
-souvenir;сувенир;A souvenir for my wife.;Сувенир для жены.;suvəˈnɪr
-old town;старый город;The old town is beautiful.;Старый город прекрасен.;oʊld taʊn
-viewpoint;смотровая площадка;The viewpoint offers a great view of the city.;Со смотровой площадки открывается чудесный вид на город.;ˈvjupɔɪnt
-beach umbrella;пляжный зонт;Rent a beach umbrella.;Возьми в аренду пляжный зонт.;bitʃ əmˈbrɛlə
-sunscreen;солнцезащитный крем;Use sunscreen on the beach.;На пляже пользуйся солнцезащитным кремом.;sənsˈkrin
-sunglasses;солнечные очки;He wore sunglasses.;Он был в солнечных очках.;ˈsʌnɡlæsɪz
-swimsuit;купальник;She packed a new swimsuit.;Она упаковала новый купальник.;ˈswɪmsut
-travel insurance;туристическая страховка;Do you have travel insurance?;У вас есть туристическая страховка?;ˈtrævəl ɪnˈʃʊrəns
-consulate;консульство;He went to the consulate to get a visa.;Он пошёл в консульство за визой.;ˈkɑnsələt
-visa application;заявление на визу;Submit a visa application.;Подай заявление на визу.;ˈvizə æpləˈkeɪʃən
-valid passport;действующий паспорт;You need a valid passport.;Нужен действующий паспорт.;ˈvælɪd ˈpæspɔrt
-expire;истекать;My visa expires in May.;Моя виза истекает в мае.;ɪkˈspaɪr
-local SIM card;местная сим-карта;Where can I buy a local SIM card?;Где можно купить местную SIM-карту?;ˈloʊkəl sɪm kɑrd
-roaming;роуминг;Roaming is expensive abroad.;Роуминг за границей дорогой.;ˈroʊmɪŋ
-power adapter;переходник для розетки;I need a power adapter.;Мне нужен адаптер питания.;ˈpaʊər əˈdæptər
-socket;розетка;Where is the socket?;Где розетка?;ˈsɑkət
-lost and found;бюро находок;Go to lost and found.;Иди в бюро находок.;lɔst ənd faʊnd
-I'm lost;я заблудился;Excuse me, I'm lost.;Извините, я заблудился.;aɪm lɔst
-can you show me on the map;покажите на карте;Can you show me on the map?;Можете показать на карте?;kæn ju ʃoʊ mi ɑn ðə mæp
-could you take a photo of us;сфотографируйте нас;Could you take a photo of us?;Не могли бы вы нас сфотографировать?;kʊd ju teɪk ə ˈfoʊtoʊ ʌv ʌs
-what time does it open;во сколько открывается;What time does it open?;Во сколько открывается?;wʌt taɪm dʌz ɪt ˈoʊpən
-what time does it close;во сколько закрывается;What time does it close?;Во сколько закрывается?;wʌt taɪm dʌz ɪt kloʊs
-how much is a ticket;сколько стоит билет;How much is a ticket?;Сколько стоит билет?;haʊ mʌtʃ ɪz ə ˈtɪkət
-two adults, please;два взрослых, пожалуйста;Two adults, please.;Два взрослых, пожалуйста.;tu əˈdʌlts pliz
-weather forecast;прогноз погоды;Check the weather forecast.;Посмотри прогноз погоды.;ˈwɛðər ˈfɔrkæst
-sunny;солнечно;It's sunny and warm today.;Сегодня солнечно и тепло.;ˈsʌni
-cloudy;облачно;It's cloudy this morning.;Сегодня утром облачно.;ˈklaʊdi
-rainy;дождливо;It's rainy today, take an umbrella.;Сегодня дождливо, возьми зонт.;ˈreɪni
-windy;ветрено;It's windy on the coast.;На побережье ветрено.;ˈwɪndi
-foggy;туманно;It's foggy this morning.;Сегодня утром туман.;ˈfɑɡi
-umbrella;зонт;Take an umbrella, it might rain.;Возьми зонт, может пойти дождь.;əmˈbrɛlə
-degrees;градусы;It's thirty degrees today.;Сегодня тридцать градусов.;dɪˈɡriz
-humid;влажно;It is hot and humid in summer.;Летом жарко и влажно.;ˈhjuməd
-freezing;очень холодно;It's freezing outside.;На улице страшный холод.;ˈfrizɪŋ
-@Словарь · Офис и карьера
-colleague from another team;коллега из другой команды;She's a colleague from another team.;Она коллега из другой команды.;ˈkɑliɡ frʌm əˈnʌðər tim
-open space;опенспейс;We work in an open space.;Мы работаем в open space.;ˈoʊpən speɪs
-meeting room;переговорная;Book a meeting room.;Забронируй переговорную.;ˈmitɪŋ rum
-book a room;забронировать комнату;I'll book a room for two.;Я забронирую номер на двоих.;bʊk ə rum
-line manager;непосредственный руководитель;Ask your line manager.;Спроси у своего непосредственного руководителя.;laɪn ˈmænədʒər
-HR;отдел кадров;Send your CV to the HR department.;Отправь резюме в отдел кадров.;ˈeɪtʃɑr
-HR manager;HR-менеджер;The HR manager called me.;Мне позвонил менеджер по персоналу.;ˈeɪtʃɑr ˈmænədʒər
-recruiter;рекрутер;A recruiter wrote to me.;Мне написал рекрутер.;rɪˈkrutər
-hiring manager;нанимающий менеджер;Meet the hiring manager.;Познакомься с нанимающим менеджером.;ˈhaɪrɪŋ ˈmænədʒər
-job interview;собеседование;I have a job interview.;У меня собеседование.;dʒɑb ˈɪntərvju
-CV;резюме;Send me your CV.;Пришли мне своё резюме.;siˈvi
-cover letter;сопроводительное письмо;Write a cover letter.;Напиши сопроводительное письмо.;ˈkʌvər ˈlɛtər
-job offer;предложение о работе;I got a job offer.;Мне сделали предложение о работе.;dʒɑb ˈɔfər
-salary range;вилка зарплаты;What's the salary range?;Какая вилка зарплаты?;ˈsæləri reɪndʒ
-gross salary;зарплата до вычета налогов;My gross salary is higher than my net salary.;Моя зарплата до вычета налогов больше, чем после.;ɡroʊs ˈsæləri
-net salary;зарплата на руки;My net salary is two thousand dollars.;Моя зарплата на руки — две тысячи долларов.;nɛt ˈsæləri
-probation period;испытательный срок;Three months' probation period.;Испытательный срок три месяца.;proʊˈbeɪʃən ˈpɪriəd
-notice period;срок уведомления;A one-month notice period.;Срок уведомления об уходе — один месяц.;ˈnoʊtəs ˈpɪriəd
-resign;увольняться (по собственному);I want to resign.;Я хочу уволиться.;rɪˈzaɪn
-resignation letter;заявление об уходе;Hand in your resignation letter.;Подай заявление об увольнении.;rɛzəɡˈneɪʃən ˈlɛtər
-get fired;быть уволенным;He got fired for being late.;Его уволили за опоздания.;ɡɛt ˈfaɪərd
-lay off;сокращать;They laid off 50 people.;Сократили 50 человек.;leɪ ɔf
-day off;выходной;Tomorrow is my day off.;Завтра у меня выходной.;deɪ ɔf
-sick leave;больничный;I'm on sick leave.;Я на больничном.;sɪk liv
-paid leave;оплачиваемый отпуск;Twenty days of paid leave.;Двадцать дней оплачиваемого отпуска.;peɪd liv
-take a day off;взять выходной;Can I take a day off on Friday?;Можно взять отгул в пятницу?;teɪk ə deɪ ɔf
-work from home (WFH);работа из дома;I WFH on Fridays.;По пятницам я работаю из дома.;wɜrk frʌm hoʊm
-working hours;рабочие часы;My working hours are nine to six.;Мой рабочий день с девяти до шести.;ˈwɜrkɪŋ ˈaʊərz
-overtime;сверхурочные;I don't do overtime.;Я не работаю сверхурочно.;ˈoʊvərtaɪm
-full-time;полная занятость;A full-time job.;Работа на полную ставку.;fʊl taɪm
-part-time;частичная занятость;A part-time job.;Работа на неполную ставку.;pɑrt taɪm
-freelance;фриланс;She works as a freelance designer.;Она работает фрилансером-дизайнером.;ˈfrilæns
-contractor;подрядчик;He is a contractor, not an employee.;Он подрядчик, а не сотрудник.;ˈkɑntræktər
-self-employed;самозанятый;She is self-employed.;Она работает на себя.;sɛlf ɛmˈplɔɪd
-payslip;расчётный листок;I got my payslip by email.;Расчётный листок мне пришёл по почте.;ˈpeɪslɪp
-payroll;расчёт зарплаты;The payroll is paid on the fifth.;Зарплату выплачивают пятого числа.;ˈpeɪroʊl
-expense report;авансовый отчёт;Submit an expense report.;Отправь отчёт о расходах.;ɪkˈspɛns riˈpɔrt
-reimbursement;возмещение расходов;I asked for reimbursement of my travel costs.;Я попросил возмещения расходов на поездку.;riɪmˈbɜrsmənt
-invoice;счёт-фактура;Send me the invoice.;Пришли мне счёт.;ˈɪnvɔɪs
-purchase order;заказ на покупку;We need a purchase order.;Нам нужен заказ на покупку.;ˈpɜrtʃəs ˈɔrdər
-quote (price);коммерческое предложение;Ask for a quote.;Запроси расчёт стоимости.;kwoʊt praɪs
-deal (business);сделка;We closed the deal.;Мы заключили сделку.;dil ˈbɪznəs
-negotiate;вести переговоры;We have to negotiate the price.;Нам нужно договориться о цене.;nəˈɡoʊʃieɪt
-contract terms;условия договора;Read the contract terms.;Прочитай условия договора.;ˈkɑntrækt tɜrmz
-sign a contract;подписать договор;We sign the contract tomorrow.;Завтра мы подписываем договор.;saɪn ə ˈkɑntrækt
-deadline is tight;дедлайн жёсткий;The deadline is tight.;Срок очень сжатый.;ˈdɛdlaɪn ɪz taɪt
-behind schedule;отставать от графика;We are behind schedule.;Мы отстаём от графика.;bɪˈhaɪnd ˈskɛdʒʊl
-on schedule;в графике;Everything is on schedule.;Всё идёт по графику.;ɑn ˈskɛdʒʊl
-ahead of schedule;с опережением;We're ahead of schedule.;Мы опережаем график.;əˈhɛd ʌv ˈskɛdʒʊl
-on track;по плану;The project is on track.;Проект идёт по плану.;ɑn træk
-follow up;вернуться к вопросу;I'll follow up tomorrow.;Я свяжусь с тобой завтра.;ˈfɑloʊ ʌp
-catch up;пообщаться;Let's catch up after lunch.;Давай обсудим после обеда.;kætʃ ʌp
-heads-up;предупреждение заранее;Just a heads-up: I'm out tomorrow.;Предупреждаю: завтра меня не будет.;hɛdz ʌp
-FYI;к вашему сведению;FYI, the meeting moved.;К сведению, встречу перенесли.;ˈfɔrjɔrɪnfərmeɪʃən
-ASAP;как можно скорее;Please send it ASAP.;Пожалуйста, отправь как можно скорее.;ˈeɪɛseɪpi
-EOD;к концу дня;I'll send it by EOD.;Я отправлю до конца дня.;i oʊ di
-ETA;ожидаемое время;What is the ETA of the delivery?;Когда ожидается доставка?;i ti eɪ
-action items;задачи по итогам;Here are the action items.;Вот список задач к выполнению.;ˈækʃən ˈaɪtəmz
-next steps;следующие шаги;What are the next steps?;Каковы следующие шаги?;nɛkst stɛps
-minutes (meeting);протокол встречи;Who takes the minutes?;Кто ведёт протокол?;ˈmɪnəts ˈmitɪŋ
-take notes;вести записи;Please take notes at the meeting.;Пожалуйста, делай заметки на встрече.;teɪk noʊts
-agenda item;пункт повестки;The first agenda item.;Первый пункт повестки.;əˈdʒɛndə ˈaɪtəm
-any other business;разное (в конце встречи);Any other business?;Другие вопросы?;ˈɛni ˈʌðər ˈbɪznəs
-wrap up;завершать;Let's wrap up the meeting.;Давайте завершим встречу.;ræp ʌp
-run late;затягиваться;The meeting is running late.;Встреча затягивается.;rʌn leɪt
-join a call;присоединиться к звонку;I'll join the call in five minutes.;Я подключусь к звонку через пять минут.;dʒɔɪn ə kɔl
-video call;видеозвонок;Let's have a video call.;Давай созвонимся по видео.;ˈvɪdioʊ kɔl
-conference call;конференц-звонок;A conference call at three.;Конференц-звонок в три.;ˈkɑnfərəns kɔl
-you're breaking up;вы пропадаете (связь);Sorry, you're breaking up.;Извините, вас плохо слышно.;jʊr ˈbreɪkɪŋ ʌp
-can you hear me;вы меня слышите;Can you hear me?;Вы меня слышите?;kæn ju hir mi
-I'll share my screen;я покажу экран;I'll share my screen.;Я покажу свой экран.;aɪl ʃɛr maɪ skrin
-let me check;дайте проверю;Let me check and come back to you.;Дай мне проверить, и я вернусь к тебе.;lɛt mi tʃɛk
-get back to you;вернуться с ответом;I'll get back to you tomorrow.;Я отвечу тебе завтра.;ɡɛt bæk tu ju
-on my side;с моей стороны;Everything is fine on my side.;С моей стороны всё в порядке.;ɑn maɪ saɪd
-to be honest;честно говоря;To be honest, I don't know.;Честно говоря, я не знаю.;tu bi ˈɑnəst
-in my opinion;по-моему;In my opinion, it's too risky.;По-моему, это слишком рискованно.;ɪn maɪ əˈpɪnjən
-I agree;согласен;I agree with you.;Я с тобой согласен.;aɪ əˈɡri
-I disagree;не согласен;I'm afraid I disagree.;Боюсь, я не согласен.;aɪ dɪsəˈɡri
-good point;хорошее замечание;That's a good point.;Хорошее замечание.;ɡʊd pɔɪnt
-let's move on;давайте дальше;OK, let's move on.;Хорошо, идём дальше.;lɛts muv ɑn
-any questions;есть вопросы;Any questions so far?;Пока есть вопросы?;ˈɛni ˈkwɛstʃənz
-could you clarify;не могли бы вы уточнить;Could you clarify that?;Не могли бы вы пояснить?;kʊd ju ˈklɛrəfaɪ
-what do you mean by;что вы имеете в виду под;What do you mean by "soon"?;Что вы подразумеваете под «скоро»?;wʌt du ju min baɪ
-just to confirm;просто чтобы подтвердить;Just to confirm: Friday at ten?;Просто чтобы подтвердить: в пятницу в десять?;dʒʌst tu kənˈfɜrm
-as discussed;как обсуждали;As discussed, here is the file.;Как и договорились, вот файл.;æz dɪˈskʌst
-please find attached;во вложении;Please find attached the report.;Отчёт во вложении.;pliz faɪnd əˈtætʃt
-looking forward to;с нетерпением жду;Looking forward to your reply.;Жду вашего ответа.;ˈlʊkɪŋ ˈfɔrwərd tu
-best regards;с уважением;Best regards, Anna.;С уважением, Анна.;bɛst rɪˈɡɑrdz
-dear team;уважаемая команда;Dear team, thanks for your hard work.;Дорогая команда, спасибо за усердную работу.;dɪr tim
-hope you're well;надеюсь, у вас всё хорошо;Hi Anna, hope you're well.;Привет, Анна, надеюсь, у тебя всё хорошо.;hoʊp jʊr wɛl
-thanks in advance;заранее спасибо;Thanks in advance!;Заранее спасибо!;θæŋks ɪn ədˈvæns
-sorry for the delay;извините за задержку;Sorry for the delay.;Извините за задержку.;ˈsɑri fɔr ðə dɪˈleɪ
-quick question;быстрый вопрос;Quick question: who owns this?;Быстрый вопрос: кто за это отвечает?;kwɪk ˈkwɛstʃən
-urgent request;срочный запрос;An urgent request from the client.;Срочный запрос от клиента.;ˈɜrdʒənt rɪˈkwɛst
-approve a request;одобрить запрос;Please approve my request.;Пожалуйста, одобри мою заявку.;əˈpruv ə rɪˈkwɛst
-budget approval;согласование бюджета;We're waiting for budget approval.;Мы ждём утверждения бюджета.;ˈbʌdʒɪt əˈpruvəl
-headcount;численность штата;We have no headcount.;У нас нет свободных штатных мест.;ˈhɛdkaʊnt
-team building;тимбилдинг;A team building event.;Мероприятие по сплочению команды.;tim ˈbɪldɪŋ
-office party;корпоратив;The office party is on Friday.;Корпоратив в пятницу.;ˈɔfɪs ˈpɑrti
-dress code;дресс-код;There's no dress code.;Дресс-кода нет.;drɛs koʊd
-business casual;деловой повседневный стиль;Business casual is fine.;Деловой повседневный стиль подойдёт.;ˈbɪznəs ˈkæʒəwəl
-badge;бейдж;Don't forget your badge.;Не забудь бейдж.;bædʒ
-access card;карта доступа;My access card doesn't work.;Мой пропуск не работает.;ˈæksɛs kɑrd
-reception desk;ресепшн;Leave it at the reception desk.;Оставь на стойке ресепшена.;rɪˈsɛpʃən dɛsk
-visitor pass;гостевой пропуск;Get a visitor pass.;Получи пропуск для посетителя.;ˈvɪzɪtər pæs
-coffee break;кофе-брейк;Let's have a coffee break.;Давай сделаем перерыв на кофе.;ˈkɑfi breɪk
-lunch break;обеденный перерыв;I'm on my lunch break.;У меня обеденный перерыв.;lʌntʃ breɪk
-canteen;столовая;Let's eat in the canteen.;Давай пообедаем в столовой.;kænˈtin
-printer;принтер;The printer is broken.;Принтер сломан.;ˈprɪntər
-photocopier;ксерокс;The photocopier is broken.;Ксерокс сломан.;ˈfoʊtoʊkɑpiər
-stapler;степлер;Can I borrow your stapler?;Можно одолжить твой степлер?;ˈsteɪpələr
-whiteboard;маркерная доска;Draw it on the whiteboard.;Нарисуй это на доске.;ˈwaɪtbɔrd
-marker;маркер;Use a red marker on the whiteboard.;Пиши красным маркером на доске.;ˈmɑrkər
-sticky note;стикер;Put a sticky note on it.;Приклей на это стикер.;ˈstɪki noʊt
-notebook;блокнот;I wrote it in my notebook.;Я записал это в блокноте.;ˈnoʊtbʊk
-office supplies;канцтовары;We order office supplies every month.;Мы заказываем канцелярию каждый месяц.;ˈɔfɪs səˈplaɪz
-headset;гарнитура;I need a headset.;Мне нужна гарнитура.;ˈhɛdsɛt
-desk phone;рабочий телефон;Call my desk phone.;Позвони на мой рабочий телефон.;dɛsk foʊn
-extension number;добавочный номер;My extension number is 205.;Мой добавочный номер — 205.;ɪkˈstɛnʃən ˈnʌmbər
-company policy;политика компании;It is against company policy.;Это противоречит политике компании.;ˈkʌmpəni ˈpɑləsi
-code of conduct;кодекс поведения;Read the code of conduct.;Прочитай кодекс поведения.;koʊd ʌv ˈkɑndəkt
-NDA;соглашение о неразглашении;Everyone signed an NDA.;Все подписали соглашение о неразглашении.;ɛn di eɪ
-confidential;конфиденциальный;This information is confidential.;Эта информация конфиденциальна.;kɑnfəˈdɛnʃəl
-compliance officer;специалист по комплаенсу;Ask the compliance officer.;Спроси у специалиста по комплаенсу.;kəmˈplaɪəns ˈɔfəsər
-performance review;оценка работы;Prepare for your performance review.;Подготовься к оценке эффективности.;pərˈfɔrməns riˈvju
-pay rise;повышение зарплаты;Ask for a pay rise.;Попроси о повышении зарплаты.;peɪ raɪz
-get promoted;получить повышение;I want to get promoted.;Я хочу получить повышение.;ɡɛt prəˈmoʊtɪd
-career path;карьерный путь;Discuss your career path.;Обсуди свой карьерный путь.;kərˈɪr pæθ
-mentor;наставник;She is my mentor.;Она мой наставник.;ˈmɛntɔr
-one-on-one;встреча один на один;My one-on-one with my manager.;Моя личная встреча с руководителем.;wʌn ɑn wʌn
-feedback session;встреча по обратной связи;We have a feedback session on Friday.;В пятницу у нас сессия обратной связи.;ˈfidbæk ˈsɛʃən
-strengths;сильные стороны;What are your strengths?;Каковы твои сильные стороны?;strɛŋkθs
-weaknesses;слабые стороны;What are your weaknesses?;Каковы твои слабые стороны?;ˈwiknəsəz
-achievements;достижения;Talk about your achievements.;Расскажи о своих достижениях.;əˈtʃivmənts
-duties;обязанности;Your duties include answering the phone.;В ваши обязанности входит отвечать на звонки.;ˈdutiz
-report to;подчиняться;I report to the CTO.;Я подчиняюсь техническому директору.;riˈpɔrt tu
-in charge of;отвечает за;Who is in charge of security?;Кто отвечает за безопасность?;ɪn tʃɑrdʒ ʌv
-work closely with;тесно работать с;I work closely with designers.;Я тесно работаю с дизайнерами.;wɜrk ˈkloʊsli wɪð
-cross-functional team;кросс-функциональная команда;A cross-functional team.;Кросс-функциональная команда.;krɔs ˈfʌŋkʃənəl tim
-department head;руководитель отдела;The department head approved the plan.;Руководитель отдела одобрил план.;dɪˈpɑrtmənt hɛd
-CEO;генеральный директор;The CEO joined the meeting.;Генеральный директор присоединился к встрече.;ˈsiioʊ
-board of directors;совет директоров;The board of directors.;Совет директоров.;bɔrd ʌv dərˈɛktərz
-shareholder;акционер;Each shareholder gets a part of the profit.;Каждый акционер получает часть прибыли.;ˈʃɛrhoʊldər
-headquarters (HQ);головной офис;Our HQ is in London.;Наш головной офис в Лондоне.;ˈhɛdˌkwɔrtərz
-branch office;филиал;A branch office in Dubai.;Филиал в Дубае.;bræntʃ ˈɔfɪs
-subsidiary;дочерняя компания;It is a subsidiary of a big company.;Это дочерняя компания крупной компании.;səbˈsɪdiɛri
-client meeting;встреча с клиентом;I have a client meeting at three.;В три у меня встреча с клиентом.;ˈklaɪənt ˈmitɪŋ
-key account;ключевой клиент;She manages the key account.;Она ведёт ключевого клиента.;ki əˈkaʊnt
-sales pitch;продающая презентация;Prepare a sales pitch.;Подготовь презентацию для продаж.;seɪlz pɪtʃ
-market share;доля рынка;We want to increase our market share.;Мы хотим увеличить свою долю рынка.;ˈmɑrkət ʃɛr
-competitor analysis;анализ конкурентов;Do a competitor analysis.;Проведи анализ конкурентов.;kəmˈpɛtətər əˈnæləsəs
-target market;целевой рынок;Our target market is young people.;Наш целевой рынок — молодёжь.;ˈtɑrɡət ˈmɑrkət
-quarter (Q1);квартал;Sales grew in the first quarter.;Продажи выросли в первом квартале.;ˈkwɔrtər
-quarterly;ежеквартальный;The company publishes a quarterly report.;Компания публикует квартальный отчёт.;ˈkwɔrtərli
-fiscal year;финансовый год;The fiscal year ends in December.;Финансовый год заканчивается в декабре.;ˈfɪskəl jɪr
-forecast;прогноз;The weather forecast is bad.;Прогноз погоды плохой.;ˈfɔrkæst
-growth rate;темп роста;The growth rate is 10%.;Темп роста — 10%.;ɡroʊθ reɪt
-profit and loss;прибыли и убытки;Profit and loss statement.;Отчёт о прибылях и убытках.;ˈprɑfət ənd lɔs
-cost-effective;экономически выгодный;A cost-effective solution.;Экономически выгодное решение.;kɑst ɪˈfɛktɪv
-ROI;окупаемость инвестиций;The ROI of this project is high.;Окупаемость этого проекта высока.;rɔɪ
-outsourcing;аутсорсинг;The company uses outsourcing for support.;Компания передаёт поддержку на аутсорсинг.;aʊtˈsɔrsɪŋ
-supplier;поставщик;Our supplier delivers the goods on Monday.;Наш поставщик доставляет товар в понедельник.;səˈplaɪər
-business trip;командировка;I'm on a business trip.;Я в командировке.;ˈbɪznəs trɪp
-per diem;суточные;What's the per diem?;Сколько командировочные?;pɜr dim
-travel expenses;командировочные расходы;Travel expenses are covered.;Расходы на поездку покрываются.;ˈtrævəl ɪkˈspɛnsəz
-relocate;переезжать (по работе);We relocate to Dubai.;Мы переезжаем в Дубай.;riˈloʊkeɪt
-work permit;разрешение на работу;Do you need a work permit?;Нужно ли разрешение на работу?;wɜrk pərˈmɪt
-visa sponsorship;спонсорство визы;Do you offer visa sponsorship?;Вы оформляете визу для сотрудников?;ˈvizə ˈspɑnsərʃɪp
-residence permit;вид на жительство;I have a residence permit.;У меня есть вид на жительство.;ˈrɛzɪdəns pərˈmɪt
-tax resident;налоговый резидент;I'm a tax resident.;Я налоговый резидент.;tæks ˈrɛzɪdənt
-tax return;налоговая декларация;File a tax return.;Подай налоговую декларацию.;tæks rɪˈtɜrn
-social security number;номер соцстрахования;Your social security number.;Ваш номер социального страхования.;ˈsoʊʃəl sɪˈkjʊrəti ˈnʌmbər
-bank account (salary);банковский счёт;Open a bank account.;Открой банковский счёт.;bæŋk əˈkaʊnt ˈsæləri
-employment contract;трудовой договор;Sign the employment contract.;Подпиши трудовой договор.;ɛmˈplɔɪmənt ˈkɑntrækt
-benefits package;социальный пакет;A good benefits package.;Хороший социальный пакет.;ˈbɛnəfɪts ˈpækədʒ
-health insurance (work);медстраховка от работы;Health insurance is included.;Медицинская страховка включена.;hɛlθ ɪnˈʃʊrəns wɜrk
-pension plan;пенсионный план;My employer offers a pension plan.;Мой работодатель предлагает пенсионный план.;ˈpɛnʃən plæn
-gym membership (perk);абонемент в спортзал;A free gym membership.;Бесплатный абонемент в спортзал.;dʒɪm ˈmɛmbərʃɪp pɜrk
-workload;рабочая нагрузка;My workload is heavy.;У меня большая рабочая нагрузка.;ˈwɜrkloʊd
-burnout;выгорание;Long hours can lead to burnout.;Длинный рабочий день может привести к выгоранию.;ˈbɜrnaʊt
-deadline pressure;давление сроков;The deadline pressure makes me nervous.;Давление сроков меня нервирует.;ˈdɛdlaɪn ˈprɛʃər
-multitask;работать над многим сразу;I multitask a lot.;Я часто делаю несколько дел одновременно.;ˈmʌltitæsk
-prioritize;расставлять приоритеты;You need to prioritize your tasks.;Нужно расставлять приоритеты в задачах.;praɪˈɔrətaɪz
-delegate;делегировать;A good manager knows how to delegate.;Хороший руководитель умеет делегировать.;ˈdɛləɡeɪt
-take ownership;брать ответственность;Take ownership of the project.;Возьми проект под свою ответственность.;teɪk ˈoʊnərʃɪp
-raise an issue;поднять вопрос;I want to raise an issue.;Я хочу поднять вопрос.;reɪz æn ˈɪʃu
-escalate;эскалировать;Escalate it to the manager.;Передай это руководителю.;ˈɛskəleɪt
-loop in;подключить к обсуждению;Loop in the designer.;Подключи дизайнера.;lup ɪn
-keep me posted;держи в курсе;Keep me posted.;Держи меня в курсе.;kip mi ˈpoʊstɪd
-small talk;светская беседа;Small talk before the meeting.;Светская беседа перед встречей.;smɔl tɔk
-networking;нетворкинг;Networking helps you find a job.;Нетворкинг помогает найти работу.;ˈnɛtwərkɪŋ
-business card;визитка;Here's my business card.;Вот моя визитка.;ˈbɪznəs kɑrd
-LinkedIn;LinkedIn;Connect with me on LinkedIn.;Добавь меня в LinkedIn.;ˈlɪŋktɪn
-introduce yourself;представиться;Please introduce yourself to the team.;Пожалуйста, представься команде.;ɪntrəˈdus jərˈsɛlf
 @Словарь · IT
 deploy;разворачивать (деплоить);We deploy on Thursdays.;Мы выкатываем релизы по четвергам.;dɪˈplɔɪ
 release notes;примечания к релизу;Read the release notes.;Прочитай примечания к релизу.;riˈlis noʊts
@@ -4955,130 +5241,6 @@ retention;удержание;Customer retention is important for growth.;Уде�
 license (software);лицензия;You need a license to use this software.;Для использования этой программы нужна лицензия.;ˈlaɪsəns ˈsɔftwɛr
 subscription;подписка;My subscription ends next week.;Моя подписка заканчивается на следующей неделе.;səbsˈkrɪpʃən
 free trial;бесплатный пробный период;A 14-day free trial.;14 дней бесплатного пробного периода.;fri ˈtraɪəl
-@Словарь · Быт, деньги, здоровье
-how much does it cost;сколько стоит;How much does it cost?;Сколько это стоит?;haʊ mʌtʃ dʌz ɪt kɑst
-can I try it on;можно примерить;Can I try it on?;Можно примерить?;kæn aɪ traɪ ɪt ɑn
-fitting room;примерочная;Where is the fitting room?;Где примерочная?;ˈfɪtɪŋ rum
-a smaller size;размер поменьше;Do you have a smaller size?;Есть размер поменьше?;ə sˈmɔlər saɪz
-a bigger size;размер побольше;A bigger size, please.;Побольше размер, пожалуйста.;ə ˈbɪɡər saɪz
-it's too big;слишком большой;It's too big.;Он слишком большой.;ɪts tu bɪɡ
-it's too small;слишком маленький;It's too small.;Он слишком маленький.;ɪts tu smɔl
-on sale (discount);со скидкой;Is it on sale?;Это по скидке?;ɑn seɪl dɪˈskaʊnt
-receipt;чек;Can I have the receipt?;Можно чек?;rɪˈsit
-refund;возврат денег;I'd like a refund.;Я бы хотел вернуть деньги.;rɪˈfʌnd
-return (item);вернуть товар;I want to return this.;Я хочу это вернуть.;rɪˈtɜrn ˈaɪtəm
-cash only;только наличные;Sorry, cash only.;Извините, только наличные.;kæʃ ˈoʊnli
-contactless;бесконтактный;You can pay with a contactless card.;Можно оплатить бесконтактной картой.;ˈkɑntæktlɛs
-PIN code;пин-код;Enter your PIN code.;Введите свой ПИН-код.;pɪn koʊd
-card declined;карта отклонена;Sorry, your card is declined.;Извините, вашу карту отклонили.;kɑrd dɪˈklaɪnd
-change (money);сдача;Keep the change.;Сдачи не надо.;tʃeɪndʒ ˈmʌni
-coins;монеты;I have no coins.;У меня нет мелочи.;kɔɪnz
-banknote;купюра;A 100-euro banknote.;Банкнота в 100 евро.;ˈbæŋknoʊt
-ATM;банкомат;Where is the nearest ATM?;Где ближайший банкомат?;ˈeɪtiɛm
-withdraw money;снять деньги;Withdraw money from the ATM.;Сними деньги в банкомате.;wɪðˈdrɔ ˈmʌni
-open an account;открыть счёт;I want to open an account.;Я хочу открыть счёт.;ˈoʊpən æn əˈkaʊnt
-current account;текущий счёт;I opened a current account.;Я открыл текущий счёт.;ˈkɜrənt əˈkaʊnt
-savings account;сберегательный счёт;I keep my money in a savings account.;Я храню деньги на сберегательном счёте.;ˈseɪvɪŋz əˈkaʊnt
-debit card;дебетовая карта;I pay with my debit card.;Я плачу дебетовой картой.;ˈdɛbɪt kɑrd
-credit card;кредитная карта;Pay by credit card.;Оплати кредитной картой.;ˈkrɛdət kɑrd
-bank transfer (pay);банковский перевод;Pay by bank transfer.;Оплати банковским переводом.;bæŋk trænsˈfɜr peɪ
-IBAN;номер счёта IBAN;Enter the IBAN of the receiver.;Введи IBAN получателя.;ˈaɪbæn
-proof of address;подтверждение адреса;Bring proof of address.;Принеси подтверждение адреса.;pruf ʌv ˈædrɛs
-utility bill;коммунальный счёт;A recent utility bill.;Недавний счёт за коммунальные услуги.;juˈtɪləti bɪl
-mobile banking;мобильный банк;I use mobile banking every day.;Я каждый день пользуюсь мобильным банком.;ˈmoʊbəl ˈbæŋkɪŋ
-online shopping;онлайн-покупки;I do online shopping.;Я делаю покупки онлайн.;ˈɔnlaɪn ˈʃɑpɪŋ
-delivery address;адрес доставки;Enter your delivery address.;Введи адрес доставки.;dɪˈlɪvəri ˈædrɛs
-tracking number;трек-номер;Here's the tracking number.;Вот номер для отслеживания.;ˈtrækɪŋ ˈnʌmbər
-post office;почта (отделение);Where is the post office?;Где почта?;poʊst ˈɔfɪs
-parcel;посылка;I got a parcel from my friend.;Я получил посылку от друга.;ˈpɑrsəl
-pick up (parcel);забрать;Pick up your parcel.;Забери свою посылку.;pɪk ʌp ˈpɑrsəl
-courier;курьер;The courier is here.;Курьер здесь.;ˈkɜriər
-pharmacy;аптека;Is there a pharmacy near here?;Здесь поблизости есть аптека?;ˈfɑrməsi
-hairdresser;парикмахер;I'm going to the hairdresser.;Я иду к парикмахеру.;ˈhɛrdrɛsər
-dry cleaner;химчистка;Take it to the dry cleaner.;Отнеси это в химчистку.;draɪ ˈklinər
-laundry;прачечная;The laundry is in the basement.;Прачечная в подвале.;ˈlɔndri
-repair shop;мастерская;A phone repair shop.;Мастерская по ремонту телефонов.;rɪˈpɛr ʃɑp
-mobile operator;мобильный оператор;My mobile operator offers cheap plans.;Мой мобильный оператор предлагает дешёвые тарифы.;ˈmoʊbəl ˈɑpəreɪtər
-top up;пополнить;Top up my phone.;Пополни мой телефон.;tɑp ʌp
-rent (flat);снимать (квартиру);I rent a flat.;Я снимаю квартиру.;rɛnt flæt
-monthly rent;ежемесячная аренда;The monthly rent is high.;Ежемесячная арендная плата высока.;ˈmʌnθli rɛnt
-deposit (rent);залог;A one-month deposit.;Залог в размере месячной аренды.;dəˈpɑzɪt rɛnt
-lease agreement;договор аренды;Sign the lease agreement.;Подпиши договор аренды.;lis əˈɡrimənt
-furnished;меблированный;We rent a furnished flat.;Мы снимаем квартиру с мебелью.;ˈfɜrnɪʃt
-unfurnished;без мебели;The flat is unfurnished.;Квартира без мебели.;ʌnˈfɜrnɪʃt
-bills included;счета включены;The rent is 800 euros, bills included.;Аренда — 800 евро, коммунальные включены.;bɪlz ɪnˈkludəd
-living room;гостиная;A big living room.;Большая гостиная.;ˈlɪvɪŋ rum
-balcony;балкон;A flat with a balcony.;Квартира с балконом.;ˈbælkəni
-stairs;лестница;The stairs are on the left.;Лестница слева.;stɛrz
-doorbell;дверной звонок;Ring the doorbell, please.;Позвони в дверной звонок, пожалуйста.;ˈdɔrbɛl
-key (home);ключ;I lost my key.;Я потерял ключ.;ki hoʊm
-lock (door);замок;The lock is broken.;Замок сломан.;lɑk dɔr
-light switch;выключатель;Where is the light switch?;Где выключатель света?;laɪt swɪtʃ
-washing machine;стиральная машина;Put the clothes in the washing machine.;Положи одежду в стиральную машину.;ˈwɑʃɪŋ məˈʃin
-dishwasher;посудомоечная машина;Put the plates in the dishwasher.;Поставь тарелки в посудомоечную машину.;ˈdɪʃwɑʃər
-vacuum cleaner;пылесос;I use a vacuum cleaner every week.;Я пылесошу каждую неделю.;ˈvækjum ˈklinər
-iron (clothes);утюг;I need an iron.;Мне нужен утюг.;ˈaɪərn kloʊðz
-hair dryer;фен;Is there a hair dryer?;Есть фен?;hɛr ˈdraɪər
-wardrobe;шкаф для одежды;My clothes are in the wardrobe.;Моя одежда в шкафу.;ˈwɔrdroʊb
-shelf;полка;Put it on the shelf.;Положи это на полку.;ʃɛlf
-drawer;ящик;In the top drawer.;В верхнем ящике.;drɔr
-curtain;штора;Close the curtain, please.;Закрой штору, пожалуйста.;ˈkɜrtən
-lamp;лампа;Turn on the lamp.;Включи лампу.;læmp
-mattress;матрас;I bought a new mattress.;Я купил новый матрас.;ˈmætrəs
-sheets (bed);постельное бельё;I changed the sheets on the bed.;Я сменил постельное бельё на кровати.;ʃits bɛd
-toothbrush;зубная щётка;I forgot my toothbrush.;Я забыл зубную щётку.;ˈtuθbrəʃ
-toothpaste;зубная паста;I forgot my toothpaste.;Я забыл зубную пасту.;ˈtuθpeɪst
-shampoo;шампунь;I wash my hair with shampoo.;Я мою голову шампунем.;ʃæmˈpu
-toilet paper;туалетная бумага;We need toilet paper.;Нам нужна туалетная бумага.;ˈtɔɪlət ˈpeɪpər
-recycling;переработка;Recycling helps nature.;Переработка помогает природе.;riˈsaɪkəlɪŋ
-leak;протечка;There's a leak in the bathroom.;В ванной протечка.;lik
-plumber;сантехник;Call a plumber, the sink is leaking.;Вызови сантехника, раковина течёт.;ˈplʌmər
-electrician;электрик;We need an electrician.;Нам нужен электрик.;ɪlɛkˈtrɪʃən
-broken (doesn't work);не работает;The shower doesn't work.;Душ не работает.;ˈbroʊkən ˈdʌzənt wɜrk
-get up (morning);вставать;I get up at seven.;Я встаю в семь.;ɡɛt ʌp ˈmɔrnɪŋ
-fall asleep;засыпать;I fall asleep at eleven.;Я засыпаю в одиннадцать.;fɔl əsˈlip
-do the dishes;мыть посуду;I do the dishes.;Я мою посуду.;du ðə ˈdɪʃəz
-do the shopping;ходить за покупками;I do the shopping on Saturday.;По субботам я делаю покупки.;du ðə ˈʃɑpɪŋ
-clean the flat;убирать квартиру;We clean the flat on Sunday.;По воскресеньям мы убираем квартиру.;klin ðə flæt
-walk the dog;выгуливать собаку;I walk the dog.;Я выгуливаю собаку.;wɔk ðə dɔɡ
-take out the trash;выносить мусор;Take out the trash.;Вынеси мусор.;teɪk aʊt ðə træʃ
-pay the bills;оплачивать счета;Pay the bills online.;Оплати счета онлайн.;peɪ ðə bɪlz
-doctor's appointment;запись к врачу;I have a doctor's appointment.;У меня приём у врача.;ˈdɑktərz əˈpɔɪntmənt
-make an appointment;записаться;I'd like to make an appointment.;Я бы хотел записаться на приём.;meɪk æn əˈpɔɪntmənt
-GP;терапевт (семейный врач);I made an appointment with my GP.;Я записался на приём к терапевту.;dʒi pi
-dentist;стоматолог;I need a dentist.;Мне нужен стоматолог.;ˈdɛntəst
-headache;головная боль;I have a headache.;У меня болит голова.;ˈhɛdeɪk
-toothache;зубная боль;I have a toothache.;У меня болит зуб.;ˈtuθeɪk
-stomachache;боль в животе;I have a stomachache.;У меня болит живот.;ˈstʌməkeɪk
-sore throat;больное горло;I have a sore throat.;У меня болит горло.;sɔr θroʊt
-cough;кашель;I have a cough.;У меня кашель.;kɑf
-runny nose;насморк;I have a runny nose.;У меня насморк.;ˈrʌni noʊz
-cold (illness);простуда;I have a cold.;Я простудился.;koʊld ˈɪlnəs
-flu;грипп;I have the flu.;У меня грипп.;flu
-allergy;аллергия;Do you have any allergies?;У вас есть аллергия?;ˈælərdʒi
-dizzy;головокружение;I feel dizzy.;У меня кружится голова.;ˈdɪzi
-sick (nauseous);тошнит;I feel sick after the trip.;Меня тошнит после поездки.;sɪk ˈnɔʃəs
-it hurts here;болит здесь;It hurts here.;Болит вот здесь.;ɪt hɜrts hir
-prescription;рецепт (на лекарство);Do I need a prescription?;Нужен ли рецепт?;prəsˈkrɪpʃən
-painkiller;обезболивающее;I took a painkiller for my headache.;Я принял обезболивающее от головной боли.;ˈpeɪnkɪlər
-pill;таблетка;Take one pill a day.;Принимай по одной таблетке в день.;pɪl
-twice a day;два раза в день;Twice a day after meals.;Два раза в день после еды.;twaɪs ə deɪ
-side effects;побочные эффекты;The medicine can have side effects.;У лекарства могут быть побочные эффекты.;saɪd ɪˈfɛkts
-blood pressure;давление;My blood pressure is normal.;У меня нормальное давление.;blʌd ˈprɛʃər
-X-ray;рентген;You need an X-ray.;Вам нужен рентген.;ɛks reɪ
-blood test;анализ крови;I need to take a blood test.;Мне нужно сдать анализ крови.;blʌd tɛst
-ambulance;скорая помощь;Call an ambulance!;Вызовите скорую!;ˈæmbjələns
-emergency number;номер экстренных служб;What's the emergency number?;Какой номер экстренной службы?;ɪˈmɜrdʒənsi ˈnʌmbər
-help!;помогите!;Help! Someone call the police!;Помогите! Кто-нибудь, вызовите полицию!;hɛlp
-fire brigade;пожарная служба;Call the fire brigade.;Вызови пожарных.;ˈfaɪər brəˈɡeɪd
-police station;полицейский участок;Where is the police station?;Где полицейский участок?;pəˈlis ˈsteɪʃən
-I lost my passport;я потерял паспорт;I lost my passport.;Я потерял паспорт.;aɪ lɔst maɪ ˈpæspɔrt
-my wallet was stolen;у меня украли кошелёк;My wallet was stolen.;У меня украли кошелёк.;maɪ ˈwɔlət wɑz ˈstoʊlən
-report a theft;заявить о краже;I want to report a theft.;Я хочу заявить о краже.;riˈpɔrt ə θɛft
-first aid;первая помощь;He gave first aid to the injured man.;Он оказал первую помощь раненому.;fɜrst eɪd
-health insurance card;полис медстрахования;Show your health insurance card.;Покажи карточку медицинской страховки.;hɛlθ ɪnˈʃʊrəns kɑrd
-go for a run;пойти на пробежку;I go for a run in the morning.;Утром я бегаю.;ɡoʊ fɔr ə rʌn
-get some rest;отдохнуть;Get some rest.;Отдохни немного.;ɡɛt sʌm rɛst
 `;
 
 const KEY = "english-cards-v2";
@@ -5108,10 +5270,9 @@ const SEEDROWS = (() => {
 })();
 
 // порядок и подписи типов на стартовом экране
-const BASE = ["Общение: фразы", "IT", "Путешествия", "Офис и карьера", "Еда и ресторан", "Быт, деньги, здоровье"];
-const FREQ = ["Работа и бизнес", "Деньги и покупки", "Технологии и наука", "Тело, здоровье и внешность", "Еда, дом и быт", "Семья, люди и чувства", "Природа и погода", "Время и числа", "Государство и закон", "Транспорт и города", "Язык, общение и учёба", "Искусство, досуг и спорт", "Глаголы", "Прилагательные", "Наречия и связки", "Существительные · частые", "Существительные · реже"];
-const ORDER = BASE.concat(FREQ, [CUSTOM]);
-const LABEL = { "Общение: фразы": "Общие фразы" };
+const FREQ = ["Работа и бизнес", "Деньги и покупки", "Технологии и наука", "IT", "Тело, здоровье и внешность", "Еда, дом и быт", "Семья, люди и чувства", "Природа и погода", "Время и числа", "Государство и закон", "Транспорт и города", "Язык, общение и учёба", "Искусство, досуг и спорт", "Глаголы", "Прилагательные", "Наречия и связки", "Существительные · частые", "Существительные · реже"];
+const ORDER = FREQ.concat([CUSTOM]);
+const LABEL = {};
 const label = (d) => LABEL[d] || d;
 
 function shuffle(a) {
@@ -5125,7 +5286,8 @@ function shuffle(a) {
 let state, CARDS = [];
 
 function blank() {
-  return { p: {}, custom: [], cyc: {}, dir: "ru-en", sel: ["Общение: фразы"], nRep: 10, nNew: 10 };
+  return { p: {}, custom: [], cyc: {}, dir: "ru-en", sel: ["Работа и бизнес"], nRep: 10, nNew: 10,
+    mode: "cards", tN: 10, tSrc: "known", tErr: false, tTypes: ["tf", "mc", "match", "wr"] };
 }
 
 function migrate() {
@@ -5164,6 +5326,8 @@ function load() {
   if (Array.isArray(state.sel)) state.sel = state.sel.filter((d) => !/^Частые · /.test(d));
   if (!state.sel || !state.sel.length) state.sel = [ORDER[0]];
   build();
+  state.sel = state.sel.filter((d) => decks().includes(d));
+  if (!state.sel.length) state.sel = [ORDER[0]];
 }
 
 function save(bump) {
@@ -5220,7 +5384,7 @@ function cloudPush(now) {
 function cloudMerge(remote) {
   const rts = remote ? remote.ts || 0 : 0;
   if (remote && rts > (state.ts || 0)) {
-    if (S) return false;               // идёт сессия — не трогаем, подождём
+    if (S || L || T) return false;     // идёт сессия — не трогаем, подождём
     state = Object.assign(blank(), JSON.parse(remote.json));
     save(false); build();
     $("dir").value = state.dir;
@@ -5303,20 +5467,63 @@ function clampInputs() {
   r.disabled = !rep.length; n.disabled = !fresh.length;
   $("arep").textContent = rep.length ? `в повторении ${rep.length}` : "нечего повторять";
   $("anew").textContent = fresh.length ? `доступно ${fresh.length}` : "новых нет";
-  document.querySelectorAll("[data-step]").forEach((b) => {
+  document.querySelectorAll('[data-step="rep"], [data-step="new"]').forEach((b) => {
     const isRep = b.dataset.step === "rep", d = +b.dataset.d, v = isRep ? rv : nv, max = isRep ? rep.length : fresh.length;
     b.disabled = d < 0 ? v <= 0 : v >= max;
   });
-  const ok = state.sel.length && rv + nv > 0;
+  let ok = state.sel.length && rv + nv > 0;
+  let note = !state.sel.length ? "Выбери хотя бы один тип карточек" : (!ok ? "Укажи, сколько карточек пройти" : "");
+  renderMode();
+  if (state.mode === "test") {
+    const pool = testPool(), t = $("ntest");
+    const tv = Math.max(0, Math.min(pool.length, state.tN));
+    t.max = pool.length; t.value = tv; t.disabled = !pool.length;
+    $("atest").textContent = pool.length ? `из ${pool.length} слов` : "нет слов";
+    document.querySelectorAll('[data-step="test"]').forEach((b) => { b.disabled = +b.dataset.d < 0 ? tv <= 1 : tv >= pool.length; });
+    ok = state.sel.length && tv > 0 && state.tTypes.length;
+    note = !state.sel.length ? "Выбери хотя бы один тип карточек"
+      : !pool.length ? (state.tSrc === "known" ? (state.tErr ? "В этих темах нет слов с ошибками — выключи «Только ошибки»" : "В этих темах ещё нет пройденных слов — выбери «Все в теме»") : "В теме нет слов")
+      : !state.tTypes.length ? "Выбери хотя бы один тип вопросов" : "";
+  }
   $("start").disabled = !ok;
-  $("setupnote").textContent = !state.sel.length ? "Выбери хотя бы один тип карточек" : (!ok ? "Укажи, сколько карточек пройти" : "");
+  $("setupnote").textContent = note;
 }
+
+const RULES = {
+  cards: $("rules").innerHTML,
+  learn: "<b>Learn</b> — каждое слово проходит два этапа: сначала выбираешь перевод из четырёх вариантов, потом пишешь слово по-английски сам. Ошибся — слово вернётся в следующем раунде. Слова без единой ошибки засчитываются как «Знаю», слова с ошибками уходят в повторение.",
+  test: "<b>Тест</b> — каждое слово встречается один раз, вопросы разных типов. Правильные ответы видно только в конце, вместе с оценкой. Ошибки уходят в повторение и в один клик отправляются в Learn.",
+};
+const START = { cards: "Старт", learn: "Начать Learn", test: "Начать тест" };
+function renderMode() {
+  const m = state.mode in START ? state.mode : "cards";
+  document.querySelectorAll(".mode").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === m ? "true" : "false"));
+  $("cardcfg").hidden = m === "test";
+  $("testcfg").hidden = m !== "test";
+  $("rules").innerHTML = RULES[m];
+  $("start").textContent = START[m];
+  document.querySelectorAll("#tsrc .chip").forEach((b) => b.setAttribute("aria-pressed", b.dataset.src === state.tSrc ? "true" : "false"));
+  // «Только ошибки» показываем, только если в выбранных темах есть слова с ошибками
+  const errN = CARDS.filter((c) => state.sel.includes(c.deck) && st(c) === 1).length;
+  if (!errN && state.tErr) state.tErr = false;
+  $("terrbox").hidden = state.tSrc !== "known" || !errN;
+  $("terr").setAttribute("aria-pressed", state.tErr ? "true" : "false");
+  document.querySelectorAll("#ttypes .chip").forEach((b) => b.setAttribute("aria-pressed", state.tTypes.includes(b.dataset.tt) ? "true" : "false"));
+}
+document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => { state.mode = b.dataset.mode; save(); clampInputs(); }));
+document.querySelectorAll("#tsrc .chip").forEach((b) => b.addEventListener("click", () => { state.tSrc = b.dataset.src; save(); clampInputs(); }));
+$("terr").addEventListener("click", () => { state.tErr = !state.tErr; save(); clampInputs(); });
+document.querySelectorAll("#ttypes .chip").forEach((b) => b.addEventListener("click", () => {
+  const t = b.dataset.tt;
+  state.tTypes = state.tTypes.includes(t) ? state.tTypes.filter((x) => x !== t) : state.tTypes.concat(t);
+  save(); clampInputs();
+}));
 
 function renderSetup(notice) {
   const box = $("types");
   box.innerHTML = "";
   state.sel = state.sel.filter((d) => decks().includes(d));
-  const HEAD = { [BASE[0]]: "Разговорные темы", [FREQ[0]]: "Частые слова по темам", [CUSTOM]: "Свои" };
+  const HEAD = { [FREQ[0]]: "Частые слова по темам", [CUSTOM]: "Свои" };
   for (const d of decks()) {
     if (HEAD[d]) { const h = document.createElement("span"); h.className = "grp"; h.textContent = HEAD[d]; box.appendChild(h); }
     const all = inDeck(d);
@@ -5346,14 +5553,15 @@ function readInput(id, field) {
 }
 $("nrep").addEventListener("change", () => readInput("nrep", "nRep"));
 $("nnew").addEventListener("change", () => readInput("nnew", "nNew"));
+$("ntest").addEventListener("change", () => readInput("ntest", "tN"));
 document.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => {
-  const isRep = b.dataset.step === "rep";
-  const id = isRep ? "nrep" : "nnew", field = isRep ? "nRep" : "nNew";
+  const sk = b.dataset.step;
+  const id = { rep: "nrep", new: "nnew", test: "ntest" }[sk], field = { rep: "nRep", new: "nNew", test: "tN" }[sk];
   const cur = parseInt($(id).value, 10) || 0, d = +b.dataset.d;
   let v = cur + d;
   if (d > 0 && cur % 5) v = cur + (5 - cur % 5);
   if (d < 0 && cur % 5) v = cur - cur % 5;
-  $(id).value = Math.max(0, Math.min(+$(id).max, v));
+  $(id).value = Math.max(sk === "test" ? 1 : 0, Math.min(+$(id).max, v));
   readInput(id, field);
 }));
 
@@ -5480,7 +5688,8 @@ function finish() {
 }
 
 function backToSetup() {
-  queue = []; current = null; S = null;
+  queue = []; current = null; S = null; L = null; T = null; qTok++; qEnter = qKeys = null;
+  $("quiz").hidden = true;
   { const r = pools().rep; const want = Math.min(r.length, 5); if (r.length && state.nRep !== want) { state.nRep = want; save(false); } }
   $("session").hidden = true;
   $("setup").hidden = false;
@@ -5516,17 +5725,511 @@ $("sayw").addEventListener("click", (e) => { e.stopPropagation(); if (current) s
 $("saye").addEventListener("click", (e) => { e.stopPropagation(); if (current) speak(current.ex, $("saye")); });
 if (!TTS) $("say").style.display = "none";
 
+/* ── общее для Learn и теста ───────────────────────────── */
+let L = null, T = null, qTok = 0, qEnter = null, qKeys = null;
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k);
+  return e;
+}
+
+// сравнение ответа: без регистра, пунктуации, апострофов, скобок и артиклей/to в начале
+const norm = (x) => (x || "").toLowerCase().replace(/ё/g, "е").replace(/\([^)]*\)/g, " ")
+  .replace(/['’‘`´]/g, "").replace(/[.,!?;:"«»…]/g, " ").replace(/[-–—]/g, " ")
+  .replace(/\s+/g, " ").trim().replace(/^(to|a|an|the) /, "");
+
+function lev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+
+// "ok" — верно, "typo" — одна опечатка (в длинных словах — две), "no" — неверно
+function checkWr(c, ans) {
+  const a = norm(ans);
+  if (!a) return "no";
+  let best = 99, len = 0;
+  for (const v of c.en.split(/\s*\/\s*/).map(norm)) { const d = lev(a, v); if (d < best) { best = d; len = v.length; } }
+  if (best === 0) return "ok";
+  if ((best === 1 && len >= 5) || (best === 2 && len >= 10)) return "typo";
+  return "no";
+}
+
+const nwords = (x) => x.trim().split(/\s+/).length;
+// неправильные варианты: из той же темы, слово к слову и фраза к фразе, без синонимов правильного ответа
+function distract(c, f, n) {
+  const g = f === "en" ? "ru" : "en";
+  const used = new Set([norm(c[f])]), out = [];
+  const one = nwords(c.en) === 1;
+  const take = (list) => {
+    for (const x of list) {
+      if (out.length >= n) return;
+      if (x.key === c.key || norm(x[g]) === norm(c[g])) continue;
+      const v = norm(x[f]);
+      if (!v || used.has(v)) continue;
+      used.add(v); out.push(x);
+    }
+  };
+  const same = shuffle(inDeck(c.deck));
+  take(same.filter((x) => (nwords(x.en) === 1) === one));
+  take(same);
+  for (let i = 0; out.length < n && i < 300; i++) take([CARDS[Math.floor(Math.random() * CARDS.length)]]);
+  return out;
+}
+
+function quizShow(name, labels) {
+  $("setup").hidden = true; $("session").hidden = true; $("quiz").hidden = false;
+  $("qname").textContent = name;
+  $("qal").textContent = labels[0]; $("qbl").textContent = labels[1]; $("qcl").textContent = labels[2] || "";
+  $("qcw").hidden = !labels[2];
+}
+function qcounts(a, b, c, pct) {
+  $("qa").textContent = a; $("qb").textContent = b; $("qc").textContent = c;
+  $("qbar").style.width = Math.round(Math.max(0, Math.min(1, pct)) * 100) + "%";
+}
+function stage(...kids) {
+  qTok++; qEnter = qKeys = null;
+  const s = $("qstage");
+  s.innerHTML = "";
+  s.append(...kids.flat().filter(Boolean));
+  window.scrollTo(0, 0);
+}
+function sayBtn(text, label) {
+  if (!TTS || !text) return null;
+  const b = h("button", { type: "button", class: "sayb", text: label || "🔊", "aria-label": "Произнести" });
+  b.addEventListener("click", (e) => { e.stopPropagation(); speak(text, b); });
+  return b;
+}
+function qcard(tagText, c, enFirst, extra) {
+  return h("div", { class: "card qcard" },
+    h("span", { class: "tag", text: tagText }),
+    h("p", { class: "prompt " + (enFirst ? "en" : "ru"), text: enFirst ? c.en : c.ru }),
+    enFirst && c.ipa ? h("p", { class: "ipa", text: "[" + c.ipa + "]" }) : null,
+    enFirst ? h("div", { class: "say" }, sayBtn(c.en, "🔊 Слово")) : null,
+    extra || null);
+}
+function feedback(c, ok, verdict) {
+  return h("div", { class: "fb" + (ok ? "" : " bad") },
+    h("span", { class: "v", text: verdict || (ok ? "верно" : "правильный ответ") }),
+    h("div", null, h("span", { class: "big", text: c.en }), " — ", c.ru),
+    c.ex ? h("div", { class: "ex", text: c.ex }) : null,
+    sayBtn(c.en, "🔊 Слово"));
+}
+const rvRow = (ok, t, q, a, extra) => h("div", { class: "rv " + (ok ? "ok" : "no") },
+  h("i", { text: ok ? "✓" : "✗" }),
+  h("div", null, t ? h("div", { class: "t", text: t }) : null, h("div", { class: "q", text: q }), h("div", { class: "a", text: a }), extra || null));
+
+/* ── вопросы с мгновенной проверкой (Learn) ─────────────── */
+function askMC(c, tagText, onAns, onNext) {
+  const enFirst = askEnFirst(), f = enFirst ? "ru" : "en";
+  const opts = shuffle([c, ...distract(c, f, 3)]);
+  let answered = false, moved = false;
+  const go = () => { if (moved) return; moved = true; onNext(); };
+  const fbBox = h("div", { class: "opts" });
+  const btns = opts.map((o, i) => h("button", { type: "button", class: "opt" + (f === "en" ? " en" : ""), onclick: () => pick(i) },
+    h("kbd", { text: String(i + 1) }), h("span", { text: o[f] })));
+  function pick(i) {
+    if (answered) return;
+    answered = true;
+    const ok = opts[i].key === c.key;
+    btns.forEach((b, j) => {
+      b.disabled = true;
+      b.classList.add(opts[j].key === c.key ? "right" : j === i ? "wrong" : "dim");
+    });
+    onAns(ok);
+    const next = h("button", { type: "button", class: "start", text: "Дальше", onclick: go });
+    fbBox.replaceChildren(feedback(c, ok), h("div", { class: "actions" }, next));
+    qKeys = null; qEnter = go;
+    next.focus();
+  }
+  stage(qcard(tagText, c, enFirst), h("div", { class: "opts" }, btns), fbBox);
+  qKeys = (d) => { if (d <= opts.length) pick(d - 1); };
+}
+
+function askWR(c, tagText, onAns, onNext) {
+  const inp = h("input", { class: "wr", type: "text", autocomplete: "off", autocapitalize: "off", autocorrect: "off",
+    spellcheck: "false", lang: "en", enterkeyhint: "done", placeholder: "по-английски…", "aria-label": "Ответ по-английски" });
+  const sub = h("button", { type: "button", class: "start", text: "Ответить" });
+  const idk = h("button", { type: "button", class: "ghost", text: "Не знаю" });
+  const row = h("div", { class: "actions" }, idk, sub);
+  const fbBox = h("div");
+  let done = false, moved = false;
+  const go = () => { if (moved) return; moved = true; onNext(); };
+  function submit(given) {
+    if (done) return;
+    done = true;
+    const r = given ? checkWr(c, inp.value) : "no";
+    const ok = r !== "no";
+    inp.disabled = true;
+    inp.classList.add(ok ? "okk" : "bad");
+    onAns(ok, false);
+    const next = h("button", { type: "button", class: "start", text: "Дальше", onclick: go });
+    const acts = [];
+    if (!ok && inp.value.trim()) acts.push(h("button", { type: "button", class: "ghost", text: "Я был прав",
+      onclick: () => { onAns(true, true); go(); } }));
+    acts.push(next);
+    row.replaceChildren(...acts);
+    fbBox.replaceChildren(feedback(c, ok, r === "typo" ? "верно, но с опечаткой" : null));
+    qEnter = go;
+    next.focus();
+  }
+  sub.addEventListener("click", () => submit(true));
+  idk.addEventListener("click", () => submit(false));
+  inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); submit(!!inp.value.trim()); } });
+  stage(qcard(tagText, c, false), inp, fbBox, row);
+  setTimeout(() => { if (!done) inp.focus(); }, 30);
+}
+
+/* ── Learn ─────────────────────────────────────────────── */
+const ROUND = 7;
+
+function startLearn(cards, name) {
+  let words = cards;
+  if (!words) {
+    const { rep, fresh } = pools();
+    const nr = Math.min(rep.length, parseInt($("nrep").value, 10) || 0);
+    const nn = Math.min(fresh.length, parseInt($("nnew").value, 10) || 0);
+    words = shuffle(rep.slice()).slice(0, nr).concat(shuffle(fresh.slice()).slice(0, nn));
+  }
+  if (!words.length) return;
+  T = null;
+  L = { w: shuffle(words.map((c) => ({ c, lvl: 0, miss: 0, last: 0, seen: false }))), round: 0, items: [], i: 0 };
+  quizShow("Learn · " + (name || state.sel.map(label).join(" · ")), ["осталось", "верно", "ошибок"]);
+  learnRound();
+}
+
+function learnCounts() {
+  const t = L.w.length, full = L.w.filter((x) => x.lvl === 2).length, ok = L.w.filter((x) => x.lvl >= 1).length;
+  const miss = L.w.reduce((a, x) => a + x.miss, 0), p = L.w.reduce((a, x) => a + x.lvl, 0) / (2 * t);
+  // «осталось» — слова текущего раунда, на которые ещё не ответили (верно или нет — не важно)
+  qcounts(L.items.filter((it) => !it.answered).length, ok, miss, p);
+}
+
+function learnRound() {
+  const todo = L.w.filter((x) => x.lvl < 2);
+  if (!todo.length) { learnFinish(); return; }
+  L.round++;
+  const pick = shuffle(todo.slice()).sort((a, b) => a.last - b.last).slice(0, ROUND);
+  L.items = shuffle(pick).map((x) => ({ x, t: x.lvl === 0 ? "mc" : "wr", ok: null }));
+  L.i = 0;
+  learnAsk();
+}
+
+function learnAsk() {
+  const it = L.items[L.i];
+  learnCounts();
+  if (!it) { learnRoundEnd(); return; }
+  it.x.last = L.round;
+  const where = state.sel.length > 1 ? " · " + label(it.x.c.deck) : "";
+  const tag = `раунд ${L.round} · ${L.i + 1}/${L.items.length} · ` + (it.t === "mc" ? "выбери перевод" : "напиши по-английски");
+  const onAns = (ok, override) => {
+    if (!L) return;
+    it.answered = true;
+    if (override) { it.ok = true; it.x.miss = Math.max(0, it.x.miss - 1); it.x.lvl = Math.min(2, it.x.lvl + 1); }
+    else { it.ok = ok; if (ok) it.x.lvl++; else it.x.miss++; }
+    learnCounts();
+  };
+  const onNext = () => { if (!L) return; L.i++; learnAsk(); };
+  if (it.t === "mc") askMC(it.x.c, tag + where, onAns, onNext);
+  else askWR(it.x.c, tag + where, onAns, onNext);
+}
+
+function segbar(m, l, t) {
+  return [
+    h("div", { class: "seg" }, h("i", { class: "m", style: `width:${(m / t) * 100}%` }), h("i", { class: "l", style: `width:${(l / t) * 100}%` })),
+    h("div", { class: "legend" },
+      h("span", null, h("i", { style: "background:var(--ok)" }), `освоено ${m}`),
+      h("span", null, h("i", { style: "background:var(--signal)" }), `верно, осталось написать ${l}`),
+      h("span", null, h("i", { style: "background:var(--surface-2)" }), `не начато ${t - m - l}`)),
+  ];
+}
+
+function learnRoundEnd() {
+  const t = L.w.length, m = L.w.filter((x) => x.lvl === 2).length, l = L.w.filter((x) => x.lvl === 1).length;
+  if (m === t) { learnFinish(); return; }
+  const right = L.items.filter((it) => it.ok).length;
+  const cont = () => { if (L) learnRound(); };
+  stage(
+    h("div", { class: "done res" },
+      h("p", { class: "eyebrow", text: `раунд ${L.round}` }),
+      h("h2", { text: `${right} из ${L.items.length} верно` }),
+      segbar(m, l, t),
+      h("button", { type: "button", class: "start", text: "Следующий раунд", onclick: cont })),
+    h("div", { class: "rev" }, L.items.map((it) => rvRow(it.ok, it.t === "mc" ? "выбор" : "письменно", it.x.c.en, it.x.c.ru))));
+  qEnter = cont;
+}
+
+function learnApply() {
+  let known = 0, rep = 0;
+  for (const x of L.w) {
+    const key = x.c.key;
+    if (x.miss > 0) { state.p[key] = [1, 0]; rep++; continue; }
+    if (x.lvl < 1) continue;
+    const s0 = st(x.c);
+    if (s0 === 0) { state.p[key] = [2, 0]; known++; }
+    else if (s0 === 1) {
+      const k = state.p[key][1] + 1;
+      if (k >= 2) { state.p[key] = [2, 0]; known++; } else { state.p[key] = [1, k]; rep++; }
+    } else known++;
+  }
+  save();
+  return { known, rep };
+}
+
+function learnFinish(early) {
+  const t = L.w.length, m = L.w.filter((x) => x.lvl >= 1).length, clean = L.w.filter((x) => x.lvl >= 1 && !x.miss).length;
+  const words = L.w.map((x) => x.c);
+  const { rep } = learnApply();
+  learnCounts();
+  L = null;
+  const parts = [];
+  parts.push(`Верно отвечено: ${m} из ${t}.`);
+  if (clean) parts.push(`Без единой ошибки: ${clean}.`);
+  parts.push(rep ? `В повторение: ${rep}.` : "Повторять нечего.");
+  stage(h("div", { class: "done res" },
+    h("p", { class: "eyebrow", text: early ? "Learn прерван" : "Learn завершён" }),
+    h("h2", { text: early ? "Прогресс сохранён" : "Все слова освоены" }),
+    h("p", { text: parts.join(" ") }),
+    h("div", { class: "actions col" },
+      h("button", { type: "button", class: "start", text: "Проверить себя тестом", onclick: () => startTest(words, "слова из Learn") }),
+      h("button", { type: "button", class: "ghost", text: "Главная страница", onclick: backToSetup }))));
+  qEnter = backToSetup;
+}
+
+/* ── тест ──────────────────────────────────────────────── */
+const TNAME = { tf: "верно или неверно", mc: "выбор ответа", match: "сопоставление", wr: "написать слово" };
+const LETTERS = "ABCDEFG";
+
+function testPool() {
+  const sel = CARDS.filter((c) => state.sel.includes(c.deck));
+  if (state.tSrc === "all") return sel;
+  // пройденные; «только ошибки» — те из них, что сейчас в повторении
+  return sel.filter((c) => state.tErr ? st(c) === 1 : st(c) > 0);
+}
+
+function buildTest(words, types) {
+  const n = words.length, k = types.length;
+  let m = 0;
+  if (types.includes("match") && n >= 3) {
+    if (k === 1) m = n;
+    else { m = Math.min(Math.floor(n / 4) * 4, Math.max(4, Math.round(n / k / 4) * 4)); if (m >= n) m = Math.floor((n - 1) / 4) * 4; }
+  }
+  const others = types.filter((t) => t !== "match");
+  const pool = others.length ? others : ["mc"];
+  const by = { tf: [], mc: [], wr: [] };
+  words.slice(m).forEach((c, i) => by[pool[i % pool.length]].push(c));
+  const items = [];
+  for (const c of by.tf) {
+    const enFirst = askEnFirst(), f = enFirst ? "ru" : "en";
+    const shown = Math.random() < 0.5 ? c : (distract(c, f, 1)[0] || c);
+    items.push({ t: "tf", c, enFirst, f, shown, truth: shown === c, ans: null });
+  }
+  for (const c of by.mc) {
+    const enFirst = askEnFirst(), f = enFirst ? "ru" : "en";
+    items.push({ t: "mc", c, enFirst, f, opts: shuffle([c, ...distract(c, f, 3)]), ans: null });
+  }
+  const groups = [];
+  const mw = words.slice(0, m);
+  for (let i = 0; i < mw.length; i += 4) groups.push(mw.slice(i, i + 4));
+  if (groups.length > 1 && groups[groups.length - 1].length < 3) { const last = groups.pop(); groups[groups.length - 1].push(...last); }
+  for (const g of groups) items.push({ t: "match", cs: g, order: shuffle(g.map((_, i) => i)), ans: g.map(() => null) });
+  for (const c of by.wr) items.push({ t: "wr", c, ans: null });
+  return items;
+}
+
+function startTest(cards, name) {
+  const words = cards ? shuffle(cards.slice()) : shuffle(testPool().slice()).slice(0, state.tN);
+  if (!words.length) {
+    // слова для теста закончились — даём выход на главную страницу
+    $("setup").hidden = true; $("session").hidden = true; $("quiz").hidden = false;
+    qcounts(0, 0, 0, 1);
+    stage(h("div", { class: "done res" },
+      h("p", { class: "eyebrow", text: "тест" }),
+      h("h2", { text: "Слова закончились" }),
+      h("p", { text: state.tErr ? "Слов с ошибками больше нет — всё из выбранных тем выучено." : "В выбранных темах не осталось слов для теста." }),
+      h("div", { class: "actions col" }, h("button", { type: "button", class: "start", text: "Главная страница", onclick: backToSetup }))));
+    qEnter = backToSetup;
+    return;
+  }
+  const types = state.tTypes.filter((t) => t in TNAME);
+  L = null;
+  T = { items: buildTest(words, types.length ? types : ["mc"]), i: 0, res: null };
+  quizShow("Тест · " + (name || state.sel.map(label).join(" · ")), ["осталось", "отвечено", ""]);
+  testAsk();
+}
+
+function testAsk() {
+  // считаем в словах: блок «сопоставление» — это сразу несколько слов
+  const wt = (x) => (x.cs ? x.cs.length : 1);
+  const it = T.items[T.i], total = T.items.reduce((a, x) => a + wt(x), 0);
+  const done = T.items.slice(0, T.i).reduce((a, x) => a + wt(x), 0);
+  qcounts(total - done, done, 0, done / total);
+  if (!it) { testFinish(); return; }
+  const tag = (it.cs ? `слова ${done + 1}–${done + wt(it)}` : `слово ${done + 1}`) + ` из ${total} · ${TNAME[it.t]}`;
+  let moved = false;
+  const go = () => { if (moved || !T) return; moved = true; T.i++; testAsk(); };
+  const later = () => { const tok = qTok; setTimeout(() => { if (tok === qTok) go(); }, 180); };
+
+  if (it.t === "tf" || it.t === "mc") {
+    const choices = it.t === "tf" ? [true, false] : it.opts;
+    const btns = choices.map((o, i) => h("button", {
+      type: "button", class: "opt" + (it.t === "mc" && it.f === "en" ? " en" : ""),
+      onclick: () => { if (moved) return; it.ans = it.t === "tf" ? o : i; btns.forEach((b, j) => b.classList.toggle("pick", j === i)); later(); },
+    }, h("kbd", { text: String(i + 1) }), h("span", { text: it.t === "tf" ? (o ? "Верно" : "Неверно") : o[it.f] })));
+    const extra = it.t === "tf"
+      ? h("div", { class: "pair" }, h("p", { class: "solution " + it.f, text: it.shown[it.f] })) : null;
+    stage(qcard(tag, it.c, it.enFirst, extra), h("div", { class: "opts" + (it.t === "tf" ? " tfopts" : "") }, btns),
+      h("div", { class: "actions" }, h("button", { type: "button", class: "ghost", text: "Пропустить", onclick: go })));
+    qKeys = (d) => { if (d <= btns.length) btns[d - 1].click(); };
+    return;
+  }
+
+  if (it.t === "wr") {
+    const inp = h("input", { class: "wr", type: "text", autocomplete: "off", autocapitalize: "off", autocorrect: "off",
+      spellcheck: "false", lang: "en", enterkeyhint: "next", placeholder: "по-английски…", "aria-label": "Ответ по-английски" });
+    const save1 = () => { it.ans = inp.value; go(); };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); save1(); } });
+    stage(qcard(tag, it.c, false), inp, h("div", { class: "actions" },
+      h("button", { type: "button", class: "ghost", text: "Не знаю", onclick: () => { it.ans = ""; go(); } }),
+      h("button", { type: "button", class: "start", text: "Дальше", onclick: save1 })));
+    setTimeout(() => inp.focus(), 30);
+    return;
+  }
+
+  // сопоставление: к каждому английскому слову — букву перевода
+  const rows = it.cs.map((c, ri) => {
+    const btns = it.order.map((_, li) => h("button", {
+      type: "button", "aria-pressed": "false", text: LETTERS[li], "aria-label": `${c.en}: вариант ${LETTERS[li]}`,
+      onclick: () => { it.ans[ri] = li; btns.forEach((b, j) => b.setAttribute("aria-pressed", j === li ? "true" : "false")); },
+    }));
+    return h("div", { class: "mrow" }, h("span", { class: "w", text: c.en }), h("div", { class: "letters" }, btns));
+  });
+  stage(
+    h("p", { class: "eyebrow", text: tag }),
+    h("ol", { class: "mlist" }, it.order.map((ci, li) => h("li", null, h("b", { text: LETTERS[li] }), h("span", { text: it.cs[ci].ru })))),
+    h("div", null, rows),
+    h("div", { class: "actions" }, h("button", { type: "button", class: "start", text: "Дальше", onclick: go })));
+  qEnter = go;
+}
+
+function testFinish() {
+  const rows = [], wrong = new Map(), prev = {};
+  let pts = 0, tot = 0;
+  const add = (r) => { tot++; if (r.ok) pts++; else wrong.set(r.c.key, r.c); rows.push(r); };
+  for (const it of T.items) {
+    if (it.t === "match") {
+      it.cs.forEach((c, ri) => {
+        const li = it.ans[ri], ok = li != null && it.order[li] === ri;
+        add({ ok, c, t: TNAME.match, q: c.en, a: c.ru, your: li == null ? "—" : it.cs[it.order[li]].ru });
+      });
+      continue;
+    }
+    const c = it.c;
+    if (it.t === "tf") {
+      const g = it.enFirst ? c.en : c.ru;
+      add({ ok: it.ans === it.truth, c, t: TNAME.tf, q: `${g} — ${it.shown[it.f]}`,
+        a: it.truth ? "верно" : `неверно (перевод: ${c[it.f]})`, your: it.ans == null ? "—" : it.ans ? "верно" : "неверно" });
+    } else if (it.t === "mc") {
+      add({ ok: it.ans != null && it.opts[it.ans].key === c.key, c, t: TNAME.mc, q: it.enFirst ? c.en : c.ru, a: c[it.f],
+        your: it.ans == null ? "—" : it.opts[it.ans][it.f] });
+    } else {
+      const r = checkWr(c, it.ans || "");
+      add({ ok: r !== "no", typo: r === "typo", wr: true, c, t: TNAME.wr, q: c.ru, a: c.en, your: (it.ans || "").trim() || "—" });
+    }
+  }
+  for (const [key] of wrong) { prev[key] = state.p[key]; state.p[key] = [1, 0]; }
+  save();
+  T.res = { rows, pts, tot, wrong, prev };
+  testResults();
+}
+
+function testResults() {
+  const R = T.res, pct = Math.round((R.pts / R.tot) * 100);
+  const msg = pct === 100 ? "Без единой ошибки." : pct >= 80 ? "Хороший результат." : pct >= 50 ? "Больше половины — неплохо." : "Слова пока не держатся — прогони их через Learn.";
+  const wrongCards = [...R.wrong.values()];
+  const override = (r) => {
+    r.ok = true; r.over = true; R.pts++;
+    R.wrong.delete(r.c.key);
+    const p0 = R.prev[r.c.key];
+    if (p0) state.p[r.c.key] = p0; else delete state.p[r.c.key];
+    save(); testResults();
+  };
+  const sorted = R.rows.filter((r) => !r.ok).concat(R.rows.filter((r) => r.ok));
+  stage(
+    h("div", { class: "done res" },
+      h("p", { class: "eyebrow", text: "результат теста" }),
+      h("p", { class: "score", text: pct + "%" }),
+      h("p", { text: `Верно ${R.pts} из ${R.tot}. ${msg}` + (wrongCards.length ? ` В повторение: ${wrongCards.length}.` : "") }),
+      h("div", { class: "actions col" },
+        wrongCards.length ? h("button", { type: "button", class: "start", text: `Проработать ошибки в Learn · ${wrongCards.length}`,
+          onclick: () => startLearn(wrongCards, "ошибки теста") }) : null,
+        h("button", { type: "button", class: wrongCards.length ? "ghost" : "start", text: "Новый тест", onclick: () => startTest() }),
+        h("button", { type: "button", class: "ghost", text: "Главная страница", onclick: backToSetup }))),
+    h("div", { class: "rev" }, sorted.map((r) => rvRow(r.ok, r.t, r.q,
+      r.ok ? (r.over ? `засчитано вручную · ${r.a}` : r.typo ? `с опечаткой: ${r.your} → ${r.a}` : r.a)
+           : `правильно: ${r.a} · твой ответ: ${r.your}`,
+      !r.ok && r.wr && r.your !== "—" ? h("button", { type: "button", class: "mini", text: "Я был прав", onclick: () => override(r) }) : null))));
+  qcounts(0, R.tot, 0, 1);
+}
+
+function startMode() {
+  if (state.mode === "learn") startLearn();
+  else if (state.mode === "test") startTest();
+  else startSession();
+}
+
+/* ── окно подтверждения: слева действие, справа (выделена) — остаться ── */
+let modalLeft = null;
+function askModal(text, left, right, onLeft) {
+  $("mtext").textContent = text; $("mleft").textContent = left; $("mright").textContent = right;
+  modalLeft = onLeft;
+  $("modal").hidden = false;
+  $("mright").focus();
+}
+function closeModal() { $("modal").hidden = true; modalLeft = null; }
+$("mleft").addEventListener("click", () => { const f = modalLeft; closeModal(); if (f) f(); });
+$("mright").addEventListener("click", closeModal);
+$("modal").addEventListener("click", (e) => { if (e.target === $("modal")) closeModal(); });
+
+$("qquit").addEventListener("click", () => {
+  if (L) { learnFinish(true); return; }
+  if (T && !T.res) { askModal("Ты точно хочешь закончить тест? Ответы не сохранятся.", "Выйти", "Остаться", backToSetup); return; }
+  backToSetup();
+});
+
 /* ── события ───────────────────────────────────────────── */
-$("start").addEventListener("click", startSession);
+$("start").addEventListener("click", startMode);
 $("again").addEventListener("click", backToSetup);
-$("quit").addEventListener("click", () => { if (current) queue.unshift(current); current = null; queue = []; finish(); });
+$("quit").addEventListener("click", () => { backToSetup(); window.scrollTo(0, 0); }); // прогресс уже сохранён после каждой оценки
 $("card").addEventListener("click", reveal);
 $("card").addEventListener("keydown", (e) => {
   if (e.key === " " || e.key === "Enter") { e.preventDefault(); reveal(); }
 });
 document.addEventListener("keydown", (e) => {
+  if (!$("modal").hidden) { if (e.key === "Escape") closeModal(); return; }
   if (e.target.matches("textarea, input, select")) return;
-  if ($("session").hidden) { if (e.key === "Enter" && !$("start").disabled) startSession(); return; }
+  if (!$("quiz").hidden) {
+    if (e.target.tagName === "BUTTON" && (e.key === "Enter" || e.key === " ")) return;
+    if (e.key === "Enter" && qEnter) { e.preventDefault(); qEnter(); return; }
+    if (/^[1-9]$/.test(e.key) && qKeys) qKeys(+e.key);
+    return;
+  }
+  if ($("session").hidden) { if (e.key === "Enter" && !$("start").disabled && !$("setup").hidden) startMode(); return; }
   if (e.key === " ") { e.preventDefault(); reveal(); return; }
   if ((e.key === "p" || e.key === "P") && current && !$("say").hidden) { speak(current.en, $("sayw")); return; }
   if (!open) return;
@@ -5549,38 +6252,16 @@ $("addbtn").addEventListener("click", () => {
   flash(`Добавлено карточек: ${add.length}. Пропущено как дубликаты: ${rows.length - add.length}.`);
 });
 
-$("exportbtn").addEventListener("click", () => {
-  $("backup").value = JSON.stringify(state);
-  $("backup").select();
-  flash("Скопируй текст и сохрани в Заметки.");
-});
-
-$("importbtn").addEventListener("click", () => {
-  try {
-    const s = JSON.parse($("backup").value);
-    if (s && typeof s.p === "object" && s.p) {
-      state = Object.assign(blank(), s);
-    } else if (s && Array.isArray(s.cards)) {
-      // копия из прошлой версии карточек
-      try { localStorage.setItem(OLDKEY, JSON.stringify(s)); } catch (e) {}
-      state = migrate();
-    } else throw new Error("не копия");
-    build(); save();
-    $("dir").value = state.dir;
-    backToSetup(); flash("Прогресс восстановлен.");
-  } catch (e) {
-    flash("Это не похоже на резервную копию — нужен текст, выгруженный кнопкой «Выгрузить».");
-  }
-});
-
 $("resetbtn").addEventListener("click", () => {
-  if (!confirm("Сбросить весь прогресс? Все слова снова станут новыми, повторение очистится.")) return;
+  askModal("Сбросить весь прогресс? Все слова снова станут новыми, повторение очистится.", "Сбросить", "Отмена", resetProgress);
+});
+function resetProgress() {
   const keep = { dir: state.dir, sel: state.sel, nRep: state.nRep, nNew: state.nNew, custom: state.custom };
   state = Object.assign(blank(), keep);
   try { localStorage.removeItem(OLDKEY); } catch (e) {}
   save(); build();
   backToSetup(); flash("Прогресс сброшен.");
-});
+}
 
 document.addEventListener("visibilitychange", () => { if (document.hidden) cloudPush(true); });
 window.addEventListener("pagehide", () => { cloudPush(true); });
@@ -5589,4 +6270,20 @@ $("dir").value = state.dir;
 save(false);
 backToSetup();
 cloudInit();
+
+/* ── самообновление на GitHub Pages: браузеры (особенно встроенный в Telegram) держат старую копию страницы.
+   При открытии сверяем версию с сервером без кэша и, если она новее, перезагружаемся один раз. ── */
+(async function selfUpdate() {
+  try {
+    if (!/\.github\.io$/.test(location.hostname)) return;
+    const mine = document.querySelector('meta[name="build"]');
+    const r = await fetch(location.pathname, { cache: "no-store" });
+    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
+    if (!mine || !m || m[1] === mine.content) return;
+    if (S || L || T) return;                              // не прерываем начатую сессию
+    if (sessionStorage.getItem("upd") === m[1]) return;   // защита от повторной перезагрузки
+    sessionStorage.setItem("upd", m[1]);
+    location.replace(location.pathname + "?v=" + encodeURIComponent(m[1]));
+  } catch (e) {}
+})();
 </script>
