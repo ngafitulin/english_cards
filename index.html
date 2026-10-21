@@ -270,6 +270,107 @@
   .note code { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-muted); }
   .flash { font-family: var(--mono); font-size: 0.6875rem; color: var(--accent); min-height: 1.1em; margin: 0; }
 
+
+  /* ── режимы ───────────────────────────────────────── */
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--rule);
+    border-radius: 5px; overflow: hidden; background: var(--surface); }
+  .mode { font: inherit; font-size: 0.9375rem; font-weight: 600; padding: 0.625rem 0.25rem 0.5625rem;
+    border: 0; border-right: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer;
+    display: flex; flex-direction: column; gap: 0.1875rem; align-items: center; -webkit-tap-highlight-color: transparent; }
+  .mode:last-child { border-right: 0; }
+  .mode span { font-family: var(--mono); font-size: 0.5625rem; letter-spacing: 0.06em; color: var(--ink-faint); font-weight: 400; }
+  .mode[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .mode[aria-pressed="true"] span { color: color-mix(in oklab, var(--accent-ink) 75%, transparent); }
+  .mode:focus-visible, .chip:focus-visible, .opt:focus-visible, .ghost:focus-visible, .letters button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .tcfg { display: flex; flex-direction: column; gap: 1.25rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+  .chips.col { flex-direction: column; gap: 0.25rem; }
+  .chip { font: inherit; font-size: 0.8125rem; font-weight: 500; padding: 0.4375rem 0.75rem; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+  .chips.col .chip { border-radius: 4px; padding: 0.375rem 0.5rem; background: var(--paper); }
+  .chip[aria-pressed="true"], .chips.col .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  #terrbox { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--hair); }
+  #terr[aria-pressed="true"]::before { content: "✓ "; }
+
+  /* ── экран Learn / теста ──────────────────────────── */
+  #qstage { justify-content: flex-start; gap: 0.625rem; }
+  .card.qcard { cursor: default; min-height: 9.5rem; max-height: none; flex: 0 0 auto; user-select: text; }
+  .pair { border-top: 1px solid var(--hair); padding-top: 0.75rem; width: 70%; }
+  .pair .solution { margin: 0; }
+  .opts { display: flex; flex-direction: column; gap: 0.375rem; }
+  .opt { font: inherit; font-size: 1rem; text-align: left; padding: 0.8125rem 0.875rem; border: 1px solid var(--rule);
+    border-radius: 5px; background: var(--surface); color: var(--ink); cursor: pointer; display: flex; gap: 0.75rem;
+    align-items: baseline; -webkit-tap-highlight-color: transparent; line-height: 1.3; }
+  .opt kbd { font-family: var(--mono); font-size: 0.625rem; color: var(--ink-faint); flex: none; }
+  .opt.en span { font-family: var(--serif); font-size: 1.0625rem; }
+  .opt:disabled { cursor: default; opacity: 1; color: var(--ink); }
+  .opt.pick { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .opt.right { border-color: var(--ok); background: color-mix(in oklab, var(--ok) 15%, var(--surface)); }
+  .opt.wrong { border-color: var(--alarm); background: color-mix(in oklab, var(--alarm) 15%, var(--surface)); }
+  .opt.dim { opacity: 0.5; }
+  .tfopts { flex-direction: row; } .tfopts .opt { flex: 1; justify-content: center; }
+
+  .wr { font-family: var(--serif); font-size: 1.25rem; padding: 0.75rem 0.875rem; border: 1px solid var(--rule);
+    border-radius: 5px; background: var(--surface); color: var(--ink); width: 100%; }
+  .wr.okk { border-color: var(--ok); } .wr.bad { border-color: var(--alarm); }
+  .wr:disabled { opacity: 1; color: var(--ink); -webkit-text-fill-color: var(--ink); }
+
+  .fb { border-left: 2px solid var(--ok); padding: 0.375rem 0 0.375rem 0.75rem; font-size: 0.875rem; line-height: 1.5;
+    color: var(--ink-muted); display: flex; flex-direction: column; gap: 0.25rem; }
+  .fb.bad { border-color: var(--alarm); }
+  .fb .v { font-family: var(--mono); font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ok); }
+  .fb.bad .v { color: var(--alarm); }
+  .fb .big { font-family: var(--serif); font-size: 1.1875rem; color: var(--ink); }
+  .fb .ex { font-family: var(--serif); font-style: italic; }
+  .fb .sayb { align-self: flex-start; padding: 0.3125rem 0.75rem; }
+  .actions { display: flex; gap: 0.375rem; }
+  .actions .start { flex: 1; padding: 0.8125rem; }
+  .actions.col { flex-direction: column; width: 100%; }
+  .ghost { font: inherit; font-size: 0.9375rem; font-weight: 600; padding: 0.8125rem 1rem; border-radius: 5px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+
+  .mlist { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+  .mlist li { display: flex; gap: 0.625rem; font-size: 0.9375rem; padding: 0.5rem 0.625rem; background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 4px; }
+  .mlist li b { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+  .mrow { display: flex; flex-direction: column; gap: 0.375rem; padding: 0.625rem 0; border-bottom: 1px solid var(--hair); }
+  .mrow .w { font-family: var(--serif); font-size: 1.125rem; }
+  .letters { display: flex; gap: 0.25rem; }
+  .letters button { flex: 1; font-family: var(--mono); font-size: 0.875rem; padding: 0.5rem 0; border: 1px solid var(--rule);
+    border-radius: 4px; background: var(--surface); color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .letters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .done.res { min-height: 0; padding: 1.5rem 1.25rem; }
+  .done .eyebrow { font-size: 0.625rem; color: var(--ink-faint); margin: 0; }
+  .done .score { color: var(--ink); font-family: var(--serif); font-size: 3rem; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; }
+  .seg { display: flex; height: 6px; width: 100%; max-width: 20rem; border-radius: 3px; overflow: hidden; background: var(--surface-2); }
+  .seg i { display: block; height: 100%; } .seg .m { background: var(--ok); } .seg .l { background: var(--signal); }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; font-family: var(--mono); font-size: 0.5625rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
+  .legend i { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 2px; margin-right: 0.3rem; vertical-align: 0; }
+  .rev { display: flex; flex-direction: column; text-align: left; }
+  .rv { display: grid; grid-template-columns: 1.25rem 1fr; gap: 0.5rem; padding: 0.625rem 0; border-top: 1px solid var(--hair);
+    font-size: 0.875rem; line-height: 1.45; }
+  .rv > i { font-style: normal; font-weight: 700; } .rv.ok > i { color: var(--ok); } .rv.no > i { color: var(--alarm); }
+  .rv .t { font-family: var(--mono); font-size: 0.5625rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+  .rv .q { color: var(--ink); }
+  .rv .a { color: var(--ink-muted); font-size: 0.8125rem; }
+  .rv .mini { margin-top: 0.375rem; }
+
+  /* ── окно подтверждения ───────────────────────────── */
+  .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    padding: 1rem; background: color-mix(in oklab, #000 45%, transparent); }
+  .mbox { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; width: 100%; max-width: 21rem;
+    padding: 1.5rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; text-align: center;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); }
+  .mbox p { margin: 0; font-size: 1rem; line-height: 1.45; color: var(--ink); text-wrap: balance; }
+  .mbox .actions > * { flex: 1; }
+
   @media (max-width: 360px) { .types { grid-template-columns: 1fr; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -284,11 +385,20 @@
     </div>
 
     <div>
+      <span class="flabel">Режим</span>
+      <div class="modes" id="modes" role="group" aria-label="Режим">
+        <button type="button" class="mode" data-mode="cards">Карточки<span>знаю / не знаю</span></button>
+        <button type="button" class="mode" data-mode="learn">Learn<span>выбор → ввод</span></button>
+        <button type="button" class="mode" data-mode="test">Тест<span>с оценкой</span></button>
+      </div>
+    </div>
+
+    <div>
       <span class="flabel">Тип карточек — можно несколько</span>
       <div class="types" id="types"></div>
     </div>
 
-    <div class="steppers">
+    <div class="steppers" id="cardcfg">
       <div class="stepper">
         <span class="flabel">Повторить</span>
         <div class="ctrl">
@@ -309,7 +419,40 @@
       </div>
     </div>
 
-    <p class="rules"><b>«Не знаю»</b> — слово попадёт в повторение и будет приходить в следующих сессиях, пока не нажмёшь «Знаю» в двух разных сессиях. <b>«Знаю»</b> с первого раза — слово больше не показывается. Когда в теме пройдены все слова, она начинается заново в новом случайном порядке.</p>
+    <div class="tcfg" id="testcfg" hidden>
+      <div class="steppers">
+        <div class="stepper">
+          <span class="flabel">Вопросов</span>
+          <div class="ctrl">
+            <button type="button" data-step="test" data-d="-5" aria-label="Меньше вопросов">−</button>
+            <input type="number" id="ntest" inputmode="numeric" min="1" aria-label="Сколько вопросов">
+            <button type="button" data-step="test" data-d="5" aria-label="Больше вопросов">+</button>
+          </div>
+          <span class="avail" id="atest">—</span>
+        </div>
+        <div class="stepper">
+          <span class="flabel">Какие слова</span>
+          <div class="chips col" id="tsrc">
+            <button type="button" class="chip" data-src="known">Пройденные</button>
+            <button type="button" class="chip" data-src="all">Все в теме</button>
+          </div>
+          <div class="chips col" id="terrbox">
+            <button type="button" class="chip" id="terr">Только ошибки</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span class="flabel">Типы вопросов</span>
+        <div class="chips" id="ttypes">
+          <button type="button" class="chip" data-tt="tf">Верно / неверно</button>
+          <button type="button" class="chip" data-tt="mc">Выбор ответа</button>
+          <button type="button" class="chip" data-tt="match">Сопоставление</button>
+          <button type="button" class="chip" data-tt="wr">Написать слово</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="rules" id="rules"><b>«Не знаю»</b> — слово попадёт в повторение и будет приходить в следующих сессиях, пока не нажмёшь «Знаю» в двух разных сессиях. <b>«Знаю»</b> с первого раза — слово больше не показывается. Когда в теме пройдены все слова, она начинается заново в новом случайном порядке.</p>
 
     <button class="start" id="start" type="button">Старт</button>
     <p class="setupnote" id="setupnote"></p>
@@ -361,6 +504,23 @@
     </div>
   </section>
 
+  <!-- ── 3. Learn / тест ── -->
+  <section id="quiz" hidden style="display:flex;flex-direction:column;gap:0.75rem;flex:1">
+    <header>
+      <div class="deckline">
+        <span class="deckname" id="qname"></span>
+      </div>
+      <div class="counts">
+        <div class="c-left"><b id="qa">0</b><span id="qal">осталось</span></div>
+        <div class="c-ok"><b id="qb">0</b><span id="qbl">освоено</span></div>
+        <div class="c-miss" id="qcw"><b id="qc">0</b><span id="qcl">ошибок</span></div>
+        <button class="quit" id="qquit" type="button">Выйти</button>
+      </div>
+      <div class="bar"><i id="qbar"></i></div>
+    </header>
+    <main class="stage" id="qstage" aria-live="polite"></main>
+  </section>
+
   <details>
     <summary>Настройки и колоды</summary>
     <div class="panel">
@@ -385,14 +545,10 @@ engineer;инженер;My brother is an engineer."></textarea>
       </div>
 
       <div class="row">
-        <label for="backup">Резервная копия прогресса</label>
-        <textarea id="backup" placeholder="нажми «Выгрузить», скопируй текст и сохрани в Заметки"></textarea>
+        <label>Прогресс</label>
         <div class="btnrow">
-          <button class="mini" id="exportbtn" type="button">Выгрузить</button>
-          <button class="mini" id="importbtn" type="button">Загрузить обратно</button>
           <button class="mini danger" id="resetbtn" type="button">Сбросить прогресс</button>
         </div>
-        <p>Прогресс живёт в памяти этого браузера. Раз в пару недель выгружай копию в Заметки — если Safari почистит данные сайтов, всё вернётся.</p>
       </div>
 
       <p class="flash" id="flash"></p>
@@ -400,6 +556,16 @@ engineer;инженер;My brother is an engineer."></textarea>
       <p class="note">Как поставить на домашний экран: «Поделиться» → «На экран «Домой»». С клавиатуры: пробел — перевернуть, 1 — не знаю, 2 — знаю, P — произнести.</p>
     </div>
   </details>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mtext">
+  <div class="mbox">
+    <p id="mtext"></p>
+    <div class="actions">
+      <button type="button" class="ghost" id="mleft"></button>
+      <button type="button" class="start" id="mright"></button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -5125,7 +5291,8 @@ function shuffle(a) {
 let state, CARDS = [];
 
 function blank() {
-  return { p: {}, custom: [], cyc: {}, dir: "ru-en", sel: ["Общение: фразы"], nRep: 10, nNew: 10 };
+  return { p: {}, custom: [], cyc: {}, dir: "ru-en", sel: ["Общение: фразы"], nRep: 10, nNew: 10,
+    mode: "cards", tN: 10, tSrc: "known", tErr: false, tTypes: ["tf", "mc", "match", "wr"] };
 }
 
 function migrate() {
@@ -5198,7 +5365,7 @@ async function cloudInit() {
     const snap = await ref.get();
     if (snap.exists) {
       const remote = JSON.parse(snap.data().json);
-      if ((remote.ts || 0) > (state.ts || 0) && !S) {
+      if ((remote.ts || 0) > (state.ts || 0) && !S && !L && !T) {
         state = Object.assign(blank(), remote);
         save(false); build();
         $("dir").value = state.dir;
@@ -5253,14 +5420,57 @@ function clampInputs() {
   r.disabled = !rep.length; n.disabled = !fresh.length;
   $("arep").textContent = rep.length ? `в повторении ${rep.length}` : "нечего повторять";
   $("anew").textContent = fresh.length ? `доступно ${fresh.length}` : "новых нет";
-  document.querySelectorAll("[data-step]").forEach((b) => {
+  document.querySelectorAll('[data-step="rep"], [data-step="new"]').forEach((b) => {
     const isRep = b.dataset.step === "rep", d = +b.dataset.d, v = isRep ? rv : nv, max = isRep ? rep.length : fresh.length;
     b.disabled = d < 0 ? v <= 0 : v >= max;
   });
-  const ok = state.sel.length && rv + nv > 0;
+  let ok = state.sel.length && rv + nv > 0;
+  let note = !state.sel.length ? "Выбери хотя бы один тип карточек" : (!ok ? "Укажи, сколько карточек пройти" : "");
+  renderMode();
+  if (state.mode === "test") {
+    const pool = testPool(), t = $("ntest");
+    const tv = Math.max(0, Math.min(pool.length, state.tN));
+    t.max = pool.length; t.value = tv; t.disabled = !pool.length;
+    $("atest").textContent = pool.length ? `из ${pool.length} слов` : "нет слов";
+    document.querySelectorAll('[data-step="test"]').forEach((b) => { b.disabled = +b.dataset.d < 0 ? tv <= 1 : tv >= pool.length; });
+    ok = state.sel.length && tv > 0 && state.tTypes.length;
+    note = !state.sel.length ? "Выбери хотя бы один тип карточек"
+      : !pool.length ? (state.tSrc === "known" ? (state.tErr ? "В этих темах нет слов с ошибками — выключи «Только ошибки»" : "В этих темах ещё нет пройденных слов — выбери «Все в теме»") : "В теме нет слов")
+      : !state.tTypes.length ? "Выбери хотя бы один тип вопросов" : "";
+  }
   $("start").disabled = !ok;
-  $("setupnote").textContent = !state.sel.length ? "Выбери хотя бы один тип карточек" : (!ok ? "Укажи, сколько карточек пройти" : "");
+  $("setupnote").textContent = note;
 }
+
+const RULES = {
+  cards: $("rules").innerHTML,
+  learn: "<b>Learn</b> — каждое слово проходит два этапа: сначала выбираешь перевод из четырёх вариантов, потом пишешь слово по-английски сам. Ошибся — слово вернётся в следующем раунде. Слова без единой ошибки засчитываются как «Знаю», слова с ошибками уходят в повторение.",
+  test: "<b>Тест</b> — каждое слово встречается один раз, вопросы разных типов. Правильные ответы видно только в конце, вместе с оценкой. Ошибки уходят в повторение и в один клик отправляются в Learn.",
+};
+const START = { cards: "Старт", learn: "Начать Learn", test: "Начать тест" };
+function renderMode() {
+  const m = state.mode in START ? state.mode : "cards";
+  document.querySelectorAll(".mode").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === m ? "true" : "false"));
+  $("cardcfg").hidden = m === "test";
+  $("testcfg").hidden = m !== "test";
+  $("rules").innerHTML = RULES[m];
+  $("start").textContent = START[m];
+  document.querySelectorAll("#tsrc .chip").forEach((b) => b.setAttribute("aria-pressed", b.dataset.src === state.tSrc ? "true" : "false"));
+  // «Только ошибки» показываем, только если в выбранных темах есть слова с ошибками
+  const errN = CARDS.filter((c) => state.sel.includes(c.deck) && st(c) === 1).length;
+  if (!errN && state.tErr) state.tErr = false;
+  $("terrbox").hidden = state.tSrc !== "known" || !errN;
+  $("terr").setAttribute("aria-pressed", state.tErr ? "true" : "false");
+  document.querySelectorAll("#ttypes .chip").forEach((b) => b.setAttribute("aria-pressed", state.tTypes.includes(b.dataset.tt) ? "true" : "false"));
+}
+document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => { state.mode = b.dataset.mode; save(); clampInputs(); }));
+document.querySelectorAll("#tsrc .chip").forEach((b) => b.addEventListener("click", () => { state.tSrc = b.dataset.src; save(); clampInputs(); }));
+$("terr").addEventListener("click", () => { state.tErr = !state.tErr; save(); clampInputs(); });
+document.querySelectorAll("#ttypes .chip").forEach((b) => b.addEventListener("click", () => {
+  const t = b.dataset.tt;
+  state.tTypes = state.tTypes.includes(t) ? state.tTypes.filter((x) => x !== t) : state.tTypes.concat(t);
+  save(); clampInputs();
+}));
 
 function renderSetup(notice) {
   const box = $("types");
@@ -5296,14 +5506,15 @@ function readInput(id, field) {
 }
 $("nrep").addEventListener("change", () => readInput("nrep", "nRep"));
 $("nnew").addEventListener("change", () => readInput("nnew", "nNew"));
+$("ntest").addEventListener("change", () => readInput("ntest", "tN"));
 document.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => {
-  const isRep = b.dataset.step === "rep";
-  const id = isRep ? "nrep" : "nnew", field = isRep ? "nRep" : "nNew";
+  const sk = b.dataset.step;
+  const id = { rep: "nrep", new: "nnew", test: "ntest" }[sk], field = { rep: "nRep", new: "nNew", test: "tN" }[sk];
   const cur = parseInt($(id).value, 10) || 0, d = +b.dataset.d;
   let v = cur + d;
   if (d > 0 && cur % 5) v = cur + (5 - cur % 5);
   if (d < 0 && cur % 5) v = cur - cur % 5;
-  $(id).value = Math.max(0, Math.min(+$(id).max, v));
+  $(id).value = Math.max(sk === "test" ? 1 : 0, Math.min(+$(id).max, v));
   readInput(id, field);
 }));
 
@@ -5430,7 +5641,8 @@ function finish() {
 }
 
 function backToSetup() {
-  queue = []; current = null; S = null;
+  queue = []; current = null; S = null; L = null; T = null; qTok++; qEnter = qKeys = null;
+  $("quiz").hidden = true;
   { const r = pools().rep; const want = Math.min(r.length, 5); if (r.length && state.nRep !== want) { state.nRep = want; save(false); } }
   $("session").hidden = true;
   $("setup").hidden = false;
@@ -5466,17 +5678,511 @@ $("sayw").addEventListener("click", (e) => { e.stopPropagation(); if (current) s
 $("saye").addEventListener("click", (e) => { e.stopPropagation(); if (current) speak(current.ex, $("saye")); });
 if (!TTS) $("say").style.display = "none";
 
+/* ── общее для Learn и теста ───────────────────────────── */
+let L = null, T = null, qTok = 0, qEnter = null, qKeys = null;
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k);
+  return e;
+}
+
+// сравнение ответа: без регистра, пунктуации, апострофов, скобок и артиклей/to в начале
+const norm = (x) => (x || "").toLowerCase().replace(/ё/g, "е").replace(/\([^)]*\)/g, " ")
+  .replace(/['’‘`´]/g, "").replace(/[.,!?;:"«»…]/g, " ").replace(/[-–—]/g, " ")
+  .replace(/\s+/g, " ").trim().replace(/^(to|a|an|the) /, "");
+
+function lev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+
+// "ok" — верно, "typo" — одна опечатка (в длинных словах — две), "no" — неверно
+function checkWr(c, ans) {
+  const a = norm(ans);
+  if (!a) return "no";
+  let best = 99, len = 0;
+  for (const v of c.en.split(/\s*\/\s*/).map(norm)) { const d = lev(a, v); if (d < best) { best = d; len = v.length; } }
+  if (best === 0) return "ok";
+  if ((best === 1 && len >= 5) || (best === 2 && len >= 10)) return "typo";
+  return "no";
+}
+
+const nwords = (x) => x.trim().split(/\s+/).length;
+// неправильные варианты: из той же темы, слово к слову и фраза к фразе, без синонимов правильного ответа
+function distract(c, f, n) {
+  const g = f === "en" ? "ru" : "en";
+  const used = new Set([norm(c[f])]), out = [];
+  const one = nwords(c.en) === 1;
+  const take = (list) => {
+    for (const x of list) {
+      if (out.length >= n) return;
+      if (x.key === c.key || norm(x[g]) === norm(c[g])) continue;
+      const v = norm(x[f]);
+      if (!v || used.has(v)) continue;
+      used.add(v); out.push(x);
+    }
+  };
+  const same = shuffle(inDeck(c.deck));
+  take(same.filter((x) => (nwords(x.en) === 1) === one));
+  take(same);
+  for (let i = 0; out.length < n && i < 300; i++) take([CARDS[Math.floor(Math.random() * CARDS.length)]]);
+  return out;
+}
+
+function quizShow(name, labels) {
+  $("setup").hidden = true; $("session").hidden = true; $("quiz").hidden = false;
+  $("qname").textContent = name;
+  $("qal").textContent = labels[0]; $("qbl").textContent = labels[1]; $("qcl").textContent = labels[2] || "";
+  $("qcw").hidden = !labels[2];
+}
+function qcounts(a, b, c, pct) {
+  $("qa").textContent = a; $("qb").textContent = b; $("qc").textContent = c;
+  $("qbar").style.width = Math.round(Math.max(0, Math.min(1, pct)) * 100) + "%";
+}
+function stage(...kids) {
+  qTok++; qEnter = qKeys = null;
+  const s = $("qstage");
+  s.innerHTML = "";
+  s.append(...kids.flat().filter(Boolean));
+  window.scrollTo(0, 0);
+}
+function sayBtn(text, label) {
+  if (!TTS || !text) return null;
+  const b = h("button", { type: "button", class: "sayb", text: label || "🔊", "aria-label": "Произнести" });
+  b.addEventListener("click", (e) => { e.stopPropagation(); speak(text, b); });
+  return b;
+}
+function qcard(tagText, c, enFirst, extra) {
+  return h("div", { class: "card qcard" },
+    h("span", { class: "tag", text: tagText }),
+    h("p", { class: "prompt " + (enFirst ? "en" : "ru"), text: enFirst ? c.en : c.ru }),
+    enFirst && c.ipa ? h("p", { class: "ipa", text: "[" + c.ipa + "]" }) : null,
+    enFirst ? h("div", { class: "say" }, sayBtn(c.en, "🔊 Слово")) : null,
+    extra || null);
+}
+function feedback(c, ok, verdict) {
+  return h("div", { class: "fb" + (ok ? "" : " bad") },
+    h("span", { class: "v", text: verdict || (ok ? "верно" : "правильный ответ") }),
+    h("div", null, h("span", { class: "big", text: c.en }), " — ", c.ru),
+    c.ex ? h("div", { class: "ex", text: c.ex }) : null,
+    sayBtn(c.en, "🔊 Слово"));
+}
+const rvRow = (ok, t, q, a, extra) => h("div", { class: "rv " + (ok ? "ok" : "no") },
+  h("i", { text: ok ? "✓" : "✗" }),
+  h("div", null, t ? h("div", { class: "t", text: t }) : null, h("div", { class: "q", text: q }), h("div", { class: "a", text: a }), extra || null));
+
+/* ── вопросы с мгновенной проверкой (Learn) ─────────────── */
+function askMC(c, tagText, onAns, onNext) {
+  const enFirst = askEnFirst(), f = enFirst ? "ru" : "en";
+  const opts = shuffle([c, ...distract(c, f, 3)]);
+  let answered = false, moved = false;
+  const go = () => { if (moved) return; moved = true; onNext(); };
+  const fbBox = h("div", { class: "opts" });
+  const btns = opts.map((o, i) => h("button", { type: "button", class: "opt" + (f === "en" ? " en" : ""), onclick: () => pick(i) },
+    h("kbd", { text: String(i + 1) }), h("span", { text: o[f] })));
+  function pick(i) {
+    if (answered) return;
+    answered = true;
+    const ok = opts[i].key === c.key;
+    btns.forEach((b, j) => {
+      b.disabled = true;
+      b.classList.add(opts[j].key === c.key ? "right" : j === i ? "wrong" : "dim");
+    });
+    onAns(ok);
+    const next = h("button", { type: "button", class: "start", text: "Дальше", onclick: go });
+    fbBox.replaceChildren(feedback(c, ok), h("div", { class: "actions" }, next));
+    qKeys = null; qEnter = go;
+    next.focus();
+  }
+  stage(qcard(tagText, c, enFirst), h("div", { class: "opts" }, btns), fbBox);
+  qKeys = (d) => { if (d <= opts.length) pick(d - 1); };
+}
+
+function askWR(c, tagText, onAns, onNext) {
+  const inp = h("input", { class: "wr", type: "text", autocomplete: "off", autocapitalize: "off", autocorrect: "off",
+    spellcheck: "false", lang: "en", enterkeyhint: "done", placeholder: "по-английски…", "aria-label": "Ответ по-английски" });
+  const sub = h("button", { type: "button", class: "start", text: "Ответить" });
+  const idk = h("button", { type: "button", class: "ghost", text: "Не знаю" });
+  const row = h("div", { class: "actions" }, idk, sub);
+  const fbBox = h("div");
+  let done = false, moved = false;
+  const go = () => { if (moved) return; moved = true; onNext(); };
+  function submit(given) {
+    if (done) return;
+    done = true;
+    const r = given ? checkWr(c, inp.value) : "no";
+    const ok = r !== "no";
+    inp.disabled = true;
+    inp.classList.add(ok ? "okk" : "bad");
+    onAns(ok, false);
+    const next = h("button", { type: "button", class: "start", text: "Дальше", onclick: go });
+    const acts = [];
+    if (!ok && inp.value.trim()) acts.push(h("button", { type: "button", class: "ghost", text: "Я был прав",
+      onclick: () => { onAns(true, true); go(); } }));
+    acts.push(next);
+    row.replaceChildren(...acts);
+    fbBox.replaceChildren(feedback(c, ok, r === "typo" ? "верно, но с опечаткой" : null));
+    qEnter = go;
+    next.focus();
+  }
+  sub.addEventListener("click", () => submit(true));
+  idk.addEventListener("click", () => submit(false));
+  inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); submit(!!inp.value.trim()); } });
+  stage(qcard(tagText, c, false), inp, fbBox, row);
+  setTimeout(() => { if (!done) inp.focus(); }, 30);
+}
+
+/* ── Learn ─────────────────────────────────────────────── */
+const ROUND = 7;
+
+function startLearn(cards, name) {
+  let words = cards;
+  if (!words) {
+    const { rep, fresh } = pools();
+    const nr = Math.min(rep.length, parseInt($("nrep").value, 10) || 0);
+    const nn = Math.min(fresh.length, parseInt($("nnew").value, 10) || 0);
+    words = shuffle(rep.slice()).slice(0, nr).concat(shuffle(fresh.slice()).slice(0, nn));
+  }
+  if (!words.length) return;
+  T = null;
+  L = { w: shuffle(words.map((c) => ({ c, lvl: 0, miss: 0, last: 0, seen: false }))), round: 0, items: [], i: 0 };
+  quizShow("Learn · " + (name || state.sel.map(label).join(" · ")), ["осталось", "верно", "ошибок"]);
+  learnRound();
+}
+
+function learnCounts() {
+  const t = L.w.length, full = L.w.filter((x) => x.lvl === 2).length, ok = L.w.filter((x) => x.lvl >= 1).length;
+  const miss = L.w.reduce((a, x) => a + x.miss, 0), p = L.w.reduce((a, x) => a + x.lvl, 0) / (2 * t);
+  // «осталось» — слова текущего раунда, на которые ещё не ответили (верно или нет — не важно)
+  qcounts(L.items.filter((it) => !it.answered).length, ok, miss, p);
+}
+
+function learnRound() {
+  const todo = L.w.filter((x) => x.lvl < 2);
+  if (!todo.length) { learnFinish(); return; }
+  L.round++;
+  const pick = shuffle(todo.slice()).sort((a, b) => a.last - b.last).slice(0, ROUND);
+  L.items = shuffle(pick).map((x) => ({ x, t: x.lvl === 0 ? "mc" : "wr", ok: null }));
+  L.i = 0;
+  learnAsk();
+}
+
+function learnAsk() {
+  const it = L.items[L.i];
+  learnCounts();
+  if (!it) { learnRoundEnd(); return; }
+  it.x.last = L.round;
+  const where = state.sel.length > 1 ? " · " + label(it.x.c.deck) : "";
+  const tag = `раунд ${L.round} · ${L.i + 1}/${L.items.length} · ` + (it.t === "mc" ? "выбери перевод" : "напиши по-английски");
+  const onAns = (ok, override) => {
+    if (!L) return;
+    it.answered = true;
+    if (override) { it.ok = true; it.x.miss = Math.max(0, it.x.miss - 1); it.x.lvl = Math.min(2, it.x.lvl + 1); }
+    else { it.ok = ok; if (ok) it.x.lvl++; else it.x.miss++; }
+    learnCounts();
+  };
+  const onNext = () => { if (!L) return; L.i++; learnAsk(); };
+  if (it.t === "mc") askMC(it.x.c, tag + where, onAns, onNext);
+  else askWR(it.x.c, tag + where, onAns, onNext);
+}
+
+function segbar(m, l, t) {
+  return [
+    h("div", { class: "seg" }, h("i", { class: "m", style: `width:${(m / t) * 100}%` }), h("i", { class: "l", style: `width:${(l / t) * 100}%` })),
+    h("div", { class: "legend" },
+      h("span", null, h("i", { style: "background:var(--ok)" }), `освоено ${m}`),
+      h("span", null, h("i", { style: "background:var(--signal)" }), `верно, осталось написать ${l}`),
+      h("span", null, h("i", { style: "background:var(--surface-2)" }), `не начато ${t - m - l}`)),
+  ];
+}
+
+function learnRoundEnd() {
+  const t = L.w.length, m = L.w.filter((x) => x.lvl === 2).length, l = L.w.filter((x) => x.lvl === 1).length;
+  if (m === t) { learnFinish(); return; }
+  const right = L.items.filter((it) => it.ok).length;
+  const cont = () => { if (L) learnRound(); };
+  stage(
+    h("div", { class: "done res" },
+      h("p", { class: "eyebrow", text: `раунд ${L.round}` }),
+      h("h2", { text: `${right} из ${L.items.length} верно` }),
+      segbar(m, l, t),
+      h("button", { type: "button", class: "start", text: "Следующий раунд", onclick: cont })),
+    h("div", { class: "rev" }, L.items.map((it) => rvRow(it.ok, it.t === "mc" ? "выбор" : "письменно", it.x.c.en, it.x.c.ru))));
+  qEnter = cont;
+}
+
+function learnApply() {
+  let known = 0, rep = 0;
+  for (const x of L.w) {
+    const key = x.c.key;
+    if (x.miss > 0) { state.p[key] = [1, 0]; rep++; continue; }
+    if (x.lvl < 1) continue;
+    const s0 = st(x.c);
+    if (s0 === 0) { state.p[key] = [2, 0]; known++; }
+    else if (s0 === 1) {
+      const k = state.p[key][1] + 1;
+      if (k >= 2) { state.p[key] = [2, 0]; known++; } else { state.p[key] = [1, k]; rep++; }
+    } else known++;
+  }
+  save();
+  return { known, rep };
+}
+
+function learnFinish(early) {
+  const t = L.w.length, m = L.w.filter((x) => x.lvl >= 1).length, clean = L.w.filter((x) => x.lvl >= 1 && !x.miss).length;
+  const words = L.w.map((x) => x.c);
+  const { rep } = learnApply();
+  learnCounts();
+  L = null;
+  const parts = [];
+  parts.push(`Верно отвечено: ${m} из ${t}.`);
+  if (clean) parts.push(`Без единой ошибки: ${clean}.`);
+  parts.push(rep ? `В повторение: ${rep}.` : "Повторять нечего.");
+  stage(h("div", { class: "done res" },
+    h("p", { class: "eyebrow", text: early ? "Learn прерван" : "Learn завершён" }),
+    h("h2", { text: early ? "Прогресс сохранён" : "Все слова освоены" }),
+    h("p", { text: parts.join(" ") }),
+    h("div", { class: "actions col" },
+      h("button", { type: "button", class: "start", text: "Проверить себя тестом", onclick: () => startTest(words, "слова из Learn") }),
+      h("button", { type: "button", class: "ghost", text: "Главная страница", onclick: backToSetup }))));
+  qEnter = backToSetup;
+}
+
+/* ── тест ──────────────────────────────────────────────── */
+const TNAME = { tf: "верно или неверно", mc: "выбор ответа", match: "сопоставление", wr: "написать слово" };
+const LETTERS = "ABCDEFG";
+
+function testPool() {
+  const sel = CARDS.filter((c) => state.sel.includes(c.deck));
+  if (state.tSrc === "all") return sel;
+  // пройденные; «только ошибки» — те из них, что сейчас в повторении
+  return sel.filter((c) => state.tErr ? st(c) === 1 : st(c) > 0);
+}
+
+function buildTest(words, types) {
+  const n = words.length, k = types.length;
+  let m = 0;
+  if (types.includes("match") && n >= 3) {
+    if (k === 1) m = n;
+    else { m = Math.min(Math.floor(n / 4) * 4, Math.max(4, Math.round(n / k / 4) * 4)); if (m >= n) m = Math.floor((n - 1) / 4) * 4; }
+  }
+  const others = types.filter((t) => t !== "match");
+  const pool = others.length ? others : ["mc"];
+  const by = { tf: [], mc: [], wr: [] };
+  words.slice(m).forEach((c, i) => by[pool[i % pool.length]].push(c));
+  const items = [];
+  for (const c of by.tf) {
+    const enFirst = askEnFirst(), f = enFirst ? "ru" : "en";
+    const shown = Math.random() < 0.5 ? c : (distract(c, f, 1)[0] || c);
+    items.push({ t: "tf", c, enFirst, f, shown, truth: shown === c, ans: null });
+  }
+  for (const c of by.mc) {
+    const enFirst = askEnFirst(), f = enFirst ? "ru" : "en";
+    items.push({ t: "mc", c, enFirst, f, opts: shuffle([c, ...distract(c, f, 3)]), ans: null });
+  }
+  const groups = [];
+  const mw = words.slice(0, m);
+  for (let i = 0; i < mw.length; i += 4) groups.push(mw.slice(i, i + 4));
+  if (groups.length > 1 && groups[groups.length - 1].length < 3) { const last = groups.pop(); groups[groups.length - 1].push(...last); }
+  for (const g of groups) items.push({ t: "match", cs: g, order: shuffle(g.map((_, i) => i)), ans: g.map(() => null) });
+  for (const c of by.wr) items.push({ t: "wr", c, ans: null });
+  return items;
+}
+
+function startTest(cards, name) {
+  const words = cards ? shuffle(cards.slice()) : shuffle(testPool().slice()).slice(0, state.tN);
+  if (!words.length) {
+    // слова для теста закончились — даём выход на главную страницу
+    $("setup").hidden = true; $("session").hidden = true; $("quiz").hidden = false;
+    qcounts(0, 0, 0, 1);
+    stage(h("div", { class: "done res" },
+      h("p", { class: "eyebrow", text: "тест" }),
+      h("h2", { text: "Слова закончились" }),
+      h("p", { text: state.tErr ? "Слов с ошибками больше нет — всё из выбранных тем выучено." : "В выбранных темах не осталось слов для теста." }),
+      h("div", { class: "actions col" }, h("button", { type: "button", class: "start", text: "Главная страница", onclick: backToSetup }))));
+    qEnter = backToSetup;
+    return;
+  }
+  const types = state.tTypes.filter((t) => t in TNAME);
+  L = null;
+  T = { items: buildTest(words, types.length ? types : ["mc"]), i: 0, res: null };
+  quizShow("Тест · " + (name || state.sel.map(label).join(" · ")), ["осталось", "отвечено", ""]);
+  testAsk();
+}
+
+function testAsk() {
+  // считаем в словах: блок «сопоставление» — это сразу несколько слов
+  const wt = (x) => (x.cs ? x.cs.length : 1);
+  const it = T.items[T.i], total = T.items.reduce((a, x) => a + wt(x), 0);
+  const done = T.items.slice(0, T.i).reduce((a, x) => a + wt(x), 0);
+  qcounts(total - done, done, 0, done / total);
+  if (!it) { testFinish(); return; }
+  const tag = (it.cs ? `слова ${done + 1}–${done + wt(it)}` : `слово ${done + 1}`) + ` из ${total} · ${TNAME[it.t]}`;
+  let moved = false;
+  const go = () => { if (moved || !T) return; moved = true; T.i++; testAsk(); };
+  const later = () => { const tok = qTok; setTimeout(() => { if (tok === qTok) go(); }, 180); };
+
+  if (it.t === "tf" || it.t === "mc") {
+    const choices = it.t === "tf" ? [true, false] : it.opts;
+    const btns = choices.map((o, i) => h("button", {
+      type: "button", class: "opt" + (it.t === "mc" && it.f === "en" ? " en" : ""),
+      onclick: () => { if (moved) return; it.ans = it.t === "tf" ? o : i; btns.forEach((b, j) => b.classList.toggle("pick", j === i)); later(); },
+    }, h("kbd", { text: String(i + 1) }), h("span", { text: it.t === "tf" ? (o ? "Верно" : "Неверно") : o[it.f] })));
+    const extra = it.t === "tf"
+      ? h("div", { class: "pair" }, h("p", { class: "solution " + it.f, text: it.shown[it.f] })) : null;
+    stage(qcard(tag, it.c, it.enFirst, extra), h("div", { class: "opts" + (it.t === "tf" ? " tfopts" : "") }, btns),
+      h("div", { class: "actions" }, h("button", { type: "button", class: "ghost", text: "Пропустить", onclick: go })));
+    qKeys = (d) => { if (d <= btns.length) btns[d - 1].click(); };
+    return;
+  }
+
+  if (it.t === "wr") {
+    const inp = h("input", { class: "wr", type: "text", autocomplete: "off", autocapitalize: "off", autocorrect: "off",
+      spellcheck: "false", lang: "en", enterkeyhint: "next", placeholder: "по-английски…", "aria-label": "Ответ по-английски" });
+    const save1 = () => { it.ans = inp.value; go(); };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); save1(); } });
+    stage(qcard(tag, it.c, false), inp, h("div", { class: "actions" },
+      h("button", { type: "button", class: "ghost", text: "Не знаю", onclick: () => { it.ans = ""; go(); } }),
+      h("button", { type: "button", class: "start", text: "Дальше", onclick: save1 })));
+    setTimeout(() => inp.focus(), 30);
+    return;
+  }
+
+  // сопоставление: к каждому английскому слову — букву перевода
+  const rows = it.cs.map((c, ri) => {
+    const btns = it.order.map((_, li) => h("button", {
+      type: "button", "aria-pressed": "false", text: LETTERS[li], "aria-label": `${c.en}: вариант ${LETTERS[li]}`,
+      onclick: () => { it.ans[ri] = li; btns.forEach((b, j) => b.setAttribute("aria-pressed", j === li ? "true" : "false")); },
+    }));
+    return h("div", { class: "mrow" }, h("span", { class: "w", text: c.en }), h("div", { class: "letters" }, btns));
+  });
+  stage(
+    h("p", { class: "eyebrow", text: tag }),
+    h("ol", { class: "mlist" }, it.order.map((ci, li) => h("li", null, h("b", { text: LETTERS[li] }), h("span", { text: it.cs[ci].ru })))),
+    h("div", null, rows),
+    h("div", { class: "actions" }, h("button", { type: "button", class: "start", text: "Дальше", onclick: go })));
+  qEnter = go;
+}
+
+function testFinish() {
+  const rows = [], wrong = new Map(), prev = {};
+  let pts = 0, tot = 0;
+  const add = (r) => { tot++; if (r.ok) pts++; else wrong.set(r.c.key, r.c); rows.push(r); };
+  for (const it of T.items) {
+    if (it.t === "match") {
+      it.cs.forEach((c, ri) => {
+        const li = it.ans[ri], ok = li != null && it.order[li] === ri;
+        add({ ok, c, t: TNAME.match, q: c.en, a: c.ru, your: li == null ? "—" : it.cs[it.order[li]].ru });
+      });
+      continue;
+    }
+    const c = it.c;
+    if (it.t === "tf") {
+      const g = it.enFirst ? c.en : c.ru;
+      add({ ok: it.ans === it.truth, c, t: TNAME.tf, q: `${g} — ${it.shown[it.f]}`,
+        a: it.truth ? "верно" : `неверно (перевод: ${c[it.f]})`, your: it.ans == null ? "—" : it.ans ? "верно" : "неверно" });
+    } else if (it.t === "mc") {
+      add({ ok: it.ans != null && it.opts[it.ans].key === c.key, c, t: TNAME.mc, q: it.enFirst ? c.en : c.ru, a: c[it.f],
+        your: it.ans == null ? "—" : it.opts[it.ans][it.f] });
+    } else {
+      const r = checkWr(c, it.ans || "");
+      add({ ok: r !== "no", typo: r === "typo", wr: true, c, t: TNAME.wr, q: c.ru, a: c.en, your: (it.ans || "").trim() || "—" });
+    }
+  }
+  for (const [key] of wrong) { prev[key] = state.p[key]; state.p[key] = [1, 0]; }
+  save();
+  T.res = { rows, pts, tot, wrong, prev };
+  testResults();
+}
+
+function testResults() {
+  const R = T.res, pct = Math.round((R.pts / R.tot) * 100);
+  const msg = pct === 100 ? "Без единой ошибки." : pct >= 80 ? "Хороший результат." : pct >= 50 ? "Больше половины — неплохо." : "Слова пока не держатся — прогони их через Learn.";
+  const wrongCards = [...R.wrong.values()];
+  const override = (r) => {
+    r.ok = true; r.over = true; R.pts++;
+    R.wrong.delete(r.c.key);
+    const p0 = R.prev[r.c.key];
+    if (p0) state.p[r.c.key] = p0; else delete state.p[r.c.key];
+    save(); testResults();
+  };
+  const sorted = R.rows.filter((r) => !r.ok).concat(R.rows.filter((r) => r.ok));
+  stage(
+    h("div", { class: "done res" },
+      h("p", { class: "eyebrow", text: "результат теста" }),
+      h("p", { class: "score", text: pct + "%" }),
+      h("p", { text: `Верно ${R.pts} из ${R.tot}. ${msg}` + (wrongCards.length ? ` В повторение: ${wrongCards.length}.` : "") }),
+      h("div", { class: "actions col" },
+        wrongCards.length ? h("button", { type: "button", class: "start", text: `Проработать ошибки в Learn · ${wrongCards.length}`,
+          onclick: () => startLearn(wrongCards, "ошибки теста") }) : null,
+        h("button", { type: "button", class: wrongCards.length ? "ghost" : "start", text: "Новый тест", onclick: () => startTest() }),
+        h("button", { type: "button", class: "ghost", text: "Главная страница", onclick: backToSetup }))),
+    h("div", { class: "rev" }, sorted.map((r) => rvRow(r.ok, r.t, r.q,
+      r.ok ? (r.over ? `засчитано вручную · ${r.a}` : r.typo ? `с опечаткой: ${r.your} → ${r.a}` : r.a)
+           : `правильно: ${r.a} · твой ответ: ${r.your}`,
+      !r.ok && r.wr && r.your !== "—" ? h("button", { type: "button", class: "mini", text: "Я был прав", onclick: () => override(r) }) : null))));
+  qcounts(0, R.tot, 0, 1);
+}
+
+function startMode() {
+  if (state.mode === "learn") startLearn();
+  else if (state.mode === "test") startTest();
+  else startSession();
+}
+
+/* ── окно подтверждения: слева действие, справа (выделена) — остаться ── */
+let modalLeft = null;
+function askModal(text, left, right, onLeft) {
+  $("mtext").textContent = text; $("mleft").textContent = left; $("mright").textContent = right;
+  modalLeft = onLeft;
+  $("modal").hidden = false;
+  $("mright").focus();
+}
+function closeModal() { $("modal").hidden = true; modalLeft = null; }
+$("mleft").addEventListener("click", () => { const f = modalLeft; closeModal(); if (f) f(); });
+$("mright").addEventListener("click", closeModal);
+$("modal").addEventListener("click", (e) => { if (e.target === $("modal")) closeModal(); });
+
+$("qquit").addEventListener("click", () => {
+  if (L) { learnFinish(true); return; }
+  if (T && !T.res) { askModal("Ты точно хочешь закончить тест? Ответы не сохранятся.", "Выйти", "Остаться", backToSetup); return; }
+  backToSetup();
+});
+
 /* ── события ───────────────────────────────────────────── */
-$("start").addEventListener("click", startSession);
+$("start").addEventListener("click", startMode);
 $("again").addEventListener("click", backToSetup);
-$("quit").addEventListener("click", () => { if (current) queue.unshift(current); current = null; queue = []; finish(); });
+$("quit").addEventListener("click", () => { backToSetup(); window.scrollTo(0, 0); }); // прогресс уже сохранён после каждой оценки
 $("card").addEventListener("click", reveal);
 $("card").addEventListener("keydown", (e) => {
   if (e.key === " " || e.key === "Enter") { e.preventDefault(); reveal(); }
 });
 document.addEventListener("keydown", (e) => {
+  if (!$("modal").hidden) { if (e.key === "Escape") closeModal(); return; }
   if (e.target.matches("textarea, input, select")) return;
-  if ($("session").hidden) { if (e.key === "Enter" && !$("start").disabled) startSession(); return; }
+  if (!$("quiz").hidden) {
+    if (e.target.tagName === "BUTTON" && (e.key === "Enter" || e.key === " ")) return;
+    if (e.key === "Enter" && qEnter) { e.preventDefault(); qEnter(); return; }
+    if (/^[1-9]$/.test(e.key) && qKeys) qKeys(+e.key);
+    return;
+  }
+  if ($("session").hidden) { if (e.key === "Enter" && !$("start").disabled && !$("setup").hidden) startMode(); return; }
   if (e.key === " ") { e.preventDefault(); reveal(); return; }
   if ((e.key === "p" || e.key === "P") && current && !$("say").hidden) { speak(current.en, $("sayw")); return; }
   if (!open) return;
@@ -5499,38 +6205,16 @@ $("addbtn").addEventListener("click", () => {
   flash(`Добавлено карточек: ${add.length}. Пропущено как дубликаты: ${rows.length - add.length}.`);
 });
 
-$("exportbtn").addEventListener("click", () => {
-  $("backup").value = JSON.stringify(state);
-  $("backup").select();
-  flash("Скопируй текст и сохрани в Заметки.");
-});
-
-$("importbtn").addEventListener("click", () => {
-  try {
-    const s = JSON.parse($("backup").value);
-    if (s && typeof s.p === "object" && s.p) {
-      state = Object.assign(blank(), s);
-    } else if (s && Array.isArray(s.cards)) {
-      // копия из прошлой версии карточек
-      try { localStorage.setItem(OLDKEY, JSON.stringify(s)); } catch (e) {}
-      state = migrate();
-    } else throw new Error("не копия");
-    build(); save();
-    $("dir").value = state.dir;
-    backToSetup(); flash("Прогресс восстановлен.");
-  } catch (e) {
-    flash("Это не похоже на резервную копию — нужен текст, выгруженный кнопкой «Выгрузить».");
-  }
-});
-
 $("resetbtn").addEventListener("click", () => {
-  if (!confirm("Сбросить весь прогресс? Все слова снова станут новыми, повторение очистится.")) return;
+  askModal("Сбросить весь прогресс? Все слова снова станут новыми, повторение очистится.", "Сбросить", "Отмена", resetProgress);
+});
+function resetProgress() {
   const keep = { dir: state.dir, sel: state.sel, nRep: state.nRep, nNew: state.nNew, custom: state.custom };
   state = Object.assign(blank(), keep);
   try { localStorage.removeItem(OLDKEY); } catch (e) {}
   save(); build();
   backToSetup(); flash("Прогресс сброшен.");
-});
+}
 
 document.addEventListener("visibilitychange", () => { if (document.hidden) cloudPush(true); });
 window.addEventListener("pagehide", () => { cloudPush(true); });
