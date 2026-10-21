@@ -1,5 +1,6 @@
 <title>Карточки · English A1→A2+</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="build" content="2026-10-21.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Карточки">
 
@@ -6223,4 +6224,20 @@ $("dir").value = state.dir;
 save(false);
 backToSetup();
 cloudInit();
+
+/* ── самообновление на GitHub Pages: браузеры (особенно встроенный в Telegram) держат старую копию страницы.
+   При открытии сверяем версию с сервером без кэша и, если она новее, перезагружаемся один раз. ── */
+(async function selfUpdate() {
+  try {
+    if (!/\.github\.io$/.test(location.hostname)) return;
+    const mine = document.querySelector('meta[name="build"]');
+    const r = await fetch(location.pathname, { cache: "no-store" });
+    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
+    if (!mine || !m || m[1] === mine.content) return;
+    if (S || L || T) return;                              // не прерываем начатую сессию
+    if (sessionStorage.getItem("upd") === m[1]) return;   // защита от повторной перезагрузки
+    sessionStorage.setItem("upd", m[1]);
+    location.replace(location.pathname + "?v=" + encodeURIComponent(m[1]));
+  } catch (e) {}
+})();
 </script>
