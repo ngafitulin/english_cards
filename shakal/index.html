@@ -159,7 +159,7 @@ summary{cursor:pointer;font-weight:600}
 </section>
 <div id="toast"></div>
 
-<script src="peerjs.min.js"></script>
+<script src="mqtt.min.js"></script>
 <script src="engine.js"></script>
 <script>
 "use strict";
@@ -171,15 +171,9 @@ const LS = {
   del(k){ try { localStorage.removeItem(k); } catch(e){} },
 };
 let CID = LS.get('shk-cid'); if (!CID) { CID = Math.random().toString(36).slice(2, 12); LS.set('shk-cid', CID); }
-const PREFIX = 'shakal-p100-';
-const PS = (()=>{ const q=new URLSearchParams(location.search).get('ps'); return q ? { host:'127.0.0.1', port:+q, path:'/', secure:false } : {}; })(); // только для тестов
-const ICE = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  { urls: 'stun:stun1.l.google.com:19302' },
-  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-  { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-];
+const TOPIC = 'shakal-p100/v2/';
+const MQ_URLS = (()=>{ const q=new URLSearchParams(location.search).get('mq'); return q ? [q] :
+  ['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt']; })();
 
 let S = null;              // состояние партии
 let NET = { mode: 'local' }; // local | host | client
@@ -215,7 +209,7 @@ function renderResume(){
   if (cl && cl.code && (!host || host.code!==cl.code)) h.push(`<button id="rClient" class="pri" style="width:100%;margin-bottom:8px">▶ Вернуться в комнату ${cl.code}</button>`);
   $('resume').innerHTML = h.join('');
   if ($('rLocal')) $('rLocal').onclick = ()=>{ S=loc.S; NET={mode:'local'}; MY=null; startGameUI(); };
-  if ($('rHost')) $('rHost').onclick = ()=>{ LS.set('shk-name', myName()); ROOM=host.room; S=host.S; becomeHost(host.code); };
+  if ($('rHost')) $('rHost').onclick = ()=>{ if (typeof mqtt==='undefined') return toast('Сетевая библиотека не загрузилась'); LS.set('shk-name', myName()); ROOM=host.room; S=host.S; becomeHost(host.code); };
   if ($('rClient')) $('rClient').onclick = ()=>joinRoom(cl.code);
 }
 $('bLocal').onclick = ()=>{
@@ -225,7 +219,7 @@ $('bLocal').onclick = ()=>{
   NET={mode:'local'}; MY=null; saveLocal(); startGameUI();
 };
 $('bHost').onclick = ()=>{
-  if (typeof Peer==='undefined') return toast('Сетевая библиотека не загрузилась');
+  if (typeof mqtt==='undefined') return toast('Сетевая библиотека не загрузилась, обновите страницу');
   LS.set('shk-name', myName());
   const M=E.MODES[modeSel];
   ROOM={ code:genCode(), mode:modeSel, seats:Array(M.players).fill(null), started:false };
@@ -262,7 +256,7 @@ function renderRoom(){
   $('bStart').disabled = !full;
   $('roommsg').textContent = NET.mode==='host'
     ? (full ? 'Все на месте — можно начинать!' : 'Отправьте приглашение. Игрок откроет ссылку и нажмёт «Войти».')
-    : (NET.status || 'Ждём, пока создатель комнаты начнёт игру…');
+    : clientStatus();
 }
 function joinLink(code){ return location.origin + location.pathname + '#' + code; }
 $('bShare').onclick = async ()=>{
@@ -271,157 +265,160 @@ $('bShare').onclick = async ()=>{
   try { await navigator.clipboard.writeText(text+'\n'+url); toast('Ссылка скопирована'); } catch(e){ toast('Скопируйте ссылку под кнопкой'); }
 };
 
-// ---------- сеть: хост ----------
+// ---------- сеть: обмен через публичные MQTT-серверы (несколько параллельно) ----------
+function mkId(){ return Math.random().toString(36).slice(2,10); }
+const SEEN_IDS = new Set();
+function dupe(id){ if (!id) return false; if (SEEN_IDS.has(id)) return true; SEEN_IDS.add(id); if (SEEN_IDS.size>800) SEEN_IDS.clear(); return false; }
+function netOpen(code, subs, onMsg, onConnect){
+  const base = TOPIC + code;
+  const clients = MQ_URLS.map(url=>{
+    let c;
+    try { c = mqtt.connect(url, { clientId:'shk_'+CID+'_'+mkId(), clean:true, reconnectPeriod:3000, connectTimeout:10000, keepalive:20 }); }
+    catch(e){ return null; }
+    c.on('connect', ()=>{ c.subscribe(subs.map(s=>base+s)); refreshNet(); if (onConnect) onConnect(); });
+    c.on('message', (topic, payload)=>{ let m; try { m = JSON.parse(payload.toString()); } catch(e){ return; }
+      if (!m || typeof m!=='object' || dupe(m.id)) return; onMsg(topic.slice(base.length), m); });
+    ['close','offline','reconnect'].forEach(ev=>c.on(ev, refreshNet));
+    c.on('error', ()=>{});
+    return c;
+  }).filter(Boolean);
+  return {
+    pub(sub, obj, retain){ obj.id = obj.id || mkId(); const s = JSON.stringify(obj);
+      clients.forEach(c=>{ if (c.connected) c.publish(base+sub, s, { qos:0, retain:!!retain }); }); },
+    connected(){ return clients.some(c=>c.connected); },
+    wake(){ clients.forEach(c=>{ if (!c.connected) { try{ c.reconnect(); }catch(e){} } }); },
+    end(){ clients.forEach(c=>{ try{ c.end(true); }catch(e){} }); },
+  };
+}
+
+// ----- хост -----
 function becomeHost(code){
-  NET = { mode:'host', code, conns:[], peer:null, status:'' };
+  const saved = LS.get('shk-host');
+  NET = { mode:'host', code, seen:{}, ver:(saved && saved.code===code && saved.ver) || 0 };
   MY = 0;
   saveHost();
-  openHostPeer();
+  NET.link = netOpen(code, ['/up'], onHostMsg, ()=>broadcast());
   if (ROOM.started && S) startGameUI(); else { show('room'); renderRoom(); }
 }
-function openHostPeer(){
-  if (NET.mode!=='host') return;
-  setNet('подключаюсь…');
-  const peer = new Peer(PREFIX+NET.code, Object.assign({ config:{ iceServers:ICE }, debug:0 }, PS));
-  NET.peer = peer;
-  peer.on('open', ()=>{ setNet('онлайн'); NET.retry=0; });
-  peer.on('connection', conn=>{
-    conn.lastSeen = Date.now();
-    conn.on('data', m=>{ conn.lastSeen=Date.now(); onHostMsg(conn, m); });
-    conn.on('close', ()=>{ NET.conns = NET.conns.filter(c=>c!==conn); broadcast(); refresh(); });
-    conn.on('error', ()=>{});
-  });
-  peer.on('disconnected', ()=>{ if (NET.peer===peer && !peer.destroyed) { setNet('переподключаюсь…'); setTimeout(()=>{ try{ peer.reconnect(); }catch(e){} }, 1500); } });
-  peer.on('error', err=>{
-    if (NET.peer!==peer) return;
-    if (err.type==='unavailable-id') { setNet('освобождаю код комнаты…'); retryHost(peer, 4000); }
-    else if (['network','server-error','socket-error','socket-closed','browser-incompatible'].includes(err.type)) { setNet('нет связи, повтор…'); retryHost(peer, 3000); }
-  });
-}
-function retryHost(peer, ms){ try{ peer.destroy(); }catch(e){} clearTimeout(NET.rt); NET.rt=setTimeout(openHostPeer, ms); }
-function onHostMsg(conn, m){
-  if (!m || typeof m!=='object') return;
+function onHostMsg(sub, m){
+  if (sub!=='/up' || !m.cid) return;
+  const was = seatsOnline().join();
+  NET.seen[m.cid] = Date.now();
   if (m.t==='hello') {
     const name = String(m.name||'Игрок').slice(0,16);
     let seat = ROOM.seats.findIndex(s=>s && s.cid===m.cid);
+    const fresh = seat<0;
     if (seat<0 && !ROOM.started) { seat = ROOM.seats.findIndex(s=>!s); if (seat>=0) ROOM.seats[seat]={ name, cid:String(m.cid) }; }
     if (seat>=0 && !ROOM.started) ROOM.seats[seat].name = name;
-    conn.seat = seat>=0 ? seat : null;
-    conn.cid = m.cid;
-    NET.conns.filter(c=>c!==conn && c.cid===m.cid).forEach(c=>{ try{ c.close(); }catch(e){} });
-    NET.conns = NET.conns.filter(c=>c.cid!==m.cid); NET.conns.push(conn);
-    saveHost();
-    sendTo(conn, { t:'welcome', seat:conn.seat });
-    broadcast(); refresh();
-    if (seat>=0) toast(ROOM.seats[seat].name + ' в игре');
+    NET.link.pub('/to/'+m.cid, { t:'welcome', seat: seat>=0 ? seat : null });
+    if (fresh && seat>=0) toast(ROOM.seats[seat].name+' в игре');
+    saveHost(); broadcast(); refresh();
     return;
   }
-  if (m.t==='act' && ROOM.started && S && conn.seat!=null) {
-    const err = E.act(S, conn.seat, m.a);
-    if (err) sendTo(conn, { t:'err', err });
-    else { afterChange(); }
+  if (m.t==='act' && ROOM.started && S) {
+    const seat = ROOM.seats.findIndex(s=>s && s.cid===m.cid);
+    if (seat<0) return;
+    const err = E.act(S, seat, m.a);
+    if (err) NET.link.pub('/to/'+m.cid, { t:'err', err });
+    else afterChange();
+    return;
   }
+  if (seatsOnline().join()!==was) { hostBeat(); refresh(); }
 }
-function sendTo(conn, msg){ try { if (conn.open) conn.send(msg); } catch(e){} }
 function seatsOnline(){
-  const on = (ROOM ? ROOM.seats : []).map(()=>false);
-  if (NET.mode==='host') { on[0]=true; (NET.conns||[]).forEach(c=>{ if (c.open && c.seat!=null) on[c.seat]=true; }); }
-  else if (NET.roomOn) return NET.roomOn;
-  return on;
+  if (!ROOM) return [];
+  if (NET.mode==='host') { const now=Date.now();
+    return ROOM.seats.map((s,i)=> i===0 || !!(s && NET.seen[s.cid] && now-NET.seen[s.cid]<15000)); }
+  return NET.roomOn || ROOM.seats.map(()=>false);
 }
 function broadcast(){
-  if (NET.mode!=='host') return;
-  const msg = { t:'state', room:{ code:ROOM.code, mode:ROOM.mode, started:ROOM.started, seats:ROOM.seats.map(s=>s&&{name:s.name}), on:seatsOnline() }, S };
-  NET.conns.forEach(c=>sendTo(c, msg));
+  if (NET.mode!=='host' || !NET.link) return;
+  NET.ver = Math.max(NET.ver+1, Date.now());
+  saveHost();
+  NET.link.pub('/state', { ver:NET.ver, room:{ code:ROOM.code, mode:ROOM.mode, started:ROOM.started, seats:ROOM.seats.map(s=>s&&{name:s.name}) }, on:seatsOnline(), S }, true);
 }
-setInterval(()=>{
-  if (NET.mode==='host') {
-    const now=Date.now();
-    NET.conns.forEach(c=>{ if (now-c.lastSeen>25000) { try{ c.close(); }catch(e){} } else sendTo(c,{t:'ping'}); });
-  } else if (NET.mode==='client') {
-    if (NET.conn && NET.conn.open) { sendTo(NET.conn,{t:'pong'}); if (Date.now()-NET.lastMsg>20000) { try{ NET.conn.close(); }catch(e){} } }
-  }
-}, 5000);
+function hostBeat(){ if (NET.mode==='host' && NET.link) NET.link.pub('/hb', { on:seatsOnline(), ver:NET.ver }); }
 
-// ---------- сеть: гость ----------
+// ----- гость -----
 function joinRoom(code){
-  if (typeof Peer==='undefined') return toast('Сетевая библиотека не загрузилась');
+  if (typeof mqtt==='undefined') return toast('Сетевая библиотека не загрузилась, обновите страницу');
   leaveNet(true);
-  NET = { mode:'client', code, peer:null, conn:null, status:'Подключаюсь к комнате…', lastMsg:Date.now() };
+  NET = { mode:'client', code, ver:0, welcomed:false, lastHb:0, start:Date.now() };
   MY = null; S = null;
   ROOM = { code, mode:'2x1', seats:[], started:false };
   LS.set('shk-client', { code });
   show('room'); renderRoom();
-  openClientPeer();
+  const hello = ()=>NET.link && NET.link.pub('/up', { t:'hello', cid:CID, name:myName() });
+  NET.link = netOpen(code, ['/state','/hb','/to/'+CID], onClientMsg, hello);
 }
-function openClientPeer(){
-  if (NET.mode!=='client') return;
-  const peer = new Peer(Object.assign({ config:{ iceServers:ICE }, debug:0 }, PS));
-  NET.peer = peer;
-  peer.on('open', ()=>connectHost());
-  peer.on('disconnected', ()=>{ if (NET.peer===peer && !peer.destroyed) setTimeout(()=>{ try{ peer.reconnect(); }catch(e){} }, 1500); });
-  peer.on('error', err=>{
-    if (NET.peer!==peer) return;
-    if (err.type==='peer-unavailable') { setStatus('Комната '+NET.code+' не отвечает. Создатель должен держать игру открытой. Пробую снова…'); scheduleConnect(3000); }
-    else if (['network','server-error','socket-error','socket-closed'].includes(err.type)) { setStatus('Нет связи с сервером, повтор…'); try{ peer.destroy(); }catch(e){} clearTimeout(NET.rt); NET.rt=setTimeout(openClientPeer, 3000); }
-  });
-}
-function scheduleConnect(ms){ clearTimeout(NET.ct); NET.ct = setTimeout(connectHost, ms); }
-function connectHost(){
-  if (NET.mode!=='client' || !NET.peer || NET.peer.destroyed) return;
-  if (NET.conn && NET.conn.open) return;
-  if (NET.peer.disconnected) { try{ NET.peer.reconnect(); }catch(e){} scheduleConnect(2000); return; }
-  const conn = NET.peer.connect(PREFIX+NET.code, { reliable:true, serialization:'json' });
-  NET.conn = conn;
-  const to = setTimeout(()=>{ if (!conn.open) { try{ conn.close(); }catch(e){} if (NET.conn===conn) scheduleConnect(1000); } }, 12000);
-  conn.on('open', ()=>{ clearTimeout(to); NET.lastMsg=Date.now(); setNet('онлайн'); conn.send({ t:'hello', cid:CID, name:myName() }); });
-  conn.on('data', m=>{ NET.lastMsg=Date.now(); onClientMsg(m); });
-  conn.on('close', ()=>{ clearTimeout(to); if (NET.conn===conn && NET.mode==='client') { setNet('связь потеряна, переподключаюсь…'); setStatus('Связь потеряна, переподключаюсь…'); scheduleConnect(2000); } });
-  conn.on('error', ()=>{});
-}
-function onClientMsg(m){
-  if (!m || typeof m!=='object') return;
-  if (m.t==='welcome') { MY = m.seat; if (MY==null) setStatus('Комната заполнена — вы зритель'); return; }
-  if (m.t==='err') { toast(m.err); render(); return; }
-  if (m.t==='state') {
+function onClientMsg(sub, m){
+  if (sub==='/hb') { NET.lastHb=Date.now(); NET.roomOn=m.on; if (m.ver>NET.ver && NET.link) {/* состояние придёт отдельно */} refreshNet(); return; }
+  if (sub==='/to/'+CID) {
+    if (m.t==='welcome') { NET.welcomed=true; MY=m.seat; NET.lastHb=Date.now(); refresh(); }
+    else if (m.t==='err') { NET.waitAct=null; toast(m.err); render(); }
+    return;
+  }
+  if (sub==='/state') {
+    if (!m.ver || m.ver<=NET.ver) return;
+    NET.ver = m.ver; NET.roomOn = m.on;
     ROOM = { code:m.room.code, mode:m.room.mode, seats:m.room.seats, started:m.room.started };
-    NET.roomOn = m.room.on;
-    NET.status = 'Вы в комнате. Ждём, пока создатель начнёт игру…';
     const prevSeq = S && S.seq;
-    S = m.S;
+    S = m.S; NET.waitAct = null;
     if (ROOM.started && S) { if ($('game').hidden) startGameUI(); else { if (prevSeq!==S.seq) { UI.sel=null; UI.ship=false; } render(); } }
     else { S=null; show('room'); renderRoom(); }
   }
 }
-function setStatus(t){ NET.status=t; if (!$('room').hidden) renderRoom(); }
-function setNet(t){ NET.netText=t; const el=$('net'); if (el) el.innerHTML = netBadge(); }
+function hostAlive(){ return NET.mode!=='client' || Date.now()-NET.lastHb < 13000; }
+function clientStatus(){
+  if (!NET.link || !NET.link.connected()) return 'Подключаюсь к серверу… Если это долго — проверьте интернет.';
+  if (!hostAlive()) return Date.now()-NET.start<9000 ? 'Ищу комнату '+NET.code+'…'
+    : 'Создатель комнаты сейчас не в сети. Пусть откроет игру у себя и не сворачивает её — подключение произойдёт само.';
+  if (!NET.welcomed) return 'Вхожу в комнату…';
+  if (MY==null) return 'Комната заполнена — вы зритель.';
+  return 'Вы в комнате. Ждём, пока создатель начнёт игру…';
+}
+function refreshNet(){ const el=$('net'); if (el) el.innerHTML = netBadge(); if (!$('room').hidden) renderRoom(); }
 function netBadge(){
   if (NET.mode==='local') return 'один телефон';
-  const ok = NET.netText==='онлайн';
-  return `<span class="dot ${ok?'ok':'wait'}"></span>${NET.mode==='host'?'комната '+NET.code+' · ':''}${esc(NET.netText||'')}`;
+  const conn = NET.link && NET.link.connected();
+  let txt, ok=false;
+  if (!conn) txt='нет связи, переподключаюсь…';
+  else if (NET.mode==='client' && !hostAlive()) txt='создатель не в сети';
+  else { txt='онлайн'; ok=true; }
+  return `<span class="dot ${ok?'ok':'wait'}"></span>${NET.mode==='host'?'комната '+NET.code+' · ':''}${txt}`;
 }
 function leaveNet(silent){
-  try { if (NET.peer) NET.peer.destroy(); } catch(e){}
-  clearTimeout(NET.rt); clearTimeout(NET.ct);
+  try { if (NET.link) NET.link.end(); } catch(e){}
   NET = { mode:'local' };
   if (silent!==true) { show('lobby'); renderResume(); }
 }
+setInterval(()=>{
+  if (NET.mode==='host') hostBeat();
+  else if (NET.mode==='client' && NET.link) {
+    if (!NET.welcomed) NET.link.pub('/up', { t:'hello', cid:CID, name:myName() });
+    else NET.link.pub('/up', { t:'ping', cid:CID });
+    if (NET.waitAct && Date.now()-NET.waitAct>8000) { NET.waitAct=null; toast('Ход не дошёл до создателя комнаты — повторите'); }
+  }
+  if (NET.mode!=='local') refreshNet();
+}, 4000);
 document.addEventListener('visibilitychange', ()=>{
-  if (document.visibilityState!=='visible') return;
-  if (NET.mode==='client') { NET.lastMsg=Date.now(); if (!NET.peer || NET.peer.destroyed) openClientPeer(); else connectHost(); }
-  if (NET.mode==='host' && NET.peer) { if (NET.peer.destroyed) openHostPeer(); else if (NET.peer.disconnected) { try{ NET.peer.reconnect(); }catch(e){} } }
+  if (document.visibilityState!=='visible' || !NET.link) return;
+  NET.link.wake();
+  if (NET.mode==='client') NET.lastHb = Math.max(NET.lastHb, Date.now()-9000);
+  if (NET.mode==='host') setTimeout(()=>{ broadcast(); }, 1500);
 });
 
 // ---------- сохранение ----------
 function saveLocal(){ LS.set('shk-local', { S }); }
-function saveHost(){ if (NET.mode==='host') LS.set('shk-host', { code:NET.code, room:ROOM, S }); }
+function saveHost(){ if (NET.mode==='host') LS.set('shk-host', { code:NET.code, room:ROOM, S, ver:NET.ver }); }
 
 // ---------- действия ----------
 function canAct(){ return S && !S.over && (NET.mode==='local' || (MY!=null && S.teams[S.turn].player===MY)); }
 function doAct(a){
   if (NET.mode==='client') {
-    if (!NET.conn || !NET.conn.open) return toast('Нет связи с комнатой');
-    sendTo(NET.conn, { t:'act', a }); UI.sel=null; UI.ship=false; return;
+    if (!NET.link || !NET.link.connected()) return toast('Нет связи — подождите пару секунд');
+    if (!hostAlive()) return toast('Создатель комнаты не в сети');
+    NET.link.pub('/up', { t:'act', cid:CID, a }); NET.waitAct=Date.now(); UI.sel=null; UI.ship=false; render(); return;
   }
   const err = E.act(S, NET.mode==='host' ? 0 : null, a);
   if (err) return toast(err);
