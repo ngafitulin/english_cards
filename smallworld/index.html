@@ -100,8 +100,11 @@ summary{cursor:pointer;font-weight:600}
 #scorePop div{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:14px}
 .modalWrap{position:fixed;inset:0;background:#000b;z-index:90;display:flex;align-items:flex-end;justify-content:center;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 @media (min-width:640px){.modalWrap{align-items:center}}
-.modalCard{background:var(--panel);width:100%;max-width:600px;max-height:90vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:0 -10px 40px #0008}
-@media (min-width:640px){.modalCard{border-radius:16px;max-height:84vh}}
+.modalCard{background:var(--panel);width:100%;max-width:600px;max-height:85vh;max-height:85dvh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:0 -10px 40px #0008}
+@media (min-width:640px){.modalCard{border-radius:16px;max-height:84vh;max-height:84dvh}}
+.modalHead .xbtn{width:40px;height:40px;font-size:18px;background:#4a3a28}
+.modalFoot{padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.modalFoot button{width:100%}
 .modalHead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);font-size:18px}
 .modalBody{overflow:auto;padding:10px 14px 18px}
 .combo{display:flex;gap:12px;align-items:stretch;background:var(--card);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid var(--line)}
@@ -195,12 +198,14 @@ summary{cursor:pointer;font-weight:600}
   <div class="modalCard" role="dialog" aria-label="Расы на выбор">
     <div class="modalHead"><b>Расы на выбор</b><button class="xbtn" data-close="marketModal" aria-label="Закрыть">✕</button></div>
     <div id="marketBody" class="modalBody"></div>
+    <div class="modalFoot"><button data-close="marketModal">← Закрыть</button></div>
   </div>
 </div>
 <div id="legendModal" class="modalWrap" hidden>
   <div class="modalCard" role="dialog" aria-label="Легенда">
     <div class="modalHead"><b>Легенда</b><button class="xbtn" data-close="legendModal" aria-label="Закрыть">✕</button></div>
     <div id="legendBody" class="modalBody"></div>
+    <div class="modalFoot"><button data-close="legendModal">← Закрыть</button></div>
   </div>
 </div>
 
@@ -854,7 +859,7 @@ function notify(){
 }
 
 // ---------- рынок рас ----------
-function openMarket(){ $('marketModal').hidden=false; renderMarket(); }
+function openMarket(){ openModal('marketModal'); renderMarket(); }
 function renderMarket(){
   if (!S) return;
   const p=actorSeat(), can=canAct() && S.phase==='pick', coins=S.P[p].coins;
@@ -865,11 +870,24 @@ function renderMarket(){
         <small><b style="font-size:12.5px">${R.name}:</b> ${R.d}</small><small><b style="font-size:12.5px">${P.name}:</b> ${P.d}</small>
         <div class="meta"><span>👥 ${Math.min(R.n+P.n,R.cap)} фишек</span><span>Цена: ${i} 🪙</span>${c.coins?`<span style="color:var(--acc)">+${c.coins} 🪙 на ней</span>`:''}</div></div>
         ${can?`<button class="pri" data-i="${i}" ${coins<i?'disabled':''}>Взять</button>`:''}</div>`; }).join('');
-  $('marketBody').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ $('marketModal').hidden=true; doAct({ t:'pick', i:+b.dataset.i }); });
+  $('marketBody').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ closeModal('marketModal'); doAct({ t:'pick', i:+b.dataset.i }); });
 }
 $('bMarket').onclick=openMarket;
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).hidden=true);
-document.querySelectorAll('.modalWrap').forEach(w=>w.addEventListener('click', e=>{ if (e.target===w) w.hidden=true; }));
+// окна: открываются с записью в историю, чтобы «Назад» закрывал окно, а не уходил со страницы
+function openModal(id){
+  const w=$(id); if (!w.hidden) return;
+  w.hidden=false;
+  try { history.pushState({ modal:id }, ''); } catch(e){}
+}
+function closeModal(id){
+  const w=$(id); if (w.hidden) return;
+  w.hidden=true;
+  if (history.state && history.state.modal===id){ try { history.back(); } catch(e){} }
+}
+window.addEventListener('popstate', ()=>{ document.querySelectorAll('.modalWrap').forEach(w=>{ if (!w.hidden && !(history.state && history.state.modal===w.id)) w.hidden=true; }); });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') document.querySelectorAll('.modalWrap').forEach(w=>{ if (!w.hidden) closeModal(w.id); }); });
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll('.modalWrap').forEach(w=>w.addEventListener('click', e=>{ if (e.target===w) closeModal(w.id); }));
 
 // ---------- легенда и правила ----------
 function openLegend(){
@@ -897,7 +915,7 @@ function openLegend(){
     d.innerHTML=`<div class="legIco"></div><div class="legTxt"><b>${b}</b><span>${s}</span></div>`;
     d.querySelector('.legIco').appendChild(Painter.swatch(t,176,112)); lt.appendChild(d);
   }
-  $('legendModal').hidden=false;
+  openModal('legendModal');
 }
 $('bLegend').onclick=openLegend; $('bLegendLobby').onclick=openLegend;
 const RULES = `<summary>Правила коротко</summary>
