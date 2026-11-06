@@ -138,14 +138,15 @@
   // Запрещённый конец хода (атака с монетой, крепость с монетой или с врагом внутри, закрытая клетка с монетой).
   // Ход проверяется «на черновике»: годится, если хотя бы одно продолжение законно.
   // Черновик не заглядывает под закрытые клетки, чтобы не подсказывать, что там.
-  const ILLEGAL = { illegal: true }, UNKNOWN = { unknown: true };
-  const CHAIN = { arrow: 1, horse: 1, ice: 1, cannon: 1 };
-  function moveSafe(S, a) {
+  const ILLEGAL = { illegal: true }, UNKNOWN = { unknown: true }, DEATH = { death: true };
+  const CHAIN = { arrow: 1, horse: 1, ice: 1, cannon: 1, cannibal: 1 };
+  // Итог хода на черновике: 2 — нормально, 1 — пират погибнет, 0 — запрещено. Развилка берёт лучший вариант.
+  function outcome(S, a) {
     const C = JSON.parse(JSON.stringify(S)); C._sim = true;
     try { act(C, null, a); }
-    catch (e) { if (e === ILLEGAL) return false; if (e === UNKNOWN) return true; throw e; }
-    if (C.pending && !C.pending.plane) return C.pending.opts.some(o => moveSafe(C, { k: 'choose', r: o.r, c: o.c }));
-    return true;
+    catch (e) { if (e === ILLEGAL) return 0; if (e === DEATH) return 1; if (e === UNKNOWN) return 2; throw e; }
+    if (C.pending && !C.pending.plane) return Math.max(0, ...C.pending.opts.map(o => outcome(C, { k: 'choose', r: o.r, c: o.c })));
+    return 2;
   }
   function needsCheck(S, p, d) {
     if (!isLand(d.r, d.c) || d.maze) return false;
@@ -192,7 +193,7 @@
         else { const st = shipAt(S, r, c); if (st >= 0 && friendly(S, st, p.team)) out.push({ r, c, fly: true }); }
       }
     }
-    if (!S._sim) return out.filter(d => !needsCheck(S, p, d) || moveSafe(S, { k: 'move', pid: p.id, r: d.r, c: d.c }));
+    if (!S._sim) return out.filter(d => !needsCheck(S, p, d) || outcome(S, { k: 'move', pid: p.id, r: d.r, c: d.c }) >= (S.deathOk ? 1 : 2));
     return out;
   }
 
@@ -372,7 +373,7 @@
           else { const st = shipAt(S, rr, cc); if (st >= 0 && friendly(S, st, p.team)) opts.push({ r: rr, c: cc }); }
         }
         S.pending = { ctx, opts, plane: true };
-        if (!S._sim) S.pending.opts = opts.filter(o => o.stay || !needsCheck(S, p, o) || moveSafe(S, { k: 'choose', r: o.r, c: o.c }));
+        if (!S._sim) S.pending.opts = opts.filter(o => o.stay || !needsCheck(S, p, o) || outcome(S, { k: 'choose', r: o.r, c: o.c }) === 2);
         return;
       }
       case 'cannon': {
@@ -392,9 +393,10 @@
     if (opts.length === 1) return land(S, ctx, opts[0].r, opts[0].c, opts[0].vec);
     S.pending = { ctx, opts, plane: false };
     if (!S._sim) {
-      const safe = opts.filter(o => moveSafe(S, { k: 'choose', r: o.r, c: o.c }));
-      if (!safe.length) { S.pending = null; return illegal(S, ctx, 'все пути со стрелки закрыты'); }
-      S.pending.opts = safe;
+      const res = opts.map(o => outcome(S, { k: 'choose', r: o.r, c: o.c }));
+      const best = Math.max(...res);
+      if (best === 0) { S.pending = null; return illegal(S, ctx, 'все пути со стрелки закрыты'); }
+      S.pending.opts = opts.filter((o, i) => res[i] === best);   // гибельные пути показываем, только если других нет
     }
   }
 
@@ -417,6 +419,7 @@
   }
 
   function die(S, ctx, why) {
+    if (S._sim) throw DEATH;
     const p = S.pirates[ctx.pid];
     if (p.coin) { S.cells[ctx.start.r][ctx.start.c].coins++; p.coin = false; log(S, '🪙 Монета осталась на клетке, где пират начинал ход'); }
     p.loc = 'dead'; p.trapped = false; p.step = 0;
@@ -462,7 +465,11 @@
     for (let i = 0; i < S.teams.length; i++) {
       S.turn = (S.turn + 1) % S.teams.length;
       S.turnNo++;
+      S.deathOk = false;
       if (hasAction(S, S.turn)) return;
+      S.deathOk = true;   // других ходов нет — пропускать нельзя, разрешаем и гибельные
+      if (hasAction(S, S.turn)) { log(S, teamName(S, S.turn) + ': безопасных ходов нет'); return; }
+      S.deathOk = false;
       log(S, teamName(S, S.turn) + ' не могут ходить — пропуск');
     }
     finish(S);
