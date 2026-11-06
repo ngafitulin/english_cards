@@ -316,6 +316,12 @@
         if (prevPos.r === s.r && prevPos.c === s.c) {
           Object.assign(p, { r: s.r, c: s.c, loc: s.loc, shipT: s.shipT, step: s.step });
           if (s.loc === 'ship') { const sh = S.teams[s.shipT].ship; p.r = sh.r; p.c = sh.c; }
+          // вернулся на вертушку — проходит её заново с первого хода
+          if (s.loc === 'land' && S.cells[s.r][s.c].type === 'maze') {
+            p.step = 1;
+            if (!p.coin) enemiesOn(S, p, s.r, s.c, 1).forEach(q => sendHome(S, q));
+            log(S, '🔄 Пират снова проходит ' + MAZE_NAMES[S.cells[s.r][s.c].n].toLowerCase() + ' с начала');
+          }
           return endMove(S, ctx, s.loc === 'ship' ? 'back-ship' : 'stay');
         }
         return land(S, ctx, prevPos.r, prevPos.c, [-vec[0], -vec[1]]);
@@ -411,7 +417,8 @@
 
   function nextTurn(S) {
     S.pending = null;
-    if (coinsLeft(S) === 0 && !S.pirates.some(p => p.coin)) { finish(S); return; }
+    if (coinsLeft(S) === 0 && !S.pirates.some(p => p.coin)) { log(S, '🏁 Все монеты разобраны'); finish(S); return; }
+    if (S.cells.every(row => row.every(t => !t || t.rev))) { log(S, '🏁 Все клетки острова открыты'); finish(S); return; }
     for (let i = 0; i < S.teams.length; i++) {
       S.turn = (S.turn + 1) % S.teams.length;
       S.turnNo++;
