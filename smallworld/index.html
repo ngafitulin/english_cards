@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14110d">
+<title>Маленький мир — стратегия онлайн</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+<style>
+:root{--bg:#14110d;--panel:#231d16;--card:#17130e;--txt:#f1e8d6;--muted:#b6a88d;--acc:#e8b84a;--pri:#2f8f5b;--line:#ffffff17;
+  --emoji:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(ellipse at top,#3a2e20,#14110d 70%) fixed;color:var(--txt);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+[hidden]{display:none!important}
+button{font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:0;background:#4a3a28;color:#fff;cursor:pointer;touch-action:manipulation}
+button:hover:not(:disabled){filter:brightness(1.15)}
+button:disabled{opacity:.38;cursor:default}
+button.pri{background:var(--pri);font-weight:600}
+button.warn{background:#8a3b2a}
+button.gold{background:#a7791f;font-weight:600}
+input,select{font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid #5a4630;background:#120e0a;color:#fff;width:100%}
+.screen{max-width:520px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:32px;margin:6px 0 2px;letter-spacing:.3px}
+h2{font-size:18px;margin:0 0 10px}
+.sub{color:var(--muted);margin:0 0 16px;line-height:1.4}
+.card{background:var(--panel);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 8px 24px #0006;border:1px solid var(--line)}
+.row{display:flex;gap:8px;margin-top:10px}.row>*{flex:1}
+.fld{display:block;margin-bottom:12px;color:var(--muted);font-size:14px}.fld input{margin-top:4px}
+.np{display:flex;gap:6px}.np label{flex:1}
+.np input{display:none}
+.np span{display:block;text-align:center;padding:10px 0;border-radius:10px;background:var(--card);border:2px solid transparent;cursor:pointer;font-weight:700}
+.np input:checked+span{border-color:var(--acc);color:var(--acc)}
+.code{font-size:44px;font-weight:800;letter-spacing:8px;text-align:center;color:var(--acc);margin:4px 0 10px;font-family:ui-monospace,Menlo,monospace}
+.link{font-size:12px;color:var(--muted);word-break:break-all;text-align:center;margin:6px 0}
+.seat{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card);border-radius:10px;margin-bottom:6px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-right:6px}
+.dot.ok{background:#34d399}.dot.wait{background:#f59e0b}
+.sw{display:inline-block;width:12px;height:12px;border-radius:50%;border:1.5px solid #fff;margin-right:6px;vertical-align:-1px}
+#roommsg{color:var(--muted);font-size:14px;margin:8px 0}
+/* игра */
+#game{height:100%}
+.gwrap{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.mapbox{position:relative;flex:0 0 auto;height:min(58vh,105vw);height:min(58dvh,105vw);overflow:hidden;background:#0b0907;touch-action:none;user-select:none;-webkit-user-select:none}
+#world{position:absolute;left:0;top:0;width:1500px;height:1000px;transform-origin:0 0;will-change:transform}
+#world canvas,#world svg{position:absolute;left:0;top:0;width:1500px;height:1000px}
+#cvHl{animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+#svg{pointer-events:none;overflow:visible}
+#svg text{font-family:var(--emoji)}
+.mapbtns{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px;z-index:3}
+.mapbtns button{width:40px;height:40px;padding:0;border-radius:50%;background:#000a;font-size:20px;backdrop-filter:blur(4px)}
+#topbar{position:absolute;left:8px;top:8px;right:56px;display:flex;gap:6px;flex-wrap:wrap;z-index:3;pointer-events:none}
+.chip{background:#000b;backdrop-filter:blur(4px);border-radius:99px;padding:6px 11px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0b0907;z-index:4;color:var(--muted)}
+.bar{width:220px;height:6px;border-radius:9px;background:#333;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc)}
+.side{flex:1 1 auto;overflow:auto;padding:10px 10px 30px;background:var(--panel);border-top:1px solid #000}
+@media (min-width:900px){
+  .gwrap{flex-direction:row}
+  .mapbox{flex:1 1 auto;height:100vh;height:100dvh}
+  .side{flex:0 0 380px;border-top:0;border-left:1px solid #000;height:100vh;height:100dvh}
+}
+#msg{background:var(--card);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 8px;line-height:1.4;border:2px solid transparent;border-left-width:7px}
+#msg .who{display:block;font-size:19px;font-weight:800;margin-bottom:3px}
+#msg.me{background:#173322;border-color:#34d399;animation:myturn 1.6s ease-in-out infinite}
+#msg.me .who{color:#6ee7b7}
+@keyframes myturn{50%{border-color:#a7f3d0;box-shadow:0 0 18px #34d39988}}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.acts .wide{grid-column:span 2}
+.seg{display:flex;background:var(--card);border-radius:10px;padding:3px;margin-bottom:8px}
+.seg button{flex:1;background:transparent;padding:8px}
+.seg button.on{background:#5a4630}
+.sheet{background:#2f271d;border:1px solid #6b5639;border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.sheet .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sheet b{font-size:16px}
+.sheet .info{font-size:13px;color:var(--muted);margin:4px 0 8px;line-height:1.45}
+.xbtn{width:30px;height:30px;padding:0;border-radius:50%;background:#0006;font-size:14px;flex-shrink:0}
+.stepper{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.stepper button{width:46px;font-size:20px;padding:6px 0}
+.stepper .num{min-width:44px;text-align:center;font-size:20px;font-weight:800}
+.pl{background:var(--card);border-radius:10px;padding:7px 9px;margin-bottom:6px;border:2px solid transparent}
+.pl.on{border-color:var(--acc)}
+.pl .nm{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.pl .rc{font-size:12.5px;color:var(--muted);margin-top:3px}
+.pl .rc.dec{opacity:.75}
+#log{font-size:12.5px;line-height:1.45;opacity:.85;max-height:160px;overflow:auto;margin:8px 0}
+#log div{border-bottom:1px solid var(--line);padding:2px 0}
+details{font-size:13px;line-height:1.5;background:var(--card);border-radius:10px;padding:8px 10px;margin-top:6px}
+summary{cursor:pointer;font-weight:600}
+.over{background:#3d2f05;border:2px solid var(--acc);border-radius:10px;padding:10px;margin-bottom:8px;font-size:15px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111e;color:#fff;padding:10px 16px;border-radius:10px;
+  font-size:14px;z-index:99;pointer-events:none;opacity:0;transition:opacity .2s;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+#scorePop{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:95;background:#2b2112f2;border:2px solid var(--acc);border-radius:14px;
+  padding:10px 16px;min-width:220px;box-shadow:0 10px 30px #000a;pointer-events:none;transition:opacity .3s;opacity:0}
+#scorePop.show{opacity:1}
+#scorePop b{font-size:18px;display:block;margin-bottom:4px}
+#scorePop div{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:14px}
+.modalWrap{position:fixed;inset:0;background:#000b;z-index:90;display:flex;align-items:flex-end;justify-content:center;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+@media (min-width:640px){.modalWrap{align-items:center}}
+.modalCard{background:var(--panel);width:100%;max-width:600px;max-height:90vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:0 -10px 40px #0008}
+@media (min-width:640px){.modalCard{border-radius:16px;max-height:84vh}}
+.modalHead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);font-size:18px}
+.modalBody{overflow:auto;padding:10px 14px 18px}
+.combo{display:flex;gap:12px;align-items:stretch;background:var(--card);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid var(--line)}
+.combo .token{flex:0 0 64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;font-family:var(--emoji);
+  background:radial-gradient(circle at 35% 30%,#fff8e6,#d6c39a 55%,#8d7650);box-shadow:inset 0 -4px 6px #0006,0 3px 6px #000a;border:3px solid #6f5634}
+.combo .t{flex:1;min-width:0}
+.combo .t b{font-size:16px}
+.combo .t small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35;margin-top:3px}
+.combo .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}
+.combo .meta span{background:#ffffff12;border-radius:99px;padding:2px 8px}
+.combo button{align-self:center;flex:0 0 auto}
+.legItem{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.legItem:last-child{border-bottom:0}
+.legIco{font-size:28px;line-height:1;width:46px;text-align:center;flex-shrink:0;font-family:var(--emoji)}
+.legIco canvas{width:88px;height:56px;border-radius:8px;box-shadow:0 2px 6px #000a;display:block}
+.legItem.sw2 .legIco{width:88px}
+.legTxt b{display:block;font-size:15px;margin-bottom:1px}
+.legTxt span{font-size:13.5px;color:var(--muted);line-height:1.4}
+.legH{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--acc);margin:16px 0 2px}
+</style>
+</head>
+<body>
+
+<section id="lobby" class="screen">
+  <h1>🗺️ Маленький мир</h1>
+  <p class="sub">Стратегия о расах, которым тесно на одной карте: захватывайте земли, уходите в упадок и выводите новый народ. Можно на одном телефоне или каждый со своего.</p>
+  <label class="fld">Ваше имя<input id="myname" maxlength="16" placeholder="Вождь"></label>
+  <div id="resume"></div>
+  <div class="card">
+    <h2>Новая игра</h2>
+    <div class="fld" style="margin-bottom:6px">Сколько игроков</div>
+    <div class="np" id="npSel"></div>
+    <div class="row"><button id="bLocal">На одном телефоне</button><button id="bHost" class="pri">Онлайн-комната</button></div>
+  </div>
+  <div class="card">
+    <h2>Присоединиться по коду</h2>
+    <div class="row"><input id="joincode" placeholder="КОД" maxlength="5" autocapitalize="characters" autocomplete="off"><button id="bJoin" class="pri">Войти</button></div>
+  </div>
+  <div class="card">
+    <button id="bLegendLobby" style="width:100%;margin-bottom:10px">❔ Легенда: местность, значки, расы</button>
+    <details id="rulesL"></details>
+  </div>
+</section>
+
+<section id="room" class="screen" hidden>
+  <div class="card">
+    <h2>Комната</h2>
+    <div class="code" id="roomcode"></div>
+    <div id="hostShare">
+      <button id="bShare" class="pri" style="width:100%">Отправить приглашение</button>
+      <div class="link" id="roomlink"></div>
+    </div>
+    <div id="roommode" class="sub" style="margin:8px 0"></div>
+    <div id="seats"></div>
+    <div id="roommsg"></div>
+    <div class="row"><button id="bLeave">Выйти</button><button id="bStart" class="pri">Начать игру</button></div>
+  </div>
+</section>
+
+<section id="game" hidden>
+  <div class="gwrap">
+    <div class="mapbox" id="mapbox">
+      <div id="world"><canvas id="cvMap"></canvas><canvas id="cvOwn"></canvas><canvas id="cvHl"></canvas><svg id="svg" viewBox="0 0 1500 1000" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div id="topbar"></div>
+      <div class="mapbtns"><button id="zIn" aria-label="Приблизить">+</button><button id="zOut" aria-label="Отдалить">−</button><button id="zFit" aria-label="Вся карта">⤢</button></div>
+      <div id="loading"><div>Рисую карту…</div><div class="bar"><i id="lbar"></i></div></div>
+    </div>
+    <div class="side" id="side">
+      <div id="over"></div>
+      <div id="msg"></div>
+      <div id="sheet"></div>
+      <div id="ctl"></div>
+      <div id="players"></div>
+      <div class="acts">
+        <button id="bMarket">🧝 Расы на выбор</button>
+        <button id="bLegend">❔ Легенда</button>
+      </div>
+      <div id="log"></div>
+      <div class="acts">
+        <button id="bMenu">Меню</button>
+        <button id="bAgain" class="pri" hidden>Новая партия</button>
+      </div>
+      <details id="rulesG"></details>
+    </div>
+  </div>
+</section>
+
+<div id="toast"></div>
+<div id="scorePop"></div>
+<div id="marketModal" class="modalWrap" hidden>
+  <div class="modalCard" role="dialog" aria-label="Расы на выбор">
+    <div class="modalHead"><b>Расы на выбор</b><button class="xbtn" data-close="marketModal" aria-label="Закрыть">✕</button></div>
+    <div id="marketBody" class="modalBody"></div>
+  </div>
+</div>
+<div id="legendModal" class="modalWrap" hidden>
+  <div class="modalCard" role="dialog" aria-label="Легенда">
+    <div class="modalHead"><b>Легенда</b><button class="xbtn" data-close="legendModal" aria-label="Закрыть">✕</button></div>
+    <div id="legendBody" class="modalBody"></div>
+  </div>
+</div>
+
+<script src="mqtt.min.js"></script>
+<script src="engine.js"></script>
+<script src="render.js"></script>
+<script>
+"use strict";
+const E = Engine;
+const $ = id => document.getElementById(id);
+const LS = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} },
+};
+let CID = LS.get('sw-cid'); if (!CID) { CID = Math.random().toString(36).slice(2, 12); LS.set('sw-cid', CID); }
+const TOPIC = 'smallworld-p100/v1/';
+const MQ_URLS = (()=>{ const q=new URLSearchParams(location.search).get('mq'); return q ? [q] :
+  ['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt']; })();
+const MAPW=1500, MAPH=1000;
+const ICO = { magic:'✨', mine:'⚒️', cave:'🦇', lost:'🏚️', fort:'🏰', lair:'🦴', camp:'⛺', hero:'🦸', dragon:'🐉', hole:'🕳️' };
+
+let S = null, NET = { mode:'local' }, ROOM = null, MY = null;
+let UI = { sel:null, g:false, lastTurnKey:'', lastScoreKey:'' };
+let MAP = null, MAPSEED = null, PAINTING = null;
+
+// ---------- утилиты ----------
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove('show'),2400); }
+function show(id){ for (const s of ['lobby','room','game']) $(s).hidden = s!==id; window.scrollTo(0,0); }
+function myName(){ return ($('myname').value.trim() || 'Вождь').slice(0,16); }
+function genCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
+function esc(s){ return String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+function rgb(hex){ const n=parseInt(hex.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function plural(n, a, b, c){ const m=n%10, h=n%100; return n+' '+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<10||h>=20))?b:c); }
+function comboTitle(ri){ return E.POWERS[ri.power].name+' '+E.RACES[ri.race].name.toLowerCase(); }
+
+// ---------- лобби ----------
+$('myname').value = LS.get('sw-name') || '';
+$('myname').addEventListener('change', ()=>LS.set('sw-name', myName()));
+let npSel = LS.get('sw-np') || 2;
+$('npSel').innerHTML = [2,3,4,5].map(n=>`<label><input type="radio" name="np" value="${n}" ${n===npSel?'checked':''}><span>${n}</span></label>`).join('');
+$('npSel').addEventListener('change', e=>{ npSel=+e.target.value; LS.set('sw-np', npSel); });
+
+function renderResume(){
+  const h=[], loc=LS.get('sw-local'), host=LS.get('sw-host'), cl=LS.get('sw-client');
+  if (loc && loc.S && !loc.S.over) h.push(`<button id="rLocal" style="width:100%;margin-bottom:8px">▶ Продолжить игру на этом телефоне</button>`);
+  if (host && host.code) h.push(`<button id="rHost" class="pri" style="width:100%;margin-bottom:8px">▶ Вернуться в свою комнату ${host.code}</button>`);
+  if (cl && cl.code && (!host || host.code!==cl.code)) h.push(`<button id="rClient" class="pri" style="width:100%;margin-bottom:8px">▶ Вернуться в комнату ${cl.code}</button>`);
+  $('resume').innerHTML = h.join('');
+  if ($('rLocal')) $('rLocal').onclick = ()=>{ S=loc.S; NET={mode:'local'}; MY=null; startGameUI(); };
+  if ($('rHost')) $('rHost').onclick = ()=>{ if (typeof mqtt==='undefined') return toast('Сетевая библиотека не загрузилась'); LS.set('sw-name', myName()); ROOM=host.room; S=host.S; becomeHost(host.code); };
+  if ($('rClient')) $('rClient').onclick = ()=>joinRoom(cl.code);
+}
+$('bLocal').onclick = ()=>{
+  LS.set('sw-name', myName());
+  const names = Array.from({length:npSel},(_,i)=> i===0 ? myName() : 'Игрок '+(i+1));
+  S = E.newGame(names); NET={mode:'local'}; MY=null; saveLocal(); startGameUI();
+};
+$('bHost').onclick = ()=>{
+  if (typeof mqtt==='undefined') return toast('Сетевая библиотека не загрузилась, обновите страницу');
+  LS.set('sw-name', myName());
+  ROOM={ code:genCode(), np:npSel, seats:Array(npSel).fill(null), started:false };
+  ROOM.seats[0]={ name:myName(), cid:CID };
+  S=null; becomeHost(ROOM.code);
+};
+$('bJoin').onclick = ()=>{
+  const code=$('joincode').value.trim().toUpperCase();
+  if (code.length<4) return toast('Введите код комнаты');
+  LS.set('sw-name', myName()); joinRoom(code);
+};
+$('bLeave').onclick = ()=>leaveNet();
+$('bStart').onclick = ()=>{
+  if (NET.mode!=='host') return;
+  if (ROOM.seats.some(s=>!s)) return toast('Ещё не все игроки зашли');
+  S = E.newGame(ROOM.seats.map(s=>s.name));
+  ROOM.started=true; saveHost(); broadcast(); startGameUI();
+};
+
+function renderRoom(){
+  if (!ROOM) return;
+  $('roomcode').textContent = ROOM.code;
+  $('hostShare').hidden = NET.mode!=='host';
+  $('roomlink').textContent = joinLink(ROOM.code);
+  $('roommode').textContent = ROOM.np ? 'Игроков: ' + ROOM.np : '';
+  const on = seatsOnline();
+  $('seats').innerHTML = ROOM.seats.map((s,i)=>`<div class="seat"><span><span class="sw" style="background:${E.COLORS[i].c}"></span><span class="dot ${s?(on[i]?'ok':'wait'):''}"></span>${s?esc(s.name):'— ждём игрока…'}${i===MY?' (вы)':''}</span></div>`).join('');
+  const full = ROOM.seats.length>0 && ROOM.seats.every(Boolean);
+  $('bStart').hidden = NET.mode!=='host';
+  $('bStart').disabled = !full;
+  $('roommsg').textContent = NET.mode==='host'
+    ? (full ? 'Все на месте — можно начинать!' : 'Отправьте приглашение. Игрок откроет ссылку и нажмёт «Войти».')
+    : clientStatus();
+}
+function joinLink(code){ return location.origin + location.pathname + '#' + code; }
+$('bShare').onclick = async ()=>{
+  const url=joinLink(ROOM.code), text='Сыграем в «Маленький мир»? Код комнаты: '+ROOM.code;
+  try { if (navigator.share) { await navigator.share({ title:'Маленький мир', text, url }); return; } } catch(e){ if (e.name==='AbortError') return; }
+  try { await navigator.clipboard.writeText(text+'\n'+url); toast('Ссылка скопирована'); } catch(e){ toast('Скопируйте ссылку под кнопкой'); }
+};
+
+// ---------- сеть: публичные MQTT-серверы (несколько параллельно), как в «Шакале» ----------
+function mkId(){ return Math.random().toString(36).slice(2,10); }
+const SEEN_IDS = new Set();
+function dupe(id){ if (!id) return false; if (SEEN_IDS.has(id)) return true; SEEN_IDS.add(id); if (SEEN_IDS.size>800) SEEN_IDS.clear(); return false; }
+function netOpen(code, subs, onMsg, onConnect){
+  const base = TOPIC + code;
+  const clients = MQ_URLS.map(url=>{
+    let c;
+    try { c = mqtt.connect(url, { clientId:'sw_'+CID+'_'+mkId(), clean:true, reconnectPeriod:3000, connectTimeout:10000, keepalive:20 }); }
+    catch(e){ return null; }
+    c.on('connect', ()=>{ c.subscribe(subs.map(s=>base+s)); refreshNet(); if (onConnect) onConnect(); });
+    c.on('message', (topic, payload)=>{ let m; try { m = JSON.parse(payload.toString()); } catch(e){ return; }
+      if (!m || typeof m!=='object' || dupe(m.id)) return; onMsg(topic.slice(base.length), m); });
+    ['close','offline','reconnect'].forEach(ev=>c.on(ev, refreshNet));
+    c.on('error', ()=>{});
+    return c;
+  }).filter(Boolean);
+  return {
+    pub(sub, obj, retain){ obj.id = obj.id || mkId(); const s = JSON.stringify(obj);
+      clients.forEach(c=>{ if (c.connected) c.publish(base+sub, s, { qos:0, retain:!!retain }); }); },
+    connected(){ return clients.some(c=>c.connected); },
+    wake(){ clients.forEach(c=>{ if (!c.connected) { try{ c.reconnect(); }catch(e){} } }); },
+    end(){ clients.forEach(c=>{ try{ c.end(true); }catch(e){} }); },
+  };
+}
+function becomeHost(code){
+  const saved = LS.get('sw-host');
+  NET = { mode:'host', code, seen:{}, ver:(saved && saved.code===code && saved.ver) || 0 };
+  MY = 0;
+  saveHost();
+  NET.link = netOpen(code, ['/up'], onHostMsg, ()=>broadcast());
+  if (ROOM.started && S) startGameUI(); else { show('room'); renderRoom(); }
+}
+function onHostMsg(sub, m){
+  if (sub!=='/up' || !m.cid) return;
+  const was = seatsOnline().join();
+  NET.seen[m.cid] = Date.now();
+  if (m.t==='hello') {
+    const name = String(m.name||'Игрок').slice(0,16);
+    let seat = ROOM.seats.findIndex(s=>s && s.cid===m.cid);
+    const fresh = seat<0;
+    if (seat<0 && !ROOM.started) { seat = ROOM.seats.findIndex(s=>!s); if (seat>=0) ROOM.seats[seat]={ name, cid:String(m.cid) }; }
+    if (seat>=0 && !ROOM.started) ROOM.seats[seat].name = name;
+    NET.link.pub('/to/'+m.cid, { t:'welcome', seat: seat>=0 ? seat : null });
+    if (fresh && seat>=0) toast(ROOM.seats[seat].name+' в игре');
+    saveHost(); broadcast(); refresh();
+    return;
+  }
+  if (m.t==='act' && ROOM.started && S) {
+    const seat = ROOM.seats.findIndex(s=>s && s.cid===m.cid);
+    if (seat<0) return;
+    const err = E.act(S, seat, m.a);
+    if (err) NET.link.pub('/to/'+m.cid, { t:'err', err });
+    else afterChange();
+    return;
+  }
+  if (seatsOnline().join()!==was) { hostBeat(); refresh(); }
+}
+function seatsOnline(){
+  if (!ROOM) return [];
+  if (NET.mode==='host') { const now=Date.now();
+    return ROOM.seats.map((s,i)=> i===0 || !!(s && NET.seen[s.cid] && now-NET.seen[s.cid]<15000)); }
+  return NET.roomOn || ROOM.seats.map(()=>false);
+}
+function broadcast(){
+  if (NET.mode!=='host' || !NET.link) return;
+  NET.ver = Math.max(NET.ver+1, Date.now());
+  saveHost();
+  NET.link.pub('/state', { ver:NET.ver, room:{ code:ROOM.code, np:ROOM.np, started:ROOM.started, seats:ROOM.seats.map(s=>s&&{name:s.name}) }, on:seatsOnline(), S }, true);
+}
+function hostBeat(){ if (NET.mode==='host' && NET.link) NET.link.pub('/hb', { on:seatsOnline(), ver:NET.ver }); }
+function joinRoom(code){
+  if (typeof mqtt==='undefined') return toast('Сетевая библиотека не загрузилась, обновите страницу');
+  leaveNet(true);
+  NET = { mode:'client', code, ver:0, welcomed:false, lastHb:0, start:Date.now() };
+  MY = null; S = null;
+  ROOM = { code, np:0, seats:[], started:false };
+  LS.set('sw-client', { code });
+  show('room'); renderRoom();
+  const hello = ()=>NET.link && NET.link.pub('/up', { t:'hello', cid:CID, name:myName() });
+  NET.link = netOpen(code, ['/state','/hb','/to/'+CID], onClientMsg, hello);
+}
+function onClientMsg(sub, m){
+  if (sub==='/hb') { NET.lastHb=Date.now(); NET.roomOn=m.on; refreshNet(); return; }
+  if (sub==='/to/'+CID) {
+    if (m.t==='welcome') { NET.welcomed=true; MY=m.seat; NET.lastHb=Date.now(); refresh(); }
+    else if (m.t==='err') { NET.waitAct=null; toast(m.err); render(); }
+    return;
+  }
+  if (sub==='/state') {
+    if (!m.ver || m.ver<=NET.ver || !m.room) return;
+    NET.ver = m.ver; NET.roomOn = m.on; NET.lastHb = Math.max(NET.lastHb, Date.now()-6000);
+    ROOM = { code:m.room.code, np:m.room.np, seats:m.room.seats, started:m.room.started };
+    const prevSeq = S && S.seq;
+    S = m.S; NET.waitAct = null;
+    if (ROOM.started && S) { if ($('game').hidden) startGameUI(); else { if (prevSeq!==S.seq) UI.sel=UI.sel; render(); } }
+    else { S=null; show('room'); renderRoom(); }
+  }
+}
+function hostAlive(){ return NET.mode!=='client' || Date.now()-NET.lastHb < 13000; }
+function clientStatus(){
+  if (!NET.link || !NET.link.connected()) return 'Подключаюсь к серверу… Если это долго — проверьте интернет.';
+  if (!hostAlive()) return Date.now()-NET.start<9000 ? 'Ищу комнату '+NET.code+'…'
+    : 'Создатель комнаты сейчас не в сети. Пусть откроет игру у себя и не сворачивает её — подключение произойдёт само.';
+  if (!NET.welcomed) return 'Вхожу в комнату…';
+  if (MY==null) return 'Комната заполнена — вы зритель.';
+  return 'Вы в комнате. Ждём, пока создатель начнёт игру…';
+}
+function refreshNet(){ if (!$('room').hidden) renderRoom(); else if (!$('game').hidden && S) renderTop(); }
+function netBadge(){
+  if (NET.mode==='local') return '';
+  const conn = NET.link && NET.link.connected();
+  let txt, ok=false;
+  if (!conn) txt='нет связи…';
+  else if (NET.mode==='client' && !hostAlive()) txt='создатель не в сети';
+  else { txt='онлайн'; ok=true; }
+  return `<span class="chip"><span class="dot ${ok?'ok':'wait'}" style="margin:0"></span>${NET.mode==='host'?NET.code+' · ':''}${txt}</span>`;
+}
+function leaveNet(silent){
+  try { if (NET.link) NET.link.end(); } catch(e){}
+  NET = { mode:'local' };
+  if (silent!==true) { show('lobby'); renderResume(); }
+}
+setInterval(()=>{
+  if (NET.mode==='host') hostBeat();
+  else if (NET.mode==='client' && NET.link) {
+    if (!NET.welcomed) NET.link.pub('/up', { t:'hello', cid:CID, name:myName() });
+    else NET.link.pub('/up', { t:'ping', cid:CID });
+    if (NET.waitAct && Date.now()-NET.waitAct>8000) { NET.waitAct=null; toast('Ход не дошёл до создателя комнаты — повторите'); render(); }
+  }
+  if (NET.mode!=='local') refreshNet();
+}, 4000);
+document.addEventListener('visibilitychange', ()=>{
+  if (document.visibilityState!=='visible' || !NET.link) return;
+  NET.link.wake();
+  if (NET.mode==='client') NET.lastHb = Math.max(NET.lastHb, Date.now()-9000);
+  if (NET.mode==='host') setTimeout(()=>{ broadcast(); }, 1500);
+});
+
+// ---------- сохранение и действия ----------
+function saveLocal(){ LS.set('sw-local', { S }); }
+function saveHost(){ if (NET.mode==='host') LS.set('sw-host', { code:NET.code, room:ROOM, S, ver:NET.ver }); }
+function actorSeat(){ return S ? E.actor(S) : -1; }
+function canAct(){ return S && !S.over && (NET.mode==='local' || (MY!=null && actorSeat()===MY)) && !NET.waitAct; }
+function viewer(){ return NET.mode==='local' ? actorSeat() : MY; }
+function doAct(a, keepSel){
+  if (NET.mode==='client') {
+    if (!NET.link || !NET.link.connected()) return toast('Нет связи — подождите пару секунд');
+    if (!hostAlive()) return toast('Создатель комнаты не в сети');
+    NET.link.pub('/up', { t:'act', cid:CID, a }); NET.waitAct=Date.now(); render(); return;
+  }
+  const err = E.act(S, NET.mode==='host' ? 0 : null, a);
+  if (err) return toast(err);
+  afterChange(keepSel);
+}
+function afterChange(keepSel){
+  if (!keepSel) UI.sel=null;
+  if (NET.mode==='local') saveLocal(); else { saveHost(); broadcast(); }
+  render();
+}
+function refresh(){ if (!$('room').hidden) renderRoom(); else if (!$('game').hidden && S) render(); }
+
+// ---------- карта: рисование, масштаб, касания ----------
+const VIEW = { s:1, tx:0, ty:0 };
+function startGameUI(){
+  UI = { sel:null, g:false, lastTurnKey:'', lastScoreKey: S && S.lastScore ? S.seq+'' : '' };
+  show('game');
+  ensureMap();
+  fitView(true);
+  render();
+}
+async function ensureMap(){
+  if (!S) return;
+  const key = S.seed+':'+S.np;
+  if (MAPSEED===key && MAP) return;
+  if (PAINTING===key) return;
+  PAINTING=key; MAP=null;
+  $('loading').hidden=false;
+  const m = await Painter.paint(S.M, S.R, MAPW, MAPH, f=>{ $('lbar').style.width=Math.round(f*100)+'%'; });
+  if (PAINTING!==key) return;
+  const cv=$('cvMap'); cv.width=MAPW; cv.height=MAPH; cv.getContext('2d').drawImage(m.canvas,0,0);
+  MAP=m; MAPSEED=key; PAINTING=null; OVKEY={};
+  $('loading').hidden=true;
+  render();
+}
+function applyView(){ $('world').style.transform=`translate(${VIEW.tx}px,${VIEW.ty}px) scale(${VIEW.s})`; }
+function clampView(){
+  const box=$('mapbox').getBoundingClientRect(), w=MAPW*VIEW.s, h=MAPH*VIEW.s;
+  VIEW.tx = w<=box.width ? (box.width-w)/2 : Math.min(0, Math.max(box.width-w, VIEW.tx));
+  VIEW.ty = h<=box.height ? (box.height-h)/2 : Math.min(0, Math.max(box.height-h, VIEW.ty));
+}
+function fitView(first){
+  const box=$('mapbox').getBoundingClientRect();
+  const contain = Math.min(box.width/MAPW, box.height/MAPH) || 0.3, cover = Math.max(box.width/MAPW, box.height/MAPH) || 0.3;
+  VIEW.minS = contain;
+  VIEW.s = first===true ? Math.min(cover, contain*1.6) : contain;
+  if (first===true){ VIEW.tx=(box.width-MAPW*VIEW.s)/2; VIEW.ty=(box.height-MAPH*VIEW.s)/2; }
+  clampView(); applyView();
+}
+function zoomAt(f, cx, cy){
+  const box=$('mapbox').getBoundingClientRect();
+  if (cx==null){ cx=box.width/2; cy=box.height/2; }
+  const ns = Math.min(3, Math.max(VIEW.minS||0.2, VIEW.s*f));
+  VIEW.tx = cx - (cx-VIEW.tx)*ns/VIEW.s; VIEW.ty = cy - (cy-VIEW.ty)*ns/VIEW.s; VIEW.s=ns;
+  clampView(); applyView();
+}
+$('zIn').onclick=()=>zoomAt(1.4); $('zOut').onclick=()=>zoomAt(1/1.4); $('zFit').onclick=()=>fitView();
+window.addEventListener('resize', ()=>{ if (!$('game').hidden){ const was=VIEW.s<=(VIEW.minS||0)*1.01; if (was) fitView(); else { clampView(); applyView(); } } });
+(function touch(){
+  const box=$('mapbox'), pts=new Map(); let start=null, moved=false, pinch=null;
+  box.addEventListener('pointerdown', e=>{
+    if (e.target.closest('button')) return;
+    box.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if (pts.size===1){ start={x:e.clientX,y:e.clientY,tx:VIEW.tx,ty:VIEW.ty}; moved=false; }
+    if (pts.size===2){ const [a,b]=[...pts.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y), s:VIEW.s}; moved=true; }
+  });
+  box.addEventListener('pointermove', e=>{
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const r=box.getBoundingClientRect();
+    if (pts.size>=2 && pinch){ const [a,b]=[...pts.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y);
+      zoomAt(pinch.s*d/pinch.d/VIEW.s, (a.x+b.x)/2-r.left, (a.y+b.y)/2-r.top); return; }
+    if (start){ const dx=e.clientX-start.x, dy=e.clientY-start.y;
+      if (Math.abs(dx)+Math.abs(dy)>8) moved=true;
+      if (moved){ VIEW.tx=start.tx+dx; VIEW.ty=start.ty+dy; clampView(); applyView(); } }
+  });
+  const end=e=>{
+    if (!pts.has(e.pointerId)) return;
+    pts.delete(e.pointerId);
+    if (pts.size===0){ if (!moved && start && e.type==='pointerup') tapAt(e.clientX, e.clientY); start=null; pinch=null; }
+    else if (pts.size===1){ const p=[...pts.values()][0]; start={x:p.x,y:p.y,tx:VIEW.tx,ty:VIEW.ty}; pinch=null; }
+  };
+  box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+  box.addEventListener('wheel', e=>{ e.preventDefault(); const r=box.getBoundingClientRect(); zoomAt(e.deltaY<0?1.15:1/1.15, e.clientX-r.left, e.clientY-r.top); }, { passive:false });
+})();
+function tapAt(cx, cy){
+  if (!MAP || !S) return;
+  const r=$('mapbox').getBoundingClientRect();
+  const x=Math.floor((cx-r.left-VIEW.tx)/VIEW.s), y=Math.floor((cy-r.top-VIEW.ty)/VIEW.s);
+  if (x<0||y<0||x>=MAPW||y>=MAPH) return;
+  const rid=MAP.id[y*MAPW+x];
+  UI.sel = UI.sel===rid ? null : rid;
+  render();
+  if (UI.sel!=null && window.innerWidth<900) $('sheet').scrollIntoView({ block:'nearest', behavior:'smooth' });
+}
+
+// ---------- отрисовка ----------
+let OVKEY = {};
+function myTargets(){
+  if (!S || S.phase!=='conquer' || !canAct() || S.T.final) return [];
+  return E.targets(S, S.cur, UI.g);
+}
+function render(){
+  if (!S) return;
+  ensureMap();
+  renderTop(); renderOverlays(); renderSVG(); renderSide(); notify();
+}
+function renderTop(){
+  const p=actorSeat(), pl=S.P[p];
+  const v=viewer(), mine = v!=null && v>=0 ? S.P[v] : null;
+  $('topbar').innerHTML =
+    `<span class="chip">Ход ${Math.min(S.round,S.maxT)}/${S.maxT}</span>`+
+    (S.over ? '<span class="chip">🏁 Игра окончена</span>' : `<span class="chip"><span class="sw" style="background:${pl.color};margin:0"></span>${esc(pl.name)}</span>`)+
+    (mine ? `<span class="chip">🪙 ${mine.coins}</span>` : '')+ netBadge();
+}
+function renderOverlays(){
+  if (!MAP) return;
+  const ownKey = S.O.map(o=>!o||o.p<0?'-':o.p+(E.raceRI(S,o.p,o.race)?.decl?'d':'a')).join('');
+  if (OVKEY.own!==ownKey){
+    OVKEY.own=ownKey;
+    Painter.overlay($('cvOwn'), MAP, S.O.map(o=>{ if (!o || o.p<0) return null;
+      const c=rgb(S.P[o.p].color), d=E.raceRI(S,o.p,o.race)?.decl;
+      return [c[0],c[1],c[2], d?0.05:0.12, d?0.45:0.85, d?5:8]; }));
+  }
+  const tg=myTargets();
+  const hlKey = tg.map(t=>t.r).join(',')+'|'+UI.sel;
+  if (OVKEY.hl!==hlKey){
+    OVKEY.hl=hlKey;
+    const f=S.R.map(()=>null);
+    for (const t of tg) f[t.r]=[255,236,170,0.14,0.95,5];
+    if (UI.sel!=null) f[UI.sel]=[120,220,255,0.22,1,7];
+    Painter.overlay($('cvHl'), MAP, f);
+  }
+}
+function tokenSVG(x, y, o, cost){
+  let s='';
+  const big=24;
+  if (o){
+    const lost=o.p<0, ri=lost?null:E.raceRI(S,o.p,o.race), decl=ri&&ri.decl;
+    const grad = lost ? 'gl' : decl ? 'gd'+o.p : 'g'+o.p;
+    const ico = lost ? ICO.lost : E.RACES[o.race].ico;
+    const layers=Math.min(o.n,4);
+    for (let k=layers-1;k>=1;k--) s+=`<circle cx="${x}" cy="${y+k*4}" r="${big}" fill="url(#${grad})" stroke="#0008" stroke-width="1.5" filter="url(#sh)"/>`;
+    s+=`<circle cx="${x}" cy="${y}" r="${big}" fill="url(#${grad})" stroke="#000a" stroke-width="1.5" filter="url(#sh)"/>`;
+    s+=`<circle cx="${x}" cy="${y}" r="${big-6}" fill="url(#${decl||lost?'faceD':'face'})" stroke="#0005"/>`;
+    s+=`<text x="${x}" y="${y+1}" font-size="21" text-anchor="middle" dominant-baseline="central" ${decl||lost?'filter="url(#gray)"':''}>${ico}</text>`;
+    if (o.n>1) s+=`<circle cx="${x+19}" cy="${y+17}" r="11" fill="#111" stroke="#fff" stroke-width="2"/><text x="${x+19}" y="${y+17.5}" font-size="13" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central" style="font-family:system-ui">${o.n}</text>`;
+    const ex=[]; if (o.fort) ex.push(ICO.fort); if (o.lair) ex.push(ICO.lair); if (o.hero) ex.push(ICO.hero); if (o.dragon) ex.push(ICO.dragon); if (o.hole) ex.push(ICO.hole);
+    for (let k=0;k<(o.camp||0);k++) ex.push(ICO.camp);
+    ex.forEach((e,k)=>{ const ex_=x-34, ey=y-14+k*19; s+=`<circle cx="${ex_}" cy="${ey}" r="10" fill="#f5ecd5" stroke="#3a2a14" stroke-width="1.5"/><text x="${ex_}" y="${ey+1}" font-size="12" text-anchor="middle" dominant-baseline="central">${e}</text>`; });
+  }
+  if (cost!=null){
+    const cy = o ? y+38 : y;
+    s+=`<g filter="url(#sh)"><rect x="${x-21}" y="${cy-12}" width="42" height="24" rx="12" fill="#8b1f16" stroke="#ffd98a" stroke-width="2"/>`+
+       `<text x="${x}" y="${cy+1}" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central" style="font-family:system-ui">⚔ ${cost}</text></g>`;
+  }
+  return s;
+}
+function renderSVG(){
+  let defs='<defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="1.5" dy="3" stdDeviation="2.2" flood-color="#000" flood-opacity=".6"/></filter>'+
+    '<filter id="gray"><feColorMatrix type="saturate" values="0.15"/></filter>'+
+    '<radialGradient id="face" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fffaf0"/><stop offset=".7" stop-color="#e8d9b5"/><stop offset="1" stop-color="#b59c6c"/></radialGradient>'+
+    '<radialGradient id="faceD" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#d9d4c8"/><stop offset=".7" stop-color="#a69f90"/><stop offset="1" stop-color="#6f685a"/></radialGradient>'+
+    '<radialGradient id="gl" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#bdb6a8"/><stop offset=".6" stop-color="#7d766a"/><stop offset="1" stop-color="#3f3a33"/></radialGradient>'+
+    '<radialGradient id="spec" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#c9b78f"/></radialGradient>';
+  S.P.forEach((pl,i)=>{ const c=pl.color;
+    defs+=`<radialGradient id="g${i}" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".22" stop-color="${c}"/><stop offset="1" stop-color="#000" stop-opacity=".9"/></radialGradient>`+
+          `<radialGradient id="gd${i}" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#ddd"/><stop offset=".3" stop-color="${c}" stop-opacity=".55"/><stop offset="1" stop-color="#222"/></radialGradient>`; });
+  defs+='</defs>';
+  const tg=myTargets(), cost={}; tg.forEach(t=>cost[t.r]=t.cost);
+  let body='';
+  S.R.forEach((R,r)=>{
+    const x=R.ax*1000, y=R.ay*1000, o=S.O[r];
+    const sp=[]; if (R.magic) sp.push(ICO.magic); if (R.mine) sp.push(ICO.mine); if (R.cave) sp.push(ICO.cave);
+    const sy = o ? y-38 : y-(cost[r]!=null?30:0);
+    sp.forEach((e,k)=>{ const sx=x+(k-(sp.length-1)/2)*26;
+      body+=`<g filter="url(#sh)"><circle cx="${sx}" cy="${sy}" r="12" fill="url(#spec)" stroke="#4a3518" stroke-width="2"/><text x="${sx}" y="${sy+1}" font-size="14" text-anchor="middle" dominant-baseline="central">${e}</text></g>`; });
+    body+=tokenSVG(x, y, o, cost[r]);
+  });
+  $('svg').innerHTML = defs+body;
+}
+
+function regionTitle(r){
+  const R=S.R[r], parts=[E.TERR[R.terr].name];
+  if (R.magic) parts.push('источник магии ✨'); if (R.mine) parts.push('шахта ⚒️'); if (R.cave) parts.push('пещера 🦇');
+  return parts.join(', ');
+}
+function occText(o){
+  if (!o) return 'Пусто';
+  if (o.p<0) return `${ICO.lost} Затерянное племя · 1 фишка`;
+  const ri=E.raceRI(S,o.p,o.race);
+  return `<span class="sw" style="background:${S.P[o.p].color}"></span>${esc(S.P[o.p].name)} · ${E.RACES[o.race].ico} ${comboTitle(ri)}${ri.decl?' (упадок)':''} · ${plural(o.n,'фишка','фишки','фишек')}`;
+}
+function renderSheet(){
+  const r=UI.sel;
+  if (r==null || !S.R[r]){ $('sheet').innerHTML=''; return; }
+  const R=S.R[r], o=S.O[r], p=actorSeat(), act=canAct();
+  const notes=[];
+  if (R.border) notes.push('край карты — отсюда можно начать');
+  if (R.coastal) notes.push('побережье');
+  if (o && o.fort) notes.push('крепость +1'); if (o && o.lair) notes.push('логово +1'); if (o && o.camp) notes.push('лагеря +'+o.camp);
+  if (o && (o.hero||o.dragon||o.hole)) notes.push('неуязвима');
+  if (R.terr==='mount') notes.push('горы +1 к защите');
+  let h=`<div class="sheet"><div class="hd"><b>${regionTitle(r)}</b><button class="xbtn" id="sClose">✕</button></div>
+    <div class="info">${occText(o)}${notes.length?'<br>'+notes.join(' · '):''}</div>`;
+  const btn=[];
+  if (act && S.phase==='conquer' && !S.T.final){
+    const ri = UI.g ? E.raceRI(S,p,'ghouls') : E.active(S,p);
+    const t = E.targets(S,p,UI.g).find(t=>t.r===r);
+    const hand = E.handFor(S,p,UI.g);
+    if (t && ri){
+      const bers = !ri.decl && ri.power==='berserk';
+      if (bers && S.T.bers==null) btn.push(`<button class="wide" disabled>Сначала бросьте кубик берсерков</button>`);
+      else {
+        btn.push(`<button class="pri wide" data-a="conquer" ${hand<t.cost?'disabled':''}>⚔ Захватить — ${plural(t.cost,'фишка','фишки','фишек')}</button>`);
+        if (hand<t.cost && hand>=1 && !bers) btn.push(`<button class="gold wide" data-a="final">🎲 Последний захват: не хватает ${t.cost-hand}, бросить кубик</button>`);
+      }
+      if (!ri.decl && ri.power==='dragon' && !S.T.dragonUsed && hand>=1) btn.push(`<button class="wide" data-a="dragon">🐉 Захватить драконом (1 фишка)</button>`);
+    }
+    if (ri && !UI.g && ri.race==='sorcerers' && o && o.p>=0 && o.p!==p && o.n===1) btn.push(`<button class="wide" data-a="sorcery">🔮 Колдовство: превратить фишку</button>`);
+    if (o && o.p===p){
+      const ori=E.raceRI(S,p,o.race);
+      if (ori && E.isArmy(ori) && !S.T.conq.some(c=>c.race===ori.race)) btn.push(`<button class="warn wide" data-a="abandon">Покинуть область (фишки в руку)</button>`);
+    }
+  }
+  if (act && (S.phase==='redeploy'||S.phase==='defense') && o && o.p===p){
+    const ri=E.raceRI(S,p,o.race);
+    if (ri && E.isArmy(ri)){
+      h+=`<div class="stepper"><button data-a="minus">−</button><span class="num">${o.n}</span><button data-a="plus" ${ri.hand<1?'disabled':''}>+</button>
+          <button data-a="all" style="flex:1;font-size:14px" ${ri.hand<1?'disabled':''}>Всё из руки (${ri.hand})</button></div>`;
+      if (S.phase==='redeploy' && !ri.decl){
+        if (ri.power==='bivouacking') btn.push(`<button data-a="campMinus" ${o.camp?'':'disabled'}>⛺ Убрать лагерь</button><button data-a="campPlus">⛺ Поставить лагерь</button>`);
+        if (ri.power==='fortified') btn.push(`<button class="wide" data-a="fort">🏰 ${S.T.fortAt===r?'Убрать крепость':'Построить крепость'}</button>`);
+        if (ri.power==='heroic') btn.push(`<button class="wide" data-a="hero">🦸 ${o.hero?'Убрать героя':'Поставить героя'}</button>`);
+      }
+    }
+  }
+  if (btn.length) h+=`<div class="acts">${btn.join('')}</div>`;
+  h+='</div>';
+  $('sheet').innerHTML=h;
+  $('sClose').onclick=()=>{ UI.sel=null; render(); };
+  $('sheet').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+    const a=b.dataset.a, g=UI.g||undefined;
+    if (a==='conquer'||a==='final') doAct({ t:a, r, g });
+    else if (a==='dragon') doAct({ t:'dragon', r });
+    else if (a==='sorcery') doAct({ t:'sorcery', r });
+    else if (a==='abandon') doAct({ t:'abandon', r }, true);
+    else if (a==='plus') doAct({ t:'place', r, d:1 }, true);
+    else if (a==='minus') doAct({ t:'place', r, d:-1 }, true);
+    else if (a==='all') doAct({ t:'place', r, d:'all' }, true);
+    else if (a==='campPlus') doAct({ t:'camp', r, d:1 }, true);
+    else if (a==='campMinus') doAct({ t:'camp', r, d:-1 }, true);
+    else if (a==='fort') doAct({ t:'fort', r }, true);
+    else if (a==='hero') doAct({ t:'hero', r }, true);
+  });
+}
+function renderSide(){
+  const p=actorSeat(), pl=S.P[p], me=canAct(), T=S.T;
+  // итоги
+  if (S.over){
+    const rank=S.P.map((x,i)=>({x,i})).sort((a,b)=>b.x.coins-a.x.coins);
+    $('over').innerHTML=`<div class="over"><b>🏆 Победа: ${S.winners.map(i=>esc(S.P[i].name)).join(', ')}</b><br>`+
+      rank.map((o,k)=>`${k+1}. <span class="sw" style="background:${o.x.color}"></span>${esc(o.x.name)} — ${o.x.coins} 🪙`).join('<br>')+'</div>';
+  } else $('over').innerHTML='';
+  // сообщение
+  const who = NET.mode==='local' ? esc(pl.name) : (p===MY ? 'Ваш ход' : esc(pl.name));
+  let txt='';
+  const ac=E.active(S,p);
+  if (S.over) txt='Партия завершена.';
+  else if (S.phase==='pick') txt = me ? 'Выберите расу: нажмите «Расы на выбор». Каждая раса выше по списку стоит на 1 монету больше.' : 'выбирает новую расу.';
+  else if (S.phase==='conquer'){
+    const hand=E.handFor(S,p,UI.g);
+    txt = me ? `В руке: <b>${plural(hand,'фишка','фишки','фишек')}</b>. Нажмите на подсвеченную область — число на красной плашке показывает, сколько фишек нужно для захвата.`
+             : `захватывает земли${ac?' ('+comboTitle(ac)+')':''}.`;
+    if (S.lastDie!=null) txt+=`<br>🎲 Кубик: +${S.lastDie}`;
+  } else if (S.phase==='redeploy'){
+    const left=E.handsLeft(S,p).reduce((s,ri)=>s+ri.hand,0);
+    txt = me ? (left ? `Перегруппировка: осталось расставить <b>${left}</b>. Нажмите на свою область и добавляйте фишки.` : 'Все фишки на местах. Можно перераспределить их или закончить ход.')
+             : 'перегруппировывает войска.';
+  } else if (S.phase==='defense'){
+    const left=E.handsLeft(S,p).reduce((s,ri)=>s+ri.hand,0);
+    txt = me ? `На вас напали! Расставьте уцелевшие фишки (<b>${left}</b>) по своим областям.` : 'расставляет уцелевшие после нападения фишки.';
+  }
+  $('msg').className = me ? 'me' : '';
+  $('msg').style.borderLeftColor = pl.color;
+  $('msg').innerHTML = S.over ? txt : `<span class="who">${who}</span>${txt}`;
+  renderSheet();
+  // управление
+  let c='';
+  if (me && S.phase==='pick') c+=`<div class="acts"><button class="pri wide" id="cMarket">🧝 Выбрать расу</button></div>`;
+  if (me && S.phase==='conquer'){
+    const gh=E.raceRI(S,p,'ghouls');
+    if (gh && gh.decl && ac) c+=`<div class="seg"><button id="gA" class="${UI.g?'':'on'}">${E.RACES[ac.race].ico} ${E.RACES[ac.race].name}</button><button id="gG" class="${UI.g?'on':''}">🧟 Упыри в упадке</button></div>`;
+    if (!gh || !gh.decl || !ac) UI.g = !!(gh && gh.decl && !ac);
+    c+='<div class="acts">';
+    if (ac && ac.power==='berserk' && !UI.g && !T.final) c+=`<button class="gold wide" id="cBers" ${T.bers!=null?'disabled':''}>🎲 ${T.bers!=null?'Кубик: +'+T.bers:'Бросить кубик берсерков'}</button>`;
+    c+=`<button class="pri wide" id="cEndC">Закончить захваты →</button>`;
+    if (ac && !T.picked && !T.touched) c+=`<button class="warn wide" id="cDecl">🍂 Отправить ${E.RACES[ac.race].name.toLowerCase()} в упадок (вместо хода)</button>`;
+    c+='</div>';
+  }
+  if (me && S.phase==='redeploy'){
+    const left=E.handsLeft(S,p).length>0;
+    c+='<div class="acts">';
+    if (ac && ac.power==='diplomat'){
+      const opts=S.P.map((x,i)=>i!==p && !T.attacked[i] ? `<option value="${i}">${esc(x.name)}</option>`:'').join('');
+      c+=`<select id="cDip" class="wide"><option value="">🕊 Мир — не заключать</option>${opts}</select>`;
+    }
+    c+=`<button class="pri wide" id="cEndT" ${left?'disabled':''}>✔ Закончить ход</button>`;
+    if (ac && ac.power==='stout') c+=`<button class="warn wide" id="cStout" ${left?'disabled':''}>🍂 Закончить ход и уйти в упадок</button>`;
+    c+='</div>';
+  }
+  if (me && S.phase==='defense') c+=`<div class="acts"><button class="pri wide" id="cDef" ${E.handsLeft(S,p).length?'disabled':''}>✔ Готово</button></div>`;
+  if (NET.waitAct) c+='<div style="color:var(--muted);font-size:13px;margin-bottom:8px">⏳ Отправляю ход…</div>';
+  $('ctl').innerHTML=c;
+  const on=(id,f)=>{ if ($(id)) $(id).onclick=f; };
+  on('cMarket', openMarket);
+  on('gA', ()=>{ UI.g=false; UI.sel=null; render(); }); on('gG', ()=>{ UI.g=true; UI.sel=null; render(); });
+  on('cBers', ()=>doAct({ t:'berserk' }, true));
+  on('cEndC', ()=>doAct({ t:'endConquest' }));
+  on('cDecl', ()=>{ if (confirm('Отправить расу в упадок? В этот ход захватов не будет.')) doAct({ t:'decline' }); });
+  const endT = stout=>{ const a={ t:'endTurn' }; const d=$('cDip'); if (d && d.value!=='') a.diplo=+d.value; if (stout) a.stout=true; doAct(a); };
+  on('cEndT', ()=>endT(false)); on('cStout', ()=>{ if (confirm('Закончить ход и отправить расу в упадок?')) endT(true); });
+  on('cDef', ()=>doAct({ t:'defDone' }));
+  // игроки
+  const v=viewer();
+  $('players').innerHTML = S.P.map((x,i)=>{
+    const races=x.races.map(ri=>`<div class="rc ${ri.decl?'dec':''}">${E.RACES[ri.race].ico} ${comboTitle(ri)}${ri.decl?' — упадок':''} · на карте ${E.onMap(S,ri.race)}${E.isArmy(ri)&&ri.hand?' · в руке '+ri.hand:''}</div>`).join('') || '<div class="rc">— без расы</div>';
+    const coins = (S.over || i===v) ? `${x.coins} 🪙` : '🪙 ?';
+    return `<div class="pl ${i===p&&!S.over?'on':''}"><div class="nm"><span><span class="sw" style="background:${x.color}"></span>${esc(x.name)}${NET.mode!=='local'&&i===MY?' (вы)':''}</span><span>${coins}</span></div>${races}</div>`;
+  }).join('');
+  $('log').innerHTML = S.log.slice(-12).reverse().map(t=>`<div>${esc(t)}</div>`).join('');
+  $('bAgain').hidden = !(S.over && NET.mode!=='client');
+  if (!$('marketModal').hidden) renderMarket();
+}
+function notify(){
+  // монеты за ход
+  if (S.lastScore){
+    const key=S.seq+':'+S.lastScore.p+':'+S.lastScore.total;
+    const k2=S.lastScore.p+':'+S.round+':'+S.lastScore.total+':'+S.log.length;
+    if (UI.lastScoreKey!=='' && UI.lastScoreKey!==k2){
+      const ls=S.lastScore, el=$('scorePop');
+      el.innerHTML=`<b>${esc(S.P[ls.p].name)}: +${ls.total} 🪙</b>`+ls.parts.map(([l,v])=>`<div><span>${esc(l)}</span><span>+${v}</span></div>`).join('');
+      el.classList.add('show'); clearTimeout(notify.h); notify.h=setTimeout(()=>el.classList.remove('show'),3200);
+    }
+    UI.lastScoreKey=k2;
+  } else if (UI.lastScoreKey==='') UI.lastScoreKey='-';
+  // мой ход
+  const tk=S.round+':'+S.cur+':'+S.phase+':'+S.defP;
+  if (tk!==UI.lastTurnKey){
+    const was=UI.lastTurnKey; UI.lastTurnKey=tk;
+    if (was && NET.mode!=='local' && canAct()){ try{ navigator.vibrate && navigator.vibrate([120,60,120]); }catch(e){} toast('Ваш ход!'); }
+    if (canAct() && S.phase==='pick' && window.innerWidth>0) setTimeout(()=>{ if (S && S.phase==='pick' && canAct() && $('marketModal').hidden) openMarket(); }, 350);
+  }
+}
+
+// ---------- рынок рас ----------
+function openMarket(){ $('marketModal').hidden=false; renderMarket(); }
+function renderMarket(){
+  if (!S) return;
+  const p=actorSeat(), can=canAct() && S.phase==='pick', coins=S.P[p].coins;
+  $('marketBody').innerHTML = (can?`<p class="sub" style="margin:4px 0 10px">У вас ${coins} 🪙. Взять расу ниже первой стоит по 1 🪙 за каждую пропущенную — монеты остаются на них. Монеты, лежащие на расе, достаются вам.</p>`
+      :`<p class="sub" style="margin:4px 0 10px">${S.phase==='pick'?esc(S.P[p].name)+' сейчас выбирает.':'Эти расы сейчас доступны.'}</p>`)+
+    S.shown.map((c,i)=>{ const R=E.RACES[c.race], P=E.POWERS[c.power];
+      return `<div class="combo"><div class="token">${R.ico}</div><div class="t"><b>${P.name} ${R.name.toLowerCase()}</b>
+        <small><b style="font-size:12.5px">${R.name}:</b> ${R.d}</small><small><b style="font-size:12.5px">${P.name}:</b> ${P.d}</small>
+        <div class="meta"><span>👥 ${Math.min(R.n+P.n,R.cap)} фишек</span><span>Цена: ${i} 🪙</span>${c.coins?`<span style="color:var(--acc)">+${c.coins} 🪙 на ней</span>`:''}</div></div>
+        ${can?`<button class="pri" data-i="${i}" ${coins<i?'disabled':''}>Взять</button>`:''}</div>`; }).join('');
+  $('marketBody').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ $('marketModal').hidden=true; doAct({ t:'pick', i:+b.dataset.i }); });
+}
+$('bMarket').onclick=openMarket;
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).hidden=true);
+document.querySelectorAll('.modalWrap').forEach(w=>w.addEventListener('click', e=>{ if (e.target===w) w.hidden=true; }));
+
+// ---------- легенда и правила ----------
+function openLegend(){
+  const terr=[['farm','Пашня','Люди получают за неё +1 🪙. Конные захватывают её на 1 фишку дешевле.'],
+    ['forest','Лес','Лесные получают +1 🪙 за каждый лес.'],
+    ['hill','Холмы','Холмовые получают +1 🪙. Конные захватывают на 1 дешевле.'],
+    ['mount','Горы','+1 к защите: захват стоит на 1 фишку дороже. Великаны рядом со своей горой захватывают дешевле.'],
+    ['swamp','Болото','Болотные получают +1 🪙 за каждое болото.'],
+    ['sea','Море','Захватывать нельзя — кроме Мореходов. Морской берег считается краем карты.'],
+    ['lake','Озеро','Как море: только для Мореходов.']];
+  const sym=[[ICO.magic,'Источник магии','Маги получают +1 🪙 за каждый.'],[ICO.mine,'Шахта','Гномы получают +1 🪙 за каждую — даже в упадке.'],
+    [ICO.cave,'Пещера','Подземные считают все пещеры соседними и захватывают их дешевле.'],[ICO.lost,'Затерянное племя','Одна нейтральная фишка: защита как у обычной фишки.'],
+    ['⚔ 3','Цена захвата','Красная плашка на подсвеченной области: столько фишек нужно, чтобы её взять.'],
+    [ICO.fort,'Крепость','+1 к защите и +1 🪙 в ход, пока раса активна.'],[ICO.lair,'Логово троллей','+1 к защите, остаётся и в упадке.'],
+    [ICO.camp,'Лагерь','+1 к защите за каждый.'],[ICO.hero,'Герой','Область неуязвима.'],[ICO.dragon,'Дракон','Область неуязвима.'],[ICO.hole,'Нора полуросликов','Область неуязвима.'],
+    ['🔢','Цифра на фишке','Сколько фишек стоит в области.'],['⚪','Серая фишка','Раса в упадке: не захватывает, но приносит монеты.']];
+  let h='<div class="legH">Местность</div><div id="legT"></div><div class="legH">Значки</div>'+
+    sym.map(([i,b,s])=>`<div class="legItem"><div class="legIco" style="${i.length>2?'font-size:16px;font-weight:800;font-family:system-ui':''}">${i}</div><div class="legTxt"><b>${b}</b><span>${s}</span></div></div>`).join('')+
+    '<div class="legH">Расы</div>'+Object.values(E.RACES).map(r=>`<div class="legItem"><div class="legIco">${r.ico}</div><div class="legTxt"><b>${r.name} · ${r.n} фишек</b><span>${r.d}</span></div></div>`).join('')+
+    '<div class="legH">Способности</div>'+Object.values(E.POWERS).map(r=>`<div class="legItem"><div class="legIco" style="font-size:15px;font-weight:800;font-family:system-ui">+${r.n}</div><div class="legTxt"><b>${r.name}</b><span>${r.d}</span></div></div>`).join('');
+  $('legendBody').innerHTML=h;
+  const lt=$('legT');
+  for (const [t,b,s] of terr){
+    const d=document.createElement('div'); d.className='legItem sw2';
+    d.innerHTML=`<div class="legIco"></div><div class="legTxt"><b>${b}</b><span>${s}</span></div>`;
+    d.querySelector('.legIco').appendChild(Painter.swatch(t,176,112)); lt.appendChild(d);
+  }
+  $('legendModal').hidden=false;
+}
+$('bLegend').onclick=openLegend; $('bLegendLobby').onclick=openLegend;
+const RULES = `<summary>Правила коротко</summary>
+<p><b>Цель:</b> набрать больше всех монет. Ходов: вдвоём и втроём — 10, вчетвером — 9, впятером — 8.</p>
+<p><b>Выбор расы.</b> Раса + способность = набор фишек. Первая в списке бесплатна, каждая следующая стоит на 1 🪙 больше.</p>
+<p><b>Захват.</b> Первая область — с края карты (или у моря, выходящего к краю). Дальше — только соседние. Цена: 2 фишки + 1 за каждую фишку врага, гору, крепость, логово, лагерь. Последний захват за ход можно сделать с кубиком подкрепления (0, 0, 0, 1, 2, 3).</p>
+<p><b>Враг</b>, у которого отняли область, теряет 1 фишку, остальные расставляет у себя в конце вашего хода. Раса в упадке теряет все фишки из области.</p>
+<p><b>Перегруппировка.</b> После захватов фишки можно двигать между своими областями, в каждой — хотя бы одна.</p>
+<p><b>Начало хода.</b> Из каждой области в руку уходят все фишки, кроме одной: ими и захватываете. Можно покинуть область целиком.</p>
+<p><b>Упадок.</b> Вместо хода можно отправить расу в упадок: в каждой области остаётся по 1 фишке, они продолжают приносить монеты. Прежняя раса в упадке уходит с карты. В следующий ход выбираете новую расу и сразу ею ходите.</p>
+<p><b>Монеты</b> — в конце своего хода: 1 за каждую свою область (активной расы и в упадке) плюс бонусы рас и способностей.</p>`;
+$('rulesL').innerHTML=RULES; $('rulesG').innerHTML=RULES;
+
+$('bMenu').onclick=()=>{
+  if (NET.mode==='local'){ saveLocal(); show('lobby'); renderResume(); return; }
+  if (confirm('Выйти в меню? Партия сохранится, вернуться можно из главного экрана.')) leaveNet();
+};
+$('bAgain').onclick=()=>{
+  if (NET.mode==='local'){ S=E.newGame(S.P.map(p=>p.name)); saveLocal(); startGameUI(); return; }
+  if (NET.mode==='host'){ S=E.newGame(ROOM.seats.map(s=>s.name)); ROOM.started=true; saveHost(); broadcast(); startGameUI(); }
+};
+
+// ---------- старт ----------
+renderResume();
+if (location.hash.length>=5){ const code=location.hash.slice(1).toUpperCase(); $('joincode').value=code; }
+</script>
+</body>
+</html>
