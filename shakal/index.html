@@ -74,7 +74,8 @@ h2{font-size:18px;margin:0 0 10px}
 .pir.light{border-color:#333}
 .pir.own{cursor:pointer}
 .pir.sel{box-shadow:0 0 0 3px #fde047,0 1px 4px #000;transform:scale(1.2);z-index:5}
-.pir.lc::after{content:"";position:absolute;top:-4px;right:-4px;width:45%;height:45%;border-radius:50%;background:var(--acc);border:1px solid #7a5d00}
+.pir.lc{box-shadow:0 0 0 3px var(--acc),0 1px 3px #000a}
+.pir.lc::after{content:"🪙";position:absolute;bottom:-7px;left:-7px;font-size:calc(var(--cell)*.26);line-height:1;filter:drop-shadow(0 0 1px #000)}
 .panel{width:min(360px,100%);background:var(--panel);border-radius:14px;padding:12px;box-shadow:0 10px 30px #0006}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .top b{font-size:18px}
@@ -506,7 +507,7 @@ function render(){
     else {
       cls+=' rev '+(t.type==='empty'?'v'+(t.v||0):'g-'+GROUP[t.type]);
       inner=glyph(t,k); title=tipFor(t);
-      if (t.coins) inner+=`<span class="cn">${t.coins}</span>`;
+      if (t.coins) { inner+=`<span class="cn">${t.coins}</span>`; title+=' · лежит монет: '+t.coins; }
     }
     const key=r+','+c;
     if (marks.has(key)) cls+=' '+marks.get(key);
@@ -564,7 +565,7 @@ function renderPanel(mine, sel){
     }
   } else if (UI.ship) m='Нажмите синюю клетку — куда сдвинуть корабль.';
   else m=`Ваш ход: <b style="color:${info.color==='#26262b'?'#ccc':info.color}">${info.name}</b>. Выберите пирата или нажмите на свой корабль, чтобы его сдвинуть.`;
-  m += `<br><span style="opacity:.7;font-size:12px">Монет на острове: ${E.coinsLeft(S)} · утонуло: ${S.lost}</span>`;
+  m += `<br><span style="opacity:.7;font-size:12px">Монет на острове: ${E.coinsLeft(S)} · несут пираты: ${S.pirates.filter(p=>p.coin).length} · утонуло: ${S.lost}</span>`;
   $('msg').innerHTML = m;
   $('msg').classList.toggle('me', mine && NET.mode!=='local');
 
@@ -673,7 +674,7 @@ function buildLegend(){
     `<div class="legItem"><span class="legIco">🟫</span><div class="legTxt"><b>Закрытая клетка</b><span>Переверните её, наступив на неё — узнаете, что там.</span></div></div>` +
     LEGEND.map(([ico,name,d])=>`<div class="legItem"><span class="legIco">${ico}</span><div class="legTxt"><b>${name}</b><span>${d}</span></div></div>`).join('') +
     `<div class="legItem"><span class="legIco">⛵</span><div class="legTxt"><b>Корабль</b><span>Везёт ваших пиратов. Сходят они только на клетку прямо перед ним.</span></div></div>` +
-    `<div class="legItem"><span class="legIco" style="font-size:26px">⬤<span style="position:relative;left:-26px;top:7px;font-size:14px">🪙</span></span><div class="legTxt"><b>Жёлтая точка на пирате</b><span>Этот пират несёт монету. С монетой он ходит только по открытым клеткам и не может атаковать.</span></div></div>`;
+    `<div class="legItem"><span class="legIco" style="font-size:26px">⬤<span style="position:relative;left:-26px;top:7px;font-size:14px">🪙</span></span><div class="legTxt"><b>Золотое кольцо и 🪙 на пирате</b><span>Этот пират несёт монету — она не входит в цифру на клетке. Цифра в жёлтом кружке показывает, сколько монет лежит на клетке. С монетой он ходит только по открытым клеткам и не может атаковать.</span></div></div>`;
 }
 function openLegend(){ buildLegend(); $('legendModal').hidden=false; }
 function closeLegend(){ $('legendModal').hidden=true; }

@@ -351,9 +351,6 @@
         log(S, '💥 Пушка выстрелила пиратом');
         return land(S, ctx, rr, cc, t.dir);
       }
-      case 'chest':
-        if (!p.coin && t.coins > 0) { t.coins--; p.coin = true; log(S, '🪙 ' + teamName(S, p.team) + ' подобрали монету'); }
-        return endMove(S, ctx, 'stay');
       default:
         return endMove(S, ctx, 'stay');
     }
@@ -389,7 +386,15 @@
   }
 
   function endMove(S, ctx, res) {
+    if (res === 'stay') pickup(S, S.pirates[ctx.pid]);
     nextTurn(S);
+  }
+
+  // Пират, остановившийся на клетке с монетами, берёт одну (если руки свободны; в крепости монет не бывает)
+  function pickup(S, p) {
+    if (!p || p.loc !== 'land' || p.coin) return;
+    const t = S.cells[p.r][p.c];
+    if (t.coins > 0 && !isFortLike(t)) { t.coins--; p.coin = true; log(S, '🪙 ' + teamName(S, p.team) + ' подобрали монету'); }
   }
 
   function moveShip(S, ti, r, c) {
