@@ -216,15 +216,32 @@
     return t.type === 'revive' && S.pirates.some(q => q.team === p.team && !alive(q));
   }
 
+  // Монету можно положить на клетку, где стоишь (не тратит ход), и взять обратно
+  function canDrop(S, p) {
+    if (S.over || S.pending || !p || p.team !== S.turn || !p.coin || p.loc !== 'land') return false;
+    return !isFortLike(S.cells[p.r][p.c]);
+  }
+  function canTake(S, p) {
+    if (S.over || S.pending || !p || p.team !== S.turn || p.coin || p.loc !== 'land') return false;
+    const t = S.cells[p.r][p.c];
+    return t.coins > 0 && !isFortLike(t);
+  }
+  // Куда пират сможет пойти, если сначала положит монету
+  function destsNoCoin(S, p) {
+    if (!canDrop(S, p)) return [];
+    p.coin = false;
+    try { return dests(S, p); } finally { p.coin = true; }
+  }
+
   function hasAction(S, ti) {
     const save = S.turn; S.turn = ti;
-    const ok = S.pirates.some(p => p.team === ti && (dests(S, p).length || canRevive(S, p))) || shipMoves(S, ti).length > 0;
+    const ok = S.pirates.some(p => p.team === ti && (dests(S, p).length || canRevive(S, p) || destsNoCoin(S, p).length)) || shipMoves(S, ti).length > 0;
     S.turn = save;
     return ok;
   }
 
   // ---------- действия ----------
-  // a: {k:'move',pid,r,c} | {k:'choose',r,c} | {k:'ship',r,c} | {k:'revive',pid}
+  // a: {k:'move',pid,r,c} | {k:'choose',r,c} | {k:'ship',r,c} | {k:'revive',pid} | {k:'drop',pid} | {k:'take',pid}
   // seat: номер игрока, от которого пришло действие (null = локальная игра, без проверки)
   function act(S, seat, a) {
     if (!a || typeof a !== 'object') return 'Неверное действие';
@@ -251,6 +268,21 @@
       S.seq++;
       startMove(S, p, d);
       return null;
+    }
+    if (a.k === 'drop' || a.k === 'take') {
+      const p = S.pirates[a.pid];
+      if (!p || p.team !== S.turn) return 'Это не ваш пират';
+      const t = p.loc === 'land' ? S.cells[p.r][p.c] : null;
+      if (a.k === 'drop') {
+        if (!canDrop(S, p)) return 'Здесь монету не положить';
+        p.coin = false; t.coins++;
+        log(S, '🪙 ' + teamName(S, p.team) + ' положили монету');
+      } else {
+        if (!canTake(S, p)) return 'Здесь нечего брать';
+        p.coin = true; t.coins--;
+        log(S, '🪙 ' + teamName(S, p.team) + ' взяли монету');
+      }
+      return null;   // ход не тратится
     }
     if (a.k === 'ship') {
       const m = shipMoves(S, S.turn).find(x => x.r === a.r && x.c === a.c);
@@ -435,7 +467,9 @@
   }
 
   function endMove(S, ctx, res) {
-    if (res === 'stay') pickup(S, S.pirates[ctx.pid]);
+    const p = S.pirates[ctx.pid], st = ctx.start;
+    // сам подбирает монету, только если пришёл на новую клетку (оставленную на месте монету не хватает обратно)
+    if (res === 'stay' && !(p.loc === st.loc && p.r === st.r && p.c === st.c)) pickup(S, p);
     nextTurn(S);
   }
 
@@ -501,6 +535,6 @@
   }
 
   const api = { N, SIDES, TEAM_INFO, MODES, TILE, MAZE_NAMES, isLand, isWater, inGrid, newGame, dests, shipMoves, canRevive,
-    canMove, drunkBlocked, hasCoin, act, coinsLeft, shipAt, friendly, teamName, tileName, results, forceEnd, hasAction, buildDeck };
+    canMove, drunkBlocked, hasCoin, canDrop, canTake, act, coinsLeft, shipAt, friendly, teamName, tileName, results, forceEnd, hasAction, buildDeck };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Engine = api;
 })(typeof window !== 'undefined' ? window : globalThis);

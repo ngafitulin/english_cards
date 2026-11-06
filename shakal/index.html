@@ -96,6 +96,7 @@ h2{font-size:18px;margin:0 0 10px}
 @keyframes myturn{50%{border-color:#a7f3d0;box-shadow:0 0 18px #34d39988}}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
 .acts .wide{grid-column:span 2}
+.coinBtn{background:#fff4c2;border-color:#e0b200;color:#5a4300;font-weight:600}
 #log{font-size:12.5px;line-height:1.45;opacity:.85;max-height:150px;overflow:auto;margin-bottom:8px}
 #log div{border-bottom:1px solid #ffffff12;padding:2px 0}
 details{font-size:13px;line-height:1.5;background:var(--card);border-radius:10px;padding:8px 10px;margin-top:6px}
@@ -168,6 +169,7 @@ button.help{width:34px;height:34px;padding:0;border-radius:50%;background:#2a587
       <div id="msg"></div>
       <div id="players"></div>
       <div class="acts">
+        <button id="bCoin" class="wide coinBtn" hidden>🪙 Положить монету</button>
         <button id="bRevive" class="wide pri" hidden>🏯 Воскресить пирата (тратит ход)</button>
       </div>
       <div id="log"></div>
@@ -447,14 +449,15 @@ function doAct(a){
   if (NET.mode==='client') {
     if (!NET.link || !NET.link.connected()) return toast('Нет связи — подождите пару секунд');
     if (!hostAlive()) return toast('Создатель комнаты не в сети');
-    NET.link.pub('/up', { t:'act', cid:CID, a }); NET.waitAct=Date.now(); UI.sel=null; UI.ship=false; render(); return;
+    const keep = a.k==='drop' || a.k==='take';
+    NET.link.pub('/up', { t:'act', cid:CID, a }); NET.waitAct=Date.now(); if (!keep) UI.sel=null; UI.ship=false; render(); return;
   }
   const err = E.act(S, NET.mode==='host' ? 0 : null, a);
   if (err) return toast(err);
-  afterChange();
+  afterChange(a.k==='drop' || a.k==='take');
 }
-function afterChange(){
-  UI.sel=null; UI.ship=false; UI.confirmEnd=false;
+function afterChange(keepSel){
+  if (!keepSel) UI.sel=null; UI.ship=false; UI.confirmEnd=false;
   if (NET.mode==='local') saveLocal(); else { saveHost(); broadcast(); }
   render();
 }
@@ -566,8 +569,9 @@ function renderPanel(mine, sel){
     else if (E.drunkBlocked(S,sel)) m='Пират пьян 🍺 и пропускает этот ход. Ходите другим.';
     else {
       const ds=E.dests(S,sel);
-      m = ds.length ? 'Нажмите зелёную клетку, куда идти.' : 'Этому пирату сейчас некуда идти.';
-      if (E.hasCoin(sel)) m += '<br>🪙 Несёт монету: только по открытым клеткам, атаковать нельзя, в крепость нельзя.';
+      m = ds.length ? 'Нажмите зелёную клетку, куда идти.' : (E.canDrop(S,sel) ? 'С монетой идти некуда — положите её, чтобы пойти дальше.' : 'Этому пирату сейчас некуда идти.');
+      if (E.hasCoin(sel)) m += '<br>🪙 Несёт монету: только по открытым клеткам, атаковать нельзя, в крепость нельзя. Чтобы открыть новую клетку или напасть — сначала положите монету (ход не тратится).';
+      else if (E.canTake(S,sel)) m += '<br>🪙 Здесь лежит монета — её можно взять (ход не тратится).';
     }
   } else if (UI.ship) m='Нажмите синюю клетку — куда сдвинуть корабль.';
   else m='Выберите пирата или нажмите на свой корабль, чтобы его сдвинуть.';
@@ -585,7 +589,12 @@ function renderPanel(mine, sel){
   $('msg').classList.toggle('wait', !mine && !S.over);
   $('board').classList.toggle('myturn', mine && !S.over && NET.mode!=='local');
 
-  $('bRevive').hidden = !(mine && sel && E.canRevive(S,sel));
+  const showRev = !!(mine && sel && E.canRevive(S,sel));
+  const canD = !!(mine && sel && E.canDrop(S,sel)), canT = !!(mine && sel && E.canTake(S,sel));
+  $('bRevive').hidden = !showRev;
+  $('bCoin').hidden = !(canD || canT);
+  $('bCoin').textContent = canD ? '🪙 Положить монету здесь' : '🪙 Взять монету';
+  $('bCoin').classList.toggle('wide', !showRev); $('bRevive').classList.toggle('wide', !(canD || canT));
   const ctl = NET.mode!=='client';
   $('bEnd').hidden = !ctl || S.over;
   $('bEnd').textContent = UI.confirmEnd ? 'Точно закончить?' : 'Закончить игру';
@@ -627,6 +636,7 @@ $('board').addEventListener('click', e=>{
   }
   UI.sel=null; UI.ship=false; render();
 });
+$('bCoin').onclick = ()=>{ if (UI.sel==null) return; const p=S.pirates[UI.sel]; doAct({ k: E.canDrop(S,p) ? 'drop' : 'take', pid:UI.sel }); };
 $('bRevive').onclick = ()=>{ if (UI.sel!=null) doAct({ k:'revive', pid:UI.sel }); };
 $('bMenu').onclick = ()=>{ show('lobby'); renderResume(); };
 $('bEnd').onclick = ()=>{
@@ -643,7 +653,8 @@ const RULES = `<summary>Правила и клетки</summary>
 <p><b>Цель</b> — перетащить на свой корабль больше монет, чем соперники. Всего на острове 37 монет в 16 сундуках. Игра кончается, когда открыты все клетки острова или когда все монеты донесены (утонувшие не в счёт).</p>
 <p><b>Ход:</b> один пират делает шаг на соседнюю клетку (в т.ч. по диагонали) <b>или</b> корабль сдвигается вдоль своего берега на 1 клетку (если на нём есть ваш пират). Пропускать ход нельзя.</p>
 <p>С корабля сходят только на клетку <b>прямо перед ним</b>. Вернуться на корабль можно с клетки перед ним или по диагонали. На чужой корабль — смерть.</p>
-<p><b>Монеты:</b> пират подбирает монету автоматически, встав на сундук, и несёт её с собой, на какой бы клетке он ни стоял — специально положить её на другую клетку нельзя. С монетой ходят только по открытым клеткам, бить врагов нельзя, в крепость нельзя. Упал в воду с монетой — монета тонет навсегда.</p>
+<p><b>Монеты:</b> пират подбирает монету автоматически, встав на клетку с монетой, и несёт её с собой. Один пират несёт только одну монету. С монетой ходят только по открытым клеткам, бить врагов нельзя, в крепость нельзя. Упал в воду с монетой — монета тонет навсегда.</p>
+<p><b>Положить монету:</b> выбрав пирата, нажмите «🪙 Положить монету здесь» — монета останется на клетке, где он стоит, и он пойдёт с пустыми руками: сможет открыть закрытую клетку или напасть на врага — так в официальных правилах. Кнопка «🪙 Взять монету» поднимает её обратно. И то и другое ход не тратит.</p>
 <p><b>Бой:</b> встал на клетку с врагом — враг улетает на свой корабль, а его монета, если она у него была, остаётся лежать на этой клетке. Пират, который сам погиб (людоед, чужой корабль, запутался в стрелках), оставляет монету на клетке, с которой начал этот ход. В воде побитый пират погибает. Корабль давит вражеских пловцов.</p>
 <p><b>Вода:</b> пловец за ход проплывает 1 клетку и может забраться только на свой корабль.</p>
 <div class="leg">
@@ -663,7 +674,7 @@ const RULES = `<summary>Правила и клетки</summary>
 <span>💰</span><span>Сундук — 1–5 монет</span>
 </div>
 <p style="margin-top:8px">Игра просчитывает всю цепочку стрелок, коня, льда и пушки до конца и не подсвечивает ходы, после которых пират погибнет (людоед, замкнутый круг, чужой корабль) — разве что других ходов нет совсем.</p>
-<p style="margin-top:8px">Стрелки, конь и лёд не могут привести туда, куда нельзя: с монетой — на врага, в крепость или на закрытую клетку; в крепость, где стоит противник. Такие пути просто не подсвечиваются. Если запретный путь обнаружился только после открытия новой клетки — пират возвращается туда, откуда начал ход.</p>
+<p style="margin-top:8px">С монетой ходят только по открытым клеткам и в правилах Мосигры не сказано, что будет, если стрелка, конь или лёд поведут пирата с монетой на закрытую клетку, на врага или в крепость. В этой игре такие пути просто не подсвечиваются (наше уточнение) — чтобы пройти, сначала положите монету. Если запретный путь обнаружился только после открытия новой клетки — пират возвращается туда, откуда начал ход.</p>
 <p style="margin-top:8px">Пират, зашедший в замкнутый круг (стрелки друг на друга, стрелка на крокодила), погибает.</p>`;
 $('rulesL').innerHTML = RULES; $('rulesG').innerHTML = RULES;
 
@@ -714,7 +725,7 @@ renderResume();
     else { toast('Введите имя и нажмите «Войти»'); $('myname').focus(); }
   }
 })();
-window.__app = { get S(){return S}, get NET(){return NET}, get MY(){return MY}, doAct, E };
+window.__app = { get S(){return S}, get NET(){return NET}, get MY(){return MY}, get UI(){return UI}, doAct, afterChange, E };
 </script>
 </body>
 </html>
