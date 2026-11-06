@@ -135,6 +135,17 @@
 
   function hasCoin(p) { return !!p.coin; }
 
+  // Пират с монетой не может атаковать — даже в конце цепочки стрелок/коня/льда.
+  // Проверяем ход «на черновике»: годится, если хотя бы одно продолжение обходится без атаки.
+  const CARRY_ATTACK = { carryAttack: true };
+  function carrierSafe(S, a) {
+    const C = JSON.parse(JSON.stringify(S)); C._sim = true;
+    try { act(C, null, a); }
+    catch (e) { if (e === CARRY_ATTACK) return false; throw e; }
+    if (C.pending && !C.pending.plane) return C.pending.opts.some(o => carrierSafe(C, { k: 'choose', r: o.r, c: o.c }));
+    return true;
+  }
+
   // Список клеток, куда может пойти пират (обычный ход)
   function dests(S, p) {
     if (S.over || S.pending || p.team !== S.turn || !canMove(S, p)) return [];
@@ -174,6 +185,7 @@
         else { const st = shipAt(S, r, c); if (st >= 0 && friendly(S, st, p.team)) out.push({ r, c, fly: true }); }
       }
     }
+    if (carry && !S._sim) return out.filter(d => carrierSafe(S, { k: 'move', pid: p.id, r: d.r, c: d.c }));
     return out;
   }
 
@@ -301,7 +313,9 @@
       if (p.coin) return die(S, ctx, 'не смог войти в крепость с монетой');
       if (enemiesOn(S, p, r, c, null).length) return die(S, ctx, 'не пустили в крепость');
     } else {
-      enemiesOn(S, p, r, c, landStep(t)).forEach(q => sendHome(S, q));
+      const en = enemiesOn(S, p, r, c, landStep(t));
+      if (en.length && p.coin) { if (S._sim) throw CARRY_ATTACK; }
+      else en.forEach(q => sendHome(S, q));
     }
     switch (t.type) {
       case 'arrow':
@@ -349,6 +363,7 @@
           else { const st = shipAt(S, rr, cc); if (st >= 0 && friendly(S, st, p.team)) opts.push({ r: rr, c: cc }); }
         }
         S.pending = { ctx, opts, plane: true };
+        if (p.coin && !S._sim) S.pending.opts = opts.filter(o => o.stay || carrierSafe(S, { k: 'choose', r: o.r, c: o.c }));
         return;
       }
       case 'cannon': {
@@ -367,6 +382,11 @@
     if (!opts.length) return endMove(S, ctx, 'stay');
     if (opts.length === 1) return land(S, ctx, opts[0].r, opts[0].c, opts[0].vec);
     S.pending = { ctx, opts, plane: false };
+    const p = S.pirates[ctx.pid];
+    if (p.coin && !S._sim) {
+      const safe = opts.filter(o => carrierSafe(S, { k: 'choose', r: o.r, c: o.c }));
+      if (safe.length) S.pending.opts = safe;
+    }
   }
 
   function board(S, ctx, st) {
