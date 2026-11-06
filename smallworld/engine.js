@@ -248,11 +248,11 @@ function target(S, p, ri, r, kind){
   if (o && (o.hero || o.dragon || o.hole)) return { err: o.hero?'Здесь герой — область неуязвима': o.dragon?'Здесь дракон — область неуязвима':'Нора полуросликов неуязвима' };
   if (o && o.p>=0 && o.p!==p){
     const dri = raceRI(S,o.p,o.race);
-    if (dri && !dri.decl && S.P[o.p].peaceVs===p && !ri.decl) return { err:`${S.P[o.p].name} заключил с вами мир на этот ход` };
+    if (dri && !dri.decl && S.P[o.p].peaceVs===p) return { err:`${S.P[o.p].name} заключил с вами мир на этот ход` };
   }
   const mine = regionsOf(S, ri.race);
   if (mine.length===0){
-    if (!(pw(ri,'flying') || rc(ri,'halflings')) && !R.border) return { err:'Первый захват — только с края карты' };
+    if (!(pw(ri,'flying') || (rc(ri,'halflings') && !ri.entered)) && !R.border) return { err:'Первый захват — только с края карты' };
   } else if (!pw(ri,'flying')){
     const near = mine.some(h=>S.R[h].adj.includes(r) || (pw(ri,'underworld') && S.R[h].cave && R.cave));
     if (!near) return { err:'Можно захватывать только соседние области' };
@@ -284,7 +284,7 @@ function evict(S, p, r){
   return true;
 }
 function occupy(S, p, ri, r, n){
-  const o = { p, race:ri.race, n };
+  const o = { p, race:ri.race, n }; ri.entered = true;
   if (ri.race==='trolls') o.lair=1;
   if (rc(ri,'halflings') && (ri.holes||0)<2){ o.hole=true; ri.holes=(ri.holes||0)+1; }
   S.O[r]=o;
@@ -362,7 +362,12 @@ function nextPlayer(S){
   if (S.round>S.maxT){
     S.over=true; S.phase='over';
     const best=Math.max(...S.P.map(p=>p.coins));
-    S.winners=S.P.map((p,i)=>i).filter(i=>S.P[i].coins===best);
+    let tied=S.P.map((p,i)=>i).filter(i=>S.P[i].coins===best);
+    if (tied.length>1){
+      const tok=i=>S.P[i].races.reduce((s,ri)=>s+onMap(S,ri.race),0);
+      const mt=Math.max(...tied.map(tok)); tied=tied.filter(i=>tok(i)===mt);
+    }
+    S.winners=tied;
     log(S, `Игра окончена! Победа: ${S.winners.map(i=>S.P[i].name).join(', ')} (${best} 🪙)`);
     return;
   }
@@ -378,12 +383,18 @@ function act(S, seat, a){
   if (S.over) return 'Игра окончена';
   const p = actor(S);
   if (seat!=null && seat!==p) return 'Сейчас не ваш ход';
-  const err = doAct(S, p, a);
-  if (!err) S.seq++;
+  const snap = JSON.stringify(S);
+  let err;
+  try { err = doAct(S, p, a); } catch(e){ err = 'Ошибка: '+e.message; }
+  if (err){ const back=JSON.parse(snap); for (const k of Object.keys(S)) delete S[k]; Object.assign(S, back); }
+  else S.seq++;
   return err;
 }
 function doAct(S, p, a){
   const pl=S.P[p], T=S.T;
+  if ('r' in a || ['abandon','conquer','final','dragon','sorcery','place','camp','fort','hero'].includes(a.t)){
+    if (!Number.isInteger(a.r) || a.r<0 || a.r>=S.R.length) return 'Нет такой области';
+  }
   switch (a.t){
   case 'pick': {
     if (S.phase!=='pick') return 'Сейчас нельзя выбирать расу';
@@ -407,7 +418,7 @@ function doAct(S, p, a){
     if (S.phase!=='conquer') return 'Сейчас нельзя';
     const ac=active(S,p); if (!ac) return 'Нет активной расы';
     if (T.picked) return 'Расу, выбранную в этот ход, нельзя сразу отправить в упадок';
-    if (T.touched) return 'В упадок уходят вместо захватов, а вы уже начали ход';
+    if (T.touched || T.conq.length) return 'В упадок уходят вместо захватов, а вы уже начали ход';
     doDecline(S,p); score(S,p); finishTurn(S); return null;
   }
   case 'abandon': {
@@ -482,10 +493,8 @@ function doAct(S, p, a){
     if (o.n!==1) return 'В области должна быть ровно одна фишка';
     if (T.sorc[o.p]) return 'Против этого соперника уже колдовали в этот ход';
     if (trayLeft(S,ri)<1) return 'Закончились фишки колдунов';
+    const err=sorceryErr(S,p,ri,r); if (err) return err;
     ensureReady(S,ri); T.touched=true;
-    const tg=target(S,p,ri,r); if (tg.err) return tg.err;
-    if (dri.race==='elves') dri.hand++;
-    else if (o.p!==p) {} // фишка уходит в коробку
     if (o.dragon) dri.dragonAt=-1;
     if (dri.hand>0 && !S.defQ.includes(o.p)) S.defQ.push(o.p);
     T.attacked[o.p]=true; T.sorc[o.p]=true;
@@ -508,7 +517,7 @@ function doAct(S, p, a){
     const d=a.d;
     if (d==='all'){ if (ri.hand<1) return 'В руке нет фишек'; o.n+=ri.hand; ri.hand=0; return null; }
     if (d>0){ if (ri.hand<1) return 'В руке нет фишек'; o.n++; ri.hand--; return null; }
-    if (d<0){ if (o.n<=1) return 'В области должна остаться хотя бы 1 фишка'; o.n--; ri.hand++; return null; }
+    if (d<0){ if (S.phase==='defense') return 'После нападения фишки можно только добавлять'; if (o.n<=1) return 'В области должна остаться хотя бы 1 фишка'; o.n--; ri.hand++; return null; }
     return 'Неверный ход';
   }
   case 'camp': {
@@ -569,8 +578,11 @@ function afterConquest(S, p){
       let left=T.amaz; T.amaz=0;
       const take=Math.min(left, ri.hand); ri.hand-=take; left-=take;
       while (left>0){
-        const regs=regionsOf(S,'amazons').filter(i=>S.O[i].n>1).sort((a,b)=>S.O[b].n-S.O[a].n);
-        if (!regs.length) break; S.O[regs[0]].n--; left--;
+        const all=regionsOf(S,'amazons'); if (!all.length) break;
+        const regs=all.filter(i=>S.O[i].n>1).sort((a,b)=>S.O[b].n-S.O[a].n);
+        if (regs.length){ S.O[regs[0]].n--; }
+        else { const i=all[all.length-1]; S.O[i]=null; log(S,'Амазонкам не хватило фишек — область оставлена'); }
+        left--;
       }
     }
     if (rc(ri,'skeletons')){
@@ -581,6 +593,19 @@ function afterConquest(S, p){
   }
 }
 
+function sorceryErr(S, p, ri, r){
+  const mine=regionsOf(S,ri.race);
+  if (!mine.length) return 'Колдовать можно только рядом со своими областями';
+  if (!pw(ri,'flying') && !mine.some(h=>S.R[h].adj.includes(r) || (pw(ri,'underworld') && S.R[h].cave && S.R[r].cave))) return 'Колдовать можно только рядом со своими областями';
+  const tg=target(S,p,ri,r); return tg.err || null;
+}
+function canSorcery(S, p, r){
+  if (S.phase!=='conquer' || S.T.final || S.cur!==p) return false;
+  const ri=active(S,p); if (!ri || !rc(ri,'sorcerers')) return false;
+  const o=S.O[r]; if (!o || o.p<0 || o.p===p || o.n!==1) return false;
+  const dri=raceRI(S,o.p,o.race); if (!dri || dri.decl || S.T.sorc[o.p] || trayLeft(S,ri)<1) return false;
+  return !sorceryErr(S,p,ri,r);
+}
 // подсказки для интерфейса: куда можно напасть и сколько это стоит
 function targets(S, p, g){
   const ri=armyFor(S,p,g?{g:true}:null); if (!ri) return [];
@@ -591,6 +616,6 @@ function targets(S, p, g){
 function handFor(S, p, g){ const ri=armyFor(S,p,g?{g:true}:null); if (!ri) return 0; return ri.hand + (S.T.ready[ri.race] ? 0 : regionsOf(S,ri.race).reduce((s,i)=>s+S.O[i].n-1,0) + (rc(ri,'amazons')?Math.min(4,trayLeft(S,ri)):0)); }
 
 const Engine = { RACES, POWERS, TERR, COLORS, SIZES, DIE, MAP_W, MAP_H, fbm, vnoise, hash2, regionAt, buildMap, newGame, act, actor,
-  active, raceRI, regionsOf, onMap, isArmy, targets, handFor, comboName, trayLeft, handsLeft };
+  active, raceRI, regionsOf, canSorcery, onMap, isArmy, targets, handFor, comboName, trayLeft, handsLeft };
 if (typeof module!=='undefined' && module.exports) module.exports = Engine; else root.Engine = Engine;
 })(this);

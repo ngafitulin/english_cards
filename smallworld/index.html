@@ -51,7 +51,7 @@ h2{font-size:18px;margin:0 0 10px}
 #svg{pointer-events:none;overflow:visible}
 #svg text{font-family:var(--emoji)}
 .mapbtns{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px;z-index:3}
-.mapbtns button{width:40px;height:40px;padding:0;border-radius:50%;background:#000a;font-size:20px;backdrop-filter:blur(4px)}
+.mapbtns button{width:34px;height:34px;padding:0;border-radius:50%;background:#0008;opacity:.85;font-size:18px;font-size:20px;backdrop-filter:blur(4px)}
 #topbar{position:absolute;left:8px;top:8px;right:56px;display:flex;gap:6px;flex-wrap:wrap;z-index:3;pointer-events:none}
 .chip{background:#000b;backdrop-filter:blur(4px);border-radius:99px;padding:6px 11px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
 #loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0b0907;z-index:4;color:var(--muted)}
@@ -93,7 +93,7 @@ summary{cursor:pointer;font-weight:600}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111e;color:#fff;padding:10px 16px;border-radius:10px;
   font-size:14px;z-index:99;pointer-events:none;opacity:0;transition:opacity .2s;max-width:90vw;text-align:center}
 #toast.show{opacity:1}
-#scorePop{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:95;background:#2b2112f2;border:2px solid var(--acc);border-radius:14px;
+#scorePop{position:fixed;left:50%;top:calc(52px + env(safe-area-inset-top));transform:translateX(-50%);z-index:95;background:#2b2112f2;border:2px solid var(--acc);border-radius:14px;
   padding:10px 16px;min-width:220px;box-shadow:0 10px 30px #000a;pointer-events:none;transition:opacity .3s;opacity:0}
 #scorePop.show{opacity:1}
 #scorePop b{font-size:18px;display:block;margin-bottom:4px}
@@ -233,6 +233,7 @@ function show(id){ for (const s of ['lobby','room','game']) $(s).hidden = s!==id
 function myName(){ return ($('myname').value.trim() || 'Вождь').slice(0,16); }
 function genCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
 function esc(s){ return String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+function col(i){ return (E.COLORS[i]||{c:'#888888'}).c; }
 function rgb(hex){ const n=parseInt(hex.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
 function plural(n, a, b, c){ const m=n%10, h=n%100; return n+' '+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<10||h>=20))?b:c); }
 function comboTitle(ri){ return E.POWERS[ri.power].name+' '+E.RACES[ri.race].name.toLowerCase(); }
@@ -255,6 +256,8 @@ function renderResume(){
   if ($('rClient')) $('rClient').onclick = ()=>joinRoom(cl.code);
 }
 $('bLocal').onclick = ()=>{
+  const loc=LS.get('sw-local');
+  if (loc && loc.S && !loc.S.over && !confirm('Начать новую игру? Незаконченная партия на этом телефоне будет удалена.')) return;
   LS.set('sw-name', myName());
   const names = Array.from({length:npSel},(_,i)=> i===0 ? myName() : 'Игрок '+(i+1));
   S = E.newGame(names); NET={mode:'local'}; MY=null; saveLocal(); startGameUI();
@@ -305,26 +308,67 @@ $('bShare').onclick = async ()=>{
 function mkId(){ return Math.random().toString(36).slice(2,10); }
 const SEEN_IDS = new Set();
 function dupe(id){ if (!id) return false; if (SEEN_IDS.has(id)) return true; SEEN_IDS.add(id); if (SEEN_IDS.size>800) SEEN_IDS.clear(); return false; }
+const KEYS = {};
+const b64 = u8 => { let t=''; for (let i=0;i<u8.length;i++) t+=String.fromCharCode(u8[i]); return btoa(t); };
+const unb64 = t => Uint8Array.from(atob(t), c=>c.charCodeAt(0));
+// Ключ шифрования и скрытое имя канала выводятся из кода комнаты: без кода сообщения не прочитать и не подделать
+function roomKey(code){
+  if (KEYS[code]) return KEYS[code];
+  return KEYS[code] = (async()=>{
+    const enc=new TextEncoder();
+    const base=await crypto.subtle.importKey('raw', enc.encode('sw-room:'+code), 'PBKDF2', false, ['deriveBits']);
+    const bits=new Uint8Array(await crypto.subtle.deriveBits({ name:'PBKDF2', salt:enc.encode('smallworld-p100/v1'), iterations:120000, hash:'SHA-256' }, base, 512));
+    const key=await crypto.subtle.importKey('raw', bits.slice(0,32), 'AES-GCM', false, ['encrypt','decrypt']);
+    const topic=Array.from(bits.slice(32,48), x=>x.toString(16).padStart(2,'0')).join('');
+    return { key, topic };
+  })();
+}
 function netOpen(code, subs, onMsg, onConnect){
-  const base = TOPIC + code;
-  const clients = MQ_URLS.map(url=>{
-    let c;
-    try { c = mqtt.connect(url, { clientId:'sw_'+CID+'_'+mkId(), clean:true, reconnectPeriod:3000, connectTimeout:10000, keepalive:20 }); }
-    catch(e){ return null; }
-    c.on('connect', ()=>{ c.subscribe(subs.map(s=>base+s)); refreshNet(); if (onConnect) onConnect(); });
-    c.on('message', (topic, payload)=>{ let m; try { m = JSON.parse(payload.toString()); } catch(e){ return; }
-      if (!m || typeof m!=='object' || dupe(m.id)) return; onMsg(topic.slice(base.length), m); });
-    ['close','offline','reconnect'].forEach(ev=>c.on(ev, refreshNet));
-    c.on('error', ()=>{});
-    return c;
-  }).filter(Boolean);
+  let clients=[], K=null, base='';
+  const ready = roomKey(code).then(k=>{
+    K=k; base=TOPIC+k.topic;
+    clients = MQ_URLS.map(url=>{
+      let c;
+      try { c = mqtt.connect(url, { clientId:'sw_'+mkId()+mkId(), clean:true, reconnectPeriod:3000, connectTimeout:10000, keepalive:20 }); }
+      catch(e){ return null; }
+      c.on('connect', ()=>{ c.subscribe(subs.map(s=>base+s)); refreshNet(); if (onConnect) onConnect(); });
+      c.on('message', async (topic, payload)=>{
+        let m;
+        try { const raw=unb64(payload.toString()); const pt=await crypto.subtle.decrypt({ name:'AES-GCM', iv:raw.slice(0,12) }, K.key, raw.slice(12));
+              m=JSON.parse(new TextDecoder().decode(pt)); } catch(e){ return; }
+        if (!m || typeof m!=='object' || dupe(m.id)) return; onMsg(topic.slice(base.length), m); });
+      ['close','offline','reconnect'].forEach(ev=>c.on(ev, refreshNet));
+      c.on('error', ()=>{});
+      return c;
+    }).filter(Boolean);
+  }).catch(()=>toast('Онлайн-режим недоступен в этом браузере'));
   return {
-    pub(sub, obj, retain){ obj.id = obj.id || mkId(); const s = JSON.stringify(obj);
+    async pub(sub, obj, retain){
+      await ready; if (!K) return;
+      obj.id = obj.id || mkId();
+      const iv=crypto.getRandomValues(new Uint8Array(12));
+      const ct=new Uint8Array(await crypto.subtle.encrypt({ name:'AES-GCM', iv }, K.key, new TextEncoder().encode(JSON.stringify(obj))));
+      const msg=new Uint8Array(12+ct.length); msg.set(iv); msg.set(ct,12);
+      const s=b64(msg);
       clients.forEach(c=>{ if (c.connected) c.publish(base+sub, s, { qos:0, retain:!!retain }); }); },
     connected(){ return clients.some(c=>c.connected); },
     wake(){ clients.forEach(c=>{ if (!c.connected) { try{ c.reconnect(); }catch(e){} } }); },
-    end(){ clients.forEach(c=>{ try{ c.end(true); }catch(e){} }); },
+    end(){ ready.then(()=>clients.forEach(c=>{ try{ c.end(true); }catch(e){} })); },
   };
+}
+// Проверка присланного состояния: только известные расы, способности и разумные числа
+function validState(X){
+  try {
+    if (!X || !Array.isArray(X.P) || !Array.isArray(X.O) || !Array.isArray(X.R) || X.O.length!==X.R.length) return false;
+    if (!(X.np>=2 && X.np<=5) || X.P.length!==X.np) return false;
+    for (const pl of X.P){ if (typeof pl.name!=='string' || !Number.isFinite(pl.coins) || !Array.isArray(pl.races)) return false;
+      for (const ri of pl.races) if (!E.RACES[ri.race] || !E.POWERS[ri.power] || !Number.isFinite(ri.hand)) return false; }
+    for (const o of X.O) if (o && ((o.race!=='lost' && !E.RACES[o.race]) || !Number.isFinite(o.n) || !Number.isInteger(o.p))) return false;
+    for (const c of X.shown||[]) if (!E.RACES[c.race] || !E.POWERS[c.power]) return false;
+    for (const R of X.R) if (!E.TERR[R.terr] || !Number.isFinite(R.ax) || !Number.isFinite(R.ay)) return false;
+    if (!Array.isArray(X.log)) return false;
+    return true;
+  } catch(e){ return false; }
 }
 function becomeHost(code){
   const saved = LS.get('sw-host');
@@ -391,7 +435,8 @@ function onClientMsg(sub, m){
     return;
   }
   if (sub==='/state') {
-    if (!m.ver || m.ver<=NET.ver || !m.room) return;
+    if (!m.ver || m.ver<=NET.ver || !m.room || !Array.isArray(m.room.seats)) return;
+    if (m.S && !validState(m.S)) return;
     NET.ver = m.ver; NET.roomOn = m.on; NET.lastHb = Math.max(NET.lastHb, Date.now()-6000);
     ROOM = { code:m.room.code, np:m.room.np, seats:m.room.seats, started:m.room.started };
     const prevSeq = S && S.seq;
@@ -486,7 +531,9 @@ async function ensureMap(){
   $('loading').hidden=true;
   render();
 }
-function applyView(){ $('world').style.transform=`translate(${VIEW.tx}px,${VIEW.ty}px) scale(${VIEW.s})`; }
+function applyView(){ $('world').style.transform=`translate(${VIEW.tx}px,${VIEW.ty}px) scale(${VIEW.s})`;
+  const ts=Math.min(1.9, Math.max(1, 0.5/VIEW.s));
+  if (Math.abs(ts-(VIEW.ts||1))>0.05 && S && !$('game').hidden){ VIEW.ts=ts; cancelAnimationFrame(applyView.h); applyView.h=requestAnimationFrame(renderSVG); } }
 function clampView(){
   const box=$('mapbox').getBoundingClientRect(), w=MAPW*VIEW.s, h=MAPH*VIEW.s;
   VIEW.tx = w<=box.width ? (box.width-w)/2 : Math.min(0, Math.max(box.width-w, VIEW.tx));
@@ -563,7 +610,7 @@ function renderTop(){
   const v=viewer(), mine = v!=null && v>=0 ? S.P[v] : null;
   $('topbar').innerHTML =
     `<span class="chip">Ход ${Math.min(S.round,S.maxT)}/${S.maxT}</span>`+
-    (S.over ? '<span class="chip">🏁 Игра окончена</span>' : `<span class="chip"><span class="sw" style="background:${pl.color};margin:0"></span>${esc(pl.name)}</span>`)+
+    (S.over ? '<span class="chip">🏁 Игра окончена</span>' : `<span class="chip"><span class="sw" style="background:${col(p)};margin:0"></span>${esc(pl.name)}</span>`)+
     (mine ? `<span class="chip">🪙 ${mine.coins}</span>` : '')+ netBadge();
 }
 function renderOverlays(){
@@ -572,7 +619,7 @@ function renderOverlays(){
   if (OVKEY.own!==ownKey){
     OVKEY.own=ownKey;
     Painter.overlay($('cvOwn'), MAP, S.O.map(o=>{ if (!o || o.p<0) return null;
-      const c=rgb(S.P[o.p].color), d=E.raceRI(S,o.p,o.race)?.decl;
+      const c=rgb(col(o.p)), d=E.raceRI(S,o.p,o.race)?.decl;
       return [c[0],c[1],c[2], d?0.05:0.12, d?0.45:0.85, d?5:8]; }));
   }
   const tg=myTargets();
@@ -586,7 +633,7 @@ function renderOverlays(){
   }
 }
 function tokenSVG(x, y, o, cost){
-  let s='';
+  let s=`<g transform="translate(${x} ${y}) scale(${VIEW.ts||1}) translate(${-x} ${-y})">`;
   const big=24;
   if (o){
     const lost=o.p<0, ri=lost?null:E.raceRI(S,o.p,o.race), decl=ri&&ri.decl;
@@ -607,7 +654,7 @@ function tokenSVG(x, y, o, cost){
     s+=`<g filter="url(#sh)"><rect x="${x-21}" y="${cy-12}" width="42" height="24" rx="12" fill="#8b1f16" stroke="#ffd98a" stroke-width="2"/>`+
        `<text x="${x}" y="${cy+1}" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central" style="font-family:system-ui">⚔ ${cost}</text></g>`;
   }
-  return s;
+  return s+'</g>';
 }
 function renderSVG(){
   let defs='<defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="1.5" dy="3" stdDeviation="2.2" flood-color="#000" flood-opacity=".6"/></filter>'+
@@ -616,7 +663,7 @@ function renderSVG(){
     '<radialGradient id="faceD" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#d9d4c8"/><stop offset=".7" stop-color="#a69f90"/><stop offset="1" stop-color="#6f685a"/></radialGradient>'+
     '<radialGradient id="gl" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#bdb6a8"/><stop offset=".6" stop-color="#7d766a"/><stop offset="1" stop-color="#3f3a33"/></radialGradient>'+
     '<radialGradient id="spec" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#c9b78f"/></radialGradient>';
-  S.P.forEach((pl,i)=>{ const c=pl.color;
+  S.P.forEach((pl,i)=>{ const c=col(i);
     defs+=`<radialGradient id="g${i}" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".22" stop-color="${c}"/><stop offset="1" stop-color="#000" stop-opacity=".9"/></radialGradient>`+
           `<radialGradient id="gd${i}" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#ddd"/><stop offset=".3" stop-color="${c}" stop-opacity=".55"/><stop offset="1" stop-color="#222"/></radialGradient>`; });
   defs+='</defs>';
@@ -625,9 +672,9 @@ function renderSVG(){
   S.R.forEach((R,r)=>{
     const x=R.ax*1000, y=R.ay*1000, o=S.O[r];
     const sp=[]; if (R.magic) sp.push(ICO.magic); if (R.mine) sp.push(ICO.mine); if (R.cave) sp.push(ICO.cave);
-    const sy = o ? y-38 : y-(cost[r]!=null?30:0);
-    sp.forEach((e,k)=>{ const sx=x+(k-(sp.length-1)/2)*26;
-      body+=`<g filter="url(#sh)"><circle cx="${sx}" cy="${sy}" r="12" fill="url(#spec)" stroke="#4a3518" stroke-width="2"/><text x="${sx}" y="${sy+1}" font-size="14" text-anchor="middle" dominant-baseline="central">${e}</text></g>`; });
+    const k=VIEW.ts||1, sy = o ? y-38*k : y-(cost[r]!=null?30*k:0);
+    sp.forEach((e,j)=>{ const sx=x+(j-(sp.length-1)/2)*26*k;
+      body+=`<g filter="url(#sh)" transform="translate(${sx} ${sy}) scale(${k}) translate(${-sx} ${-sy})"><circle cx="${sx}" cy="${sy}" r="12" fill="url(#spec)" stroke="#4a3518" stroke-width="2"/><text x="${sx}" y="${sy+1}" font-size="14" text-anchor="middle" dominant-baseline="central">${e}</text></g>`; });
     body+=tokenSVG(x, y, o, cost[r]);
   });
   $('svg').innerHTML = defs+body;
@@ -642,7 +689,7 @@ function occText(o){
   if (!o) return 'Пусто';
   if (o.p<0) return `${ICO.lost} Затерянное племя · 1 фишка`;
   const ri=E.raceRI(S,o.p,o.race);
-  return `<span class="sw" style="background:${S.P[o.p].color}"></span>${esc(S.P[o.p].name)} · ${E.RACES[o.race].ico} ${comboTitle(ri)}${ri.decl?' (упадок)':''} · ${plural(o.n,'фишка','фишки','фишек')}`;
+  return `<span class="sw" style="background:${col(o.p)}"></span>${esc(S.P[o.p].name)} · ${E.RACES[o.race].ico} ${comboTitle(ri)}${ri.decl?' (упадок)':''} · ${plural(o.n,'фишка','фишки','фишек')}`;
 }
 function renderSheet(){
   const r=UI.sel;
@@ -670,7 +717,7 @@ function renderSheet(){
       }
       if (!ri.decl && ri.power==='dragon' && !S.T.dragonUsed && hand>=1) btn.push(`<button class="wide" data-a="dragon">🐉 Захватить драконом (1 фишка)</button>`);
     }
-    if (ri && !UI.g && ri.race==='sorcerers' && o && o.p>=0 && o.p!==p && o.n===1) btn.push(`<button class="wide" data-a="sorcery">🔮 Колдовство: превратить фишку</button>`);
+    if (ri && !UI.g && E.canSorcery(S,p,r)) btn.push(`<button class="wide" data-a="sorcery">🔮 Колдовство: превратить фишку</button>`);
     if (o && o.p===p){
       const ori=E.raceRI(S,p,o.race);
       if (ori && E.isArmy(ori) && !S.T.conq.some(c=>c.race===ori.race)) btn.push(`<button class="warn wide" data-a="abandon">Покинуть область (фишки в руку)</button>`);
@@ -679,7 +726,7 @@ function renderSheet(){
   if (act && (S.phase==='redeploy'||S.phase==='defense') && o && o.p===p){
     const ri=E.raceRI(S,p,o.race);
     if (ri && E.isArmy(ri)){
-      h+=`<div class="stepper"><button data-a="minus">−</button><span class="num">${o.n}</span><button data-a="plus" ${ri.hand<1?'disabled':''}>+</button>
+      h+=`<div class="stepper"><button data-a="minus" ${S.phase==='defense'||o.n<=1?'disabled':''}>−</button><span class="num">${o.n}</span><button data-a="plus" ${ri.hand<1?'disabled':''}>+</button>
           <button data-a="all" style="flex:1;font-size:14px" ${ri.hand<1?'disabled':''}>Всё из руки (${ri.hand})</button></div>`;
       if (S.phase==='redeploy' && !ri.decl){
         if (ri.power==='bivouacking') btn.push(`<button data-a="campMinus" ${o.camp?'':'disabled'}>⛺ Убрать лагерь</button><button data-a="campPlus">⛺ Поставить лагерь</button>`);
@@ -713,7 +760,7 @@ function renderSide(){
   if (S.over){
     const rank=S.P.map((x,i)=>({x,i})).sort((a,b)=>b.x.coins-a.x.coins);
     $('over').innerHTML=`<div class="over"><b>🏆 Победа: ${S.winners.map(i=>esc(S.P[i].name)).join(', ')}</b><br>`+
-      rank.map((o,k)=>`${k+1}. <span class="sw" style="background:${o.x.color}"></span>${esc(o.x.name)} — ${o.x.coins} 🪙`).join('<br>')+'</div>';
+      rank.map((o,k)=>`${k+1}. <span class="sw" style="background:${col(o.i)}"></span>${esc(o.x.name)} — ${o.x.coins} 🪙`).join('<br>')+'</div>';
   } else $('over').innerHTML='';
   // сообщение
   const who = NET.mode==='local' ? esc(pl.name) : (p===MY ? 'Ваш ход' : esc(pl.name));
@@ -735,7 +782,7 @@ function renderSide(){
     txt = me ? `На вас напали! Расставьте уцелевшие фишки (<b>${left}</b>) по своим областям.` : 'расставляет уцелевшие после нападения фишки.';
   }
   $('msg').className = me ? 'me' : '';
-  $('msg').style.borderLeftColor = pl.color;
+  $('msg').style.borderLeftColor = col(p);
   $('msg').innerHTML = S.over ? txt : `<span class="who">${who}</span>${txt}`;
   renderSheet();
   // управление
@@ -779,7 +826,7 @@ function renderSide(){
   $('players').innerHTML = S.P.map((x,i)=>{
     const races=x.races.map(ri=>`<div class="rc ${ri.decl?'dec':''}">${E.RACES[ri.race].ico} ${comboTitle(ri)}${ri.decl?' — упадок':''} · на карте ${E.onMap(S,ri.race)}${E.isArmy(ri)&&ri.hand?' · в руке '+ri.hand:''}</div>`).join('') || '<div class="rc">— без расы</div>';
     const coins = (S.over || i===v) ? `${x.coins} 🪙` : '🪙 ?';
-    return `<div class="pl ${i===p&&!S.over?'on':''}"><div class="nm"><span><span class="sw" style="background:${x.color}"></span>${esc(x.name)}${NET.mode!=='local'&&i===MY?' (вы)':''}</span><span>${coins}</span></div>${races}</div>`;
+    return `<div class="pl ${i===p&&!S.over?'on':''}"><div class="nm"><span><span class="sw" style="background:${col(i)}"></span>${esc(x.name)}${NET.mode!=='local'&&i===MY?' (вы)':''}</span><span>${coins}</span></div>${races}</div>`;
   }).join('');
   $('log').innerHTML = S.log.slice(-12).reverse().map(t=>`<div>${esc(t)}</div>`).join('');
   $('bAgain').hidden = !(S.over && NET.mode!=='client');
