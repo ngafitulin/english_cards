@@ -93,7 +93,7 @@
     }));
     const pirates = [];
     teams.forEach((t, ti) => { for (let i = 0; i < 3; i++) pirates.push({
-      id: pirates.length, team: ti, r: t.ship.r, c: t.ship.c, loc: 'ship', shipT: ti, trapped: false, step: 0, drunk: -1 }); });
+      id: pirates.length, team: ti, r: t.ship.r, c: t.ship.c, loc: 'ship', shipT: ti, trapped: false, step: 0, drunk: -1, coin: false }); });
     const S = {
       v: 1, mode: modeKey, names: (names || []).slice(0, M.players), teams, cells, pirates,
       turn: 0, turnNo: 0, pending: null, lost: 0, total: 37, over: false, log: [], seq: 0, last: null,
@@ -120,8 +120,8 @@
   function isFortLike(t) { return t.type === 'fort' || t.type === 'revive'; }
   function landStep(t) { return t.type === 'maze' ? 1 : null; }
 
-  function canEnter(S, p, r, c, carry) {
-    const t = S.cells[r][c];
+  function canEnter(S, p, r, c) {
+    const carry = !!p.coin, t = S.cells[r][c];
     if (t.rev && isFortLike(t)) {
       if (carry) return false;
       return enemiesOn(S, p, r, c, null).length === 0;
@@ -133,21 +133,17 @@
     return true;
   }
 
-  function carryAllowed(S, p) {
-    if (p.loc !== 'land') return false;
-    const t = S.cells[p.r][p.c];
-    return t.coins > 0;
-  }
+  function hasCoin(p) { return !!p.coin; }
 
   // Список клеток, куда может пойти пират (обычный ход)
-  function dests(S, p, carry) {
+  function dests(S, p) {
     if (S.over || S.pending || p.team !== S.turn || !canMove(S, p)) return [];
-    carry = !!carry && carryAllowed(S, p);
+    const carry = !!p.coin;
     const out = [];
     if (p.loc === 'ship') {
       const st = S.teams[p.shipT], sd = SIDES[st.pos];
       const r = st.ship.r + sd.fwd[0], c = st.ship.c + sd.fwd[1];
-      if (isLand(r, c) && canEnter(S, p, r, c, false)) out.push({ r, c });
+      if (isLand(r, c) && canEnter(S, p, r, c)) out.push({ r, c });
       return out;
     }
     if (p.loc === 'water') {
@@ -167,14 +163,14 @@
     }
     for (const [dr, dc] of DIRS) {
       const r = p.r + dr, c = p.c + dc;
-      if (isLand(r, c)) { if (canEnter(S, p, r, c, carry)) out.push({ r, c }); }
+      if (isLand(r, c)) { if (canEnter(S, p, r, c)) out.push({ r, c }); }
       else { const st = shipAt(S, r, c); if (st >= 0 && friendly(S, st, p.team)) out.push({ r, c }); }
     }
     if (t.type === 'plane' && !t.used) {
       const near = new Set(out.map(o => o.r + ',' + o.c));
       for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
         if ((r === p.r && c === p.c) || near.has(r + ',' + c)) continue;
-        if (isLand(r, c)) { if (canEnter(S, p, r, c, carry)) out.push({ r, c, fly: true }); }
+        if (isLand(r, c)) { if (canEnter(S, p, r, c)) out.push({ r, c, fly: true }); }
         else { const st = shipAt(S, r, c); if (st >= 0 && friendly(S, st, p.team)) out.push({ r, c, fly: true }); }
       }
     }
@@ -202,13 +198,13 @@
 
   function hasAction(S, ti) {
     const save = S.turn; S.turn = ti;
-    const ok = S.pirates.some(p => p.team === ti && (dests(S, p, false).length || canRevive(S, p))) || shipMoves(S, ti).length > 0;
+    const ok = S.pirates.some(p => p.team === ti && (dests(S, p).length || canRevive(S, p))) || shipMoves(S, ti).length > 0;
     S.turn = save;
     return ok;
   }
 
   // ---------- действия ----------
-  // a: {k:'move',pid,r,c,carry} | {k:'choose',r,c} | {k:'ship',r,c} | {k:'revive',pid}
+  // a: {k:'move',pid,r,c} | {k:'choose',r,c} | {k:'ship',r,c} | {k:'revive',pid}
   // seat: номер игрока, от которого пришло действие (null = локальная игра, без проверки)
   function act(S, seat, a) {
     if (!a || typeof a !== 'object') return 'Неверное действие';
@@ -230,11 +226,10 @@
     if (a.k === 'move') {
       const p = S.pirates[a.pid];
       if (!p || p.team !== S.turn) return 'Это не ваш пират';
-      const carry = !!a.carry && carryAllowed(S, p);
-      const d = dests(S, p, carry).find(x => x.r === a.r && x.c === a.c);
+      const d = dests(S, p).find(x => x.r === a.r && x.c === a.c);
       if (!d) return 'Туда нельзя';
       S.seq++;
-      startMove(S, p, d, carry);
+      startMove(S, p, d);
       return null;
     }
     if (a.k === 'ship') {
@@ -258,8 +253,8 @@
     return 'Неизвестное действие';
   }
 
-  function startMove(S, p, d, carry) {
-    const ctx = { pid: p.id, carry, start: { r: p.r, c: p.c, loc: p.loc, shipT: p.shipT, step: p.step }, depth: 0, seen: {} };
+  function startMove(S, p, d) {
+    const ctx = { pid: p.id, start: { r: p.r, c: p.c, loc: p.loc, shipT: p.shipT, step: p.step }, depth: 0, seen: {} };
     S.last = { pid: p.id, path: [[p.r, p.c]] };
     if (d.maze) {
       p.step++;
@@ -290,6 +285,7 @@
         return die(S, ctx, 'погиб у вражеского корабля');
       }
       p.loc = 'water'; p.r = r; p.c = c; p.step = 0; p.trapped = false;
+      if (p.coin) { p.coin = false; S.lost++; log(S, '🌊 Монета утонула вместе с пиратом'); }
       S.pirates.filter(q => q !== p && q.loc === 'water' && q.r === r && q.c === c && !friendly(S, q.team, p.team))
         .forEach(q => { q.loc = 'dead'; log(S, '🌊 Пирата (' + teamName(S, q.team) + ') побили в воде'); });
       log(S, '🌊 Пират (' + teamName(S, p.team) + ') плывёт');
@@ -302,6 +298,7 @@
     if (!t.rev) { t.rev = true; log(S, teamName(S, p.team) + ' открыли: ' + tileName(t)); }
     p.loc = 'land'; p.r = r; p.c = c; p.step = t.type === 'maze' ? 1 : 0; p.trapped = false;
     if (isFortLike(t)) {
+      if (p.coin) return die(S, ctx, 'не смог войти в крепость с монетой');
       if (enemiesOn(S, p, r, c, null).length) return die(S, ctx, 'не пустили в крепость');
     } else {
       enemiesOn(S, p, r, c, landStep(t)).forEach(q => sendHome(S, q));
@@ -342,7 +339,7 @@
         const opts = [{ r, c, stay: true }];
         for (let rr = 0; rr < N; rr++) for (let cc = 0; cc < N; cc++) {
           if (rr === r && cc === c) continue;
-          if (isLand(rr, cc)) { if (!(ctx.carry && !canEnter(S, p, rr, cc, true)) && !(S.cells[rr][cc].rev && isFortLike(S.cells[rr][cc]) && enemiesOn(S, p, rr, cc, null).length)) opts.push({ r: rr, c: cc }); }
+          if (isLand(rr, cc)) { if (canEnter(S, p, rr, cc)) opts.push({ r: rr, c: cc }); }
           else { const st = shipAt(S, rr, cc); if (st >= 0 && friendly(S, st, p.team)) opts.push({ r: rr, c: cc }); }
         }
         S.pending = { ctx, opts, plane: true };
@@ -354,6 +351,9 @@
         log(S, '💥 Пушка выстрелила пиратом');
         return land(S, ctx, rr, cc, t.dir);
       }
+      case 'chest':
+        if (!p.coin && t.coins > 0) { t.coins--; p.coin = true; log(S, '🪙 ' + teamName(S, p.team) + ' подобрали монету'); }
+        return endMove(S, ctx, 'stay');
       default:
         return endMove(S, ctx, 'stay');
     }
@@ -368,34 +368,27 @@
 
   function board(S, ctx, st) {
     const p = S.pirates[ctx.pid], sh = S.teams[st].ship;
+    if (p.coin) { p.coin = false; S.teams[p.team].score++; log(S, '🪙 ' + teamName(S, p.team) + ' доставили монету!'); }
     Object.assign(p, { loc: 'ship', shipT: st, r: sh.r, c: sh.c, step: 0, trapped: false });
     return endMove(S, ctx, 'ship');
   }
 
   function die(S, ctx, why) {
     const p = S.pirates[ctx.pid];
+    if (p.coin) { S.cells[ctx.start.r][ctx.start.c].coins++; p.coin = false; log(S, '🪙 Монета осталась на клетке, где пират начинал ход'); }
     p.loc = 'dead'; p.trapped = false; p.step = 0;
     log(S, '☠ Пират (' + teamName(S, p.team) + ') ' + why);
     return endMove(S, ctx, 'dead');
   }
 
   function sendHome(S, q) {
+    if (q.coin) { S.cells[q.r][q.c].coins++; q.coin = false; log(S, '🪙 Монета осталась на клетке боя'); }
     const sh = S.teams[q.team].ship;
     Object.assign(q, { loc: 'ship', shipT: q.team, r: sh.r, c: sh.c, step: 0, trapped: false, drunk: -1 });
     log(S, '⚔ Пирата (' + teamName(S, q.team) + ') побили — он на корабле');
   }
 
   function endMove(S, ctx, res) {
-    const p = S.pirates[ctx.pid];
-    if (ctx.carry) {
-      const st = S.cells[ctx.start.r][ctx.start.c];
-      if (res === 'ship') { st.coins--; S.teams[p.team].score++; log(S, '🪙 ' + teamName(S, p.team) + ' доставили монету!'); }
-      else if (res === 'water') { st.coins--; S.lost++; log(S, '🌊 Монета утонула'); }
-      else if (res === 'stay' && p.loc === 'land' && !(p.r === ctx.start.r && p.c === ctx.start.c)) {
-        const t = S.cells[p.r][p.c];
-        if (!isFortLike(t)) { st.coins--; t.coins++; }
-      }
-    }
     nextTurn(S);
   }
 
@@ -413,7 +406,7 @@
 
   function nextTurn(S) {
     S.pending = null;
-    if (coinsLeft(S) === 0) { finish(S); return; }
+    if (coinsLeft(S) === 0 && !S.pirates.some(p => p.coin)) { finish(S); return; }
     for (let i = 0; i < S.teams.length; i++) {
       S.turn = (S.turn + 1) % S.teams.length;
       S.turnNo++;
@@ -449,6 +442,6 @@
   }
 
   const api = { N, SIDES, TEAM_INFO, MODES, TILE, MAZE_NAMES, isLand, isWater, inGrid, newGame, dests, shipMoves, canRevive,
-    canMove, drunkBlocked, carryAllowed, act, coinsLeft, shipAt, friendly, teamName, tileName, results, forceEnd, hasAction, buildDeck };
+    canMove, drunkBlocked, hasCoin, act, coinsLeft, shipAt, friendly, teamName, tileName, results, forceEnd, hasAction, buildDeck };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Engine = api;
 })(typeof window !== 'undefined' ? window : globalThis);

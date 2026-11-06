@@ -99,6 +99,20 @@ summary{cursor:pointer;font-weight:600}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 16px;border-radius:10px;
   font-size:14px;z-index:99;pointer-events:none;opacity:0;transition:opacity .2s}
 #toast.show{opacity:1}
+button.help{width:34px;height:34px;padding:0;border-radius:50%;background:#2a5872;font-size:18px;font-weight:800;flex-shrink:0}
+.modalWrap{position:fixed;inset:0;background:#000b;z-index:90;display:flex;align-items:flex-end;justify-content:center;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+@media (min-width:640px){.modalWrap{align-items:center}}
+.modalCard{background:var(--panel);width:100%;max-width:560px;max-height:88vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:0 -10px 40px #0008}
+@media (min-width:640px){.modalCard{border-radius:16px;max-height:80vh}}
+.modalHead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #ffffff1a;font-size:18px}
+.xbtn{width:32px;height:32px;padding:0;border-radius:50%;background:#0c2433;font-size:16px}
+.modalBody{overflow:auto;padding:10px 16px 18px}
+.legItem{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #ffffff14}
+.legItem:last-child{border-bottom:0}
+.legIco{font-size:34px;line-height:1;width:44px;text-align:center;flex-shrink:0}
+.legTxt b{display:block;font-size:16px;margin-bottom:2px}
+.legTxt span{font-size:14px;color:var(--muted);line-height:1.4}
 </style>
 </head>
 <body>
@@ -117,7 +131,10 @@ summary{cursor:pointer;font-weight:600}
     <h2>Присоединиться по коду</h2>
     <div class="row"><input id="joincode" placeholder="КОД" maxlength="5" autocapitalize="characters" autocomplete="off"><button id="bJoin" class="pri">Войти</button></div>
   </div>
-  <div class="card"><details id="rulesL"></details></div>
+  <div class="card">
+    <button id="bLegendLobby" style="width:100%;margin-bottom:10px">❔ Что означают клетки на поле</button>
+    <details id="rulesL"></details>
+  </div>
 </section>
 
 <section id="room" class="screen" hidden>
@@ -139,12 +156,11 @@ summary{cursor:pointer;font-weight:600}
   <div class="wrap">
     <div class="board" id="board"></div>
     <div class="panel">
-      <div class="top"><b>☠ Шакал</b><span class="net" id="net"></span></div>
+      <div class="top"><b>☠ Шакал</b><span style="display:flex;align-items:center;gap:8px"><span class="net" id="net"></span><button id="bLegendTop" class="help" title="Что означают клетки" aria-label="Легенда клеток">❔</button></span></div>
       <div id="over"></div>
       <div id="players"></div>
       <div id="msg"></div>
       <div class="acts">
-        <button id="bCarry" class="wide" hidden>🪙 Нести монету</button>
         <button id="bRevive" class="wide pri" hidden>🏯 Воскресить пирата (тратит ход)</button>
       </div>
       <div id="log"></div>
@@ -158,6 +174,12 @@ summary{cursor:pointer;font-weight:600}
   </div>
 </section>
 <div id="toast"></div>
+<div id="legendModal" class="modalWrap" hidden>
+  <div class="modalCard" role="dialog" aria-label="Что означают клетки">
+    <div class="modalHead"><b>Что означают клетки</b><button id="bLegendClose" class="xbtn" aria-label="Закрыть">✕</button></div>
+    <div id="legendBody" class="modalBody"></div>
+  </div>
+</div>
 
 <script src="mqtt.min.js"></script>
 <script src="engine.js"></script>
@@ -179,7 +201,7 @@ let S = null;              // состояние партии
 let NET = { mode: 'local' }; // local | host | client
 let ROOM = null;           // {code, mode, seats:[{name,cid}|null], started}
 let MY = null;             // мой номер игрока (онлайн)
-let UI = { sel: null, carry: true, ship: false, confirmEnd: false, lastTurnKey: '' };
+let UI = { sel: null, ship: false, confirmEnd: false, lastTurnKey: '' };
 
 // ---------- утилиты ----------
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove('show'),2200); }
@@ -466,7 +488,7 @@ function render(){
   const marks = new Map();
   if (mine) {
     if (S.pending) S.pending.opts.forEach(o=>marks.set(o.r+','+o.c,'opt'));
-    else if (sel) E.dests(S, sel, UI.carry).forEach(d=>marks.set(d.r+','+d.c,'dest'));
+    else if (sel) E.dests(S, sel).forEach(d=>marks.set(d.r+','+d.c,'dest'));
     else if (UI.ship) E.shipMoves(S, S.turn).forEach(d=>marks.set(d.r+','+d.c,'smv'));
   }
   const lastSet = new Set(); if (S.last && S.last.path) S.last.path.forEach(([r,c])=>lastSet.add(r+','+c));
@@ -496,8 +518,8 @@ function render(){
       const mk = p.trapped ? '⛓' : E.drunkBlocked(S,p) ? 'z' : (p.loc==='land' && S.cells[r][c].type==='maze') ? p.step : p.loc==='water' ? '≈' : '';
       const own = mine && p.team===S.turn && !S.pending;
       const isSel = p.id===UI.sel;
-      const lc = isSel && UI.carry && E.carryAllowed(S,p);
-      tk += `<span class="pir${own?' own':''}${isSel?' sel':''}${lc?' lc':''}${info.ink!=='#fff'?' light':''}" data-id="${p.id}" style="background:${info.color};color:${info.ink}" title="${info.name}${p.trapped?', в капкане':''}">${mk}</span>`;
+      const lc = E.hasCoin(p);
+      tk += `<span class="pir${own?' own':''}${isSel?' sel':''}${lc?' lc':''}${info.ink!=='#fff'?' light':''}" data-id="${p.id}" style="background:${info.color};color:${info.ink}" title="${info.name}${p.trapped?', в капкане':''}${lc?', несёт монету':''}">${mk}</span>`;
     }
     h += `<div class="${cls}" data-r="${r}" data-c="${c}" title="${esc(title)}"${style?` style="${style}"`:''}>${inner}${tk?`<div class="toks">${tk}</div>`:''}</div>`;
   }
@@ -536,9 +558,9 @@ function renderPanel(mine, sel){
     if (sel.trapped) m='Этот пират в капкане — его выручит только свой пират, пришедший на эту клетку.';
     else if (E.drunkBlocked(S,sel)) m='Пират пьян 🍺 и пропускает этот ход. Ходите другим.';
     else {
-      const ds=E.dests(S,sel,UI.carry);
+      const ds=E.dests(S,sel);
       m = ds.length ? 'Нажмите зелёную клетку, куда идти.' : 'Этому пирату сейчас некуда идти.';
-      if (E.carryAllowed(S,sel)) m += UI.carry ? '<br>🪙 Несёт монету: только по открытым клеткам, бить нельзя.' : '<br>Идёт без монеты.';
+      if (E.hasCoin(sel)) m += '<br>🪙 Несёт монету: только по открытым клеткам, атаковать нельзя, в крепость нельзя.';
     }
   } else if (UI.ship) m='Нажмите синюю клетку — куда сдвинуть корабль.';
   else m=`Ваш ход: <b style="color:${info.color==='#26262b'?'#ccc':info.color}">${info.name}</b>. Выберите пирата или нажмите на свой корабль, чтобы его сдвинуть.`;
@@ -546,10 +568,6 @@ function renderPanel(mine, sel){
   $('msg').innerHTML = m;
   $('msg').classList.toggle('me', mine && NET.mode!=='local');
 
-  const showCarry = mine && sel && !S.pending && E.carryAllowed(S,sel) && E.canMove(S,sel);
-  $('bCarry').hidden = !showCarry;
-  $('bCarry').textContent = UI.carry ? '🪙 Несёт монету — нажмите, чтобы идти без неё' : 'Без монеты — нажмите, чтобы взять монету';
-  $('bCarry').classList.toggle('on', UI.carry);
   $('bRevive').hidden = !(mine && sel && E.canRevive(S,sel));
   const ctl = NET.mode!=='client';
   $('bEnd').hidden = !ctl || S.over;
@@ -577,12 +595,12 @@ $('board').addEventListener('click', e=>{
   const tok = e.target.closest('.pir');
   const sel = UI.sel!=null ? S.pirates[UI.sel] : null;
   if (sel) {
-    const d = E.dests(S,sel,UI.carry).find(d=>d.r===r&&d.c===c);
-    if (d) return doAct({ k:'move', pid:sel.id, r, c, carry:UI.carry && E.carryAllowed(S,sel) });
+    const d = E.dests(S,sel).find(d=>d.r===r&&d.c===c);
+    if (d) return doAct({ k:'move', pid:sel.id, r, c });
   }
   if (tok) {
     const p = S.pirates[+tok.dataset.id];
-    if (p.team===S.turn) { UI.sel = p.id===UI.sel ? null : p.id; UI.ship=false; UI.carry=E.carryAllowed(S,p); render(); return; }
+    if (p.team===S.turn) { UI.sel = p.id===UI.sel ? null : p.id; UI.ship=false; render(); return; }
   }
   if (UI.ship && E.shipMoves(S,S.turn).some(d=>d.r===r&&d.c===c)) return doAct({k:'ship',r,c});
   const sh = S.teams[S.turn].ship;
@@ -592,7 +610,6 @@ $('board').addEventListener('click', e=>{
   }
   UI.sel=null; UI.ship=false; render();
 });
-$('bCarry').onclick = ()=>{ UI.carry=!UI.carry; render(); };
 $('bRevive').onclick = ()=>{ if (UI.sel!=null) doAct({ k:'revive', pid:UI.sel }); };
 $('bMenu').onclick = ()=>{ show('lobby'); renderResume(); };
 $('bEnd').onclick = ()=>{
@@ -609,8 +626,8 @@ const RULES = `<summary>Правила и клетки</summary>
 <p><b>Цель</b> — перетащить на свой корабль больше монет, чем соперники. Всего на острове 37 монет в 16 сундуках. Игра кончается, когда на острове не осталось монет.</p>
 <p><b>Ход:</b> один пират делает шаг на соседнюю клетку (в т.ч. по диагонали) <b>или</b> корабль сдвигается вдоль своего берега на 1 клетку (если на нём есть ваш пират). Пропускать ход нельзя.</p>
 <p>С корабля сходят только на клетку <b>прямо перед ним</b>. Вернуться на корабль можно с клетки перед ним или по диагонали. На чужой корабль — смерть.</p>
-<p><b>Монеты:</b> пират несёт одну монету. С монетой ходят только по открытым клеткам, бить врагов нельзя, в крепость нельзя. Упал в воду с монетой — монета тонет.</p>
-<p><b>Бой:</b> встал на клетку с врагом — враг без монеты улетает на свой корабль. В воде побитый пират погибает. Корабль давит вражеских пловцов.</p>
+<p><b>Монеты:</b> пират подбирает монету автоматически, встав на сундук, и несёт её с собой, на какой бы клетке он ни стоял — специально положить её на другую клетку нельзя. С монетой ходят только по открытым клеткам, бить врагов нельзя, в крепость нельзя. Упал в воду с монетой — монета тонет навсегда.</p>
+<p><b>Бой:</b> встал на клетку с врагом — враг улетает на свой корабль, а его монета, если она у него была, остаётся лежать на этой клетке. Пират, который сам погиб (людоед, чужой корабль, запутался в стрелках), оставляет монету на клетке, с которой начал этот ход. В воде побитый пират погибает. Корабль давит вражеских пловцов.</p>
 <p><b>Вода:</b> пловец за ход проплывает 1 клетку и может забраться только на свой корабль.</p>
 <div class="leg">
 <span>➚</span><span>Стрелка — сразу идёшь по ней (несколько — выбираешь)</span>
@@ -630,6 +647,40 @@ const RULES = `<summary>Правила и клетки</summary>
 </div>
 <p style="margin-top:8px">Пират, зашедший в замкнутый круг (стрелки друг на друга, стрелка на крокодила), погибает.</p>`;
 $('rulesL').innerHTML = RULES; $('rulesG').innerHTML = RULES;
+
+// ---------- легенда (крупная, для слабовидящих и новичков) ----------
+const LEGEND = [
+  ['💰','Сундук','Монеты, 1–5 штук. Пират, вставший на сундук, автоматически подбирает одну монету — если ещё ничего не несёт.'],
+  ['➚','Стрелка','Пират сразу идёт в указанную сторону. Если стрелок несколько — выберите, в какую.'],
+  ['🐴','Конь','Пират сразу прыгает ходом шахматного коня (буквой «Г»).'],
+  ['🧊','Лёд','Пират сразу скользит дальше в ту же сторону, в которую шёл.'],
+  ['🐊','Крокодил','Пират возвращается на клетку, с которой пришёл на эту.'],
+  ['👹','Людоед','Пират погибает. Вернуть его может только аборигенка.'],
+  ['⛓️','Капкан','Пират застревает здесь, пока на эту же клетку не придёт его товарищ по команде.'],
+  ['🍺','Бочонок рома','Пират напился и пропускает свой следующий ход.'],
+  ['🌴','Джунгли (2 хода)','Чтобы пройти клетку насквозь, нужно простоять на ней 2 хода подряд.'],
+  ['🏜️','Пустыня (3 хода)','Чтобы пройти клетку насквозь, нужно простоять на ней 3 хода подряд.'],
+  ['🐸','Болото (4 хода)','Чтобы пройти клетку насквозь, нужно простоять на ней 4 хода подряд.'],
+  ['⛰️','Горы (5 ходов)','Чтобы пройти клетку насквозь, нужно простоять на ней 5 ходов подряд.'],
+  ['🏰','Крепость','Здесь пирата нельзя побить. Нельзя входить с монетой.'],
+  ['🏯','Крепость с аборигенкой','Как крепость, и ещё можно потратить ход, чтобы воскресить погибшего товарища.'],
+  ['🎈','Воздушный шар','Сразу переносит пирата (с монетой, если она есть) прямо на его корабль.'],
+  ['✈️','Самолёт','Один раз за игру переносит пирата, со всей поклажей, в любую точку острова или на корабль.'],
+  ['💥','Пушка','Выстреливает пиратом в сторону моря. Попал на свой корабль — доставил монету, в воду или на чужой корабль — погиб.'],
+];
+function buildLegend(){
+  $('legendBody').innerHTML =
+    `<div class="legItem"><span class="legIco">🟫</span><div class="legTxt"><b>Закрытая клетка</b><span>Переверните её, наступив на неё — узнаете, что там.</span></div></div>` +
+    LEGEND.map(([ico,name,d])=>`<div class="legItem"><span class="legIco">${ico}</span><div class="legTxt"><b>${name}</b><span>${d}</span></div></div>`).join('') +
+    `<div class="legItem"><span class="legIco">⛵</span><div class="legTxt"><b>Корабль</b><span>Везёт ваших пиратов. Сходят они только на клетку прямо перед ним.</span></div></div>` +
+    `<div class="legItem"><span class="legIco" style="font-size:26px">⬤<span style="position:relative;left:-26px;top:7px;font-size:14px">🪙</span></span><div class="legTxt"><b>Жёлтая точка на пирате</b><span>Этот пират несёт монету. С монетой он ходит только по открытым клеткам и не может атаковать.</span></div></div>`;
+}
+function openLegend(){ buildLegend(); $('legendModal').hidden=false; }
+function closeLegend(){ $('legendModal').hidden=true; }
+$('bLegendTop').onclick = openLegend;
+$('bLegendLobby').onclick = openLegend;
+$('bLegendClose').onclick = closeLegend;
+$('legendModal').addEventListener('click', e=>{ if (e.target.id==='legendModal') closeLegend(); });
 
 // ---------- старт ----------
 renderResume();
