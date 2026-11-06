@@ -135,15 +135,22 @@
 
   function hasCoin(p) { return !!p.coin; }
 
-  // Пират с монетой не может атаковать — даже в конце цепочки стрелок/коня/льда.
-  // Проверяем ход «на черновике»: годится, если хотя бы одно продолжение обходится без атаки.
-  const CARRY_ATTACK = { carryAttack: true };
-  function carrierSafe(S, a) {
+  // Запрещённый конец хода (атака с монетой, крепость с монетой или с врагом внутри, закрытая клетка с монетой).
+  // Ход проверяется «на черновике»: годится, если хотя бы одно продолжение законно.
+  // Черновик не заглядывает под закрытые клетки, чтобы не подсказывать, что там.
+  const ILLEGAL = { illegal: true }, UNKNOWN = { unknown: true };
+  const CHAIN = { arrow: 1, horse: 1, ice: 1, cannon: 1 };
+  function moveSafe(S, a) {
     const C = JSON.parse(JSON.stringify(S)); C._sim = true;
     try { act(C, null, a); }
-    catch (e) { if (e === CARRY_ATTACK) return false; throw e; }
-    if (C.pending && !C.pending.plane) return C.pending.opts.some(o => carrierSafe(C, { k: 'choose', r: o.r, c: o.c }));
+    catch (e) { if (e === ILLEGAL) return false; if (e === UNKNOWN) return true; throw e; }
+    if (C.pending && !C.pending.plane) return C.pending.opts.some(o => moveSafe(C, { k: 'choose', r: o.r, c: o.c }));
     return true;
+  }
+  function needsCheck(S, p, d) {
+    if (!isLand(d.r, d.c) || d.maze) return false;
+    const t = S.cells[d.r][d.c];
+    return t.rev && (p.coin || CHAIN[t.type]);
   }
 
   // Список клеток, куда может пойти пират (обычный ход)
@@ -185,7 +192,7 @@
         else { const st = shipAt(S, r, c); if (st >= 0 && friendly(S, st, p.team)) out.push({ r, c, fly: true }); }
       }
     }
-    if (carry && !S._sim) return out.filter(d => carrierSafe(S, { k: 'move', pid: p.id, r: d.r, c: d.c }));
+    if (!S._sim) return out.filter(d => !needsCheck(S, p, d) || moveSafe(S, { k: 'move', pid: p.id, r: d.r, c: d.c }));
     return out;
   }
 
@@ -307,15 +314,17 @@
     const key = r + ',' + c + ',' + vec[0] + ',' + vec[1];
     if (ctx.seen[key]) return die(S, ctx, 'попал в замкнутый круг и пропал');
     ctx.seen[key] = 1;
+    if (!t.rev && p.coin) return illegal(S, ctx, 'с монетой можно ходить только по открытым клеткам');
+    if (!t.rev && S._sim) throw UNKNOWN;
     if (!t.rev) { t.rev = true; log(S, teamName(S, p.team) + ' открыли: ' + tileName(t)); }
     p.loc = 'land'; p.r = r; p.c = c; p.step = t.type === 'maze' ? 1 : 0; p.trapped = false;
     if (isFortLike(t)) {
-      if (p.coin) return die(S, ctx, 'не смог войти в крепость с монетой');
-      if (enemiesOn(S, p, r, c, null).length) return die(S, ctx, 'не пустили в крепость');
+      if (p.coin) return illegal(S, ctx, 'с монетой в крепость нельзя');
+      if (enemiesOn(S, p, r, c, null).length) return illegal(S, ctx, 'крепость занята противником');
     } else {
       const en = enemiesOn(S, p, r, c, landStep(t));
-      if (en.length && p.coin) { if (S._sim) throw CARRY_ATTACK; }
-      else en.forEach(q => sendHome(S, q));
+      if (en.length && p.coin) return illegal(S, ctx, 'с монетой нападать нельзя');
+      en.forEach(q => sendHome(S, q));
     }
     switch (t.type) {
       case 'arrow':
@@ -363,7 +372,7 @@
           else { const st = shipAt(S, rr, cc); if (st >= 0 && friendly(S, st, p.team)) opts.push({ r: rr, c: cc }); }
         }
         S.pending = { ctx, opts, plane: true };
-        if (p.coin && !S._sim) S.pending.opts = opts.filter(o => o.stay || carrierSafe(S, { k: 'choose', r: o.r, c: o.c }));
+        if (!S._sim) S.pending.opts = opts.filter(o => o.stay || !needsCheck(S, p, o) || moveSafe(S, { k: 'choose', r: o.r, c: o.c }));
         return;
       }
       case 'cannon': {
@@ -382,10 +391,10 @@
     if (!opts.length) return endMove(S, ctx, 'stay');
     if (opts.length === 1) return land(S, ctx, opts[0].r, opts[0].c, opts[0].vec);
     S.pending = { ctx, opts, plane: false };
-    const p = S.pirates[ctx.pid];
-    if (p.coin && !S._sim) {
-      const safe = opts.filter(o => carrierSafe(S, { k: 'choose', r: o.r, c: o.c }));
-      if (safe.length) S.pending.opts = safe;
+    if (!S._sim) {
+      const safe = opts.filter(o => moveSafe(S, { k: 'choose', r: o.r, c: o.c }));
+      if (!safe.length) { S.pending = null; return illegal(S, ctx, 'все пути со стрелки закрыты'); }
+      S.pending.opts = safe;
     }
   }
 
@@ -394,6 +403,17 @@
     if (p.coin) { p.coin = false; S.teams[p.team].score++; log(S, '🪙 ' + teamName(S, p.team) + ' доставили монету!'); }
     Object.assign(p, { loc: 'ship', shipT: st, r: sh.r, c: sh.c, step: 0, trapped: false });
     return endMove(S, ctx, 'ship');
+  }
+
+  // Запрещённый путь: в черновике — отбраковка; в игре (если путь шёл через только что открытую клетку) —
+  // пират возвращается туда, откуда начал ход, со своей монетой.
+  function illegal(S, ctx, why) {
+    if (S._sim) throw ILLEGAL;
+    const p = S.pirates[ctx.pid], s = ctx.start;
+    Object.assign(p, { r: s.r, c: s.c, loc: s.loc, shipT: s.shipT, step: s.step, trapped: false });
+    if (s.loc === 'ship') { const sh = S.teams[s.shipT].ship; p.r = sh.r; p.c = sh.c; }
+    log(S, '🚫 ' + why[0].toUpperCase() + why.slice(1) + ' — пират вернулся, откуда начал ход');
+    return endMove(S, ctx, 'back');
   }
 
   function die(S, ctx, why) {
